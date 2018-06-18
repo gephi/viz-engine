@@ -1,14 +1,13 @@
 #version 100
 #define ARROW_HEIGHT 1.1
-#define WEIGHT_MINIMUM 0.4
-#define WEIGHT_MAXIMUM 8.0
 
 uniform mat4 mvp;
 uniform vec4 backgroundColor;
 uniform float colorLightenFactor;
-uniform float edgeScale;
 uniform float minWeight;
-uniform float maxWeight;
+uniform float weightDifferenceDivisor;
+uniform float edgeScaleMin;
+uniform float edgeScaleMax;
 
 attribute vec3 vert;
 attribute vec2 position;
@@ -23,12 +22,7 @@ attribute float targetSize;
 varying vec4 fragColor;
 
 void main() {
-    float thickness;
-    if(maxWeight <= minWeight) {
-        thickness = WEIGHT_MINIMUM;
-    } else {
-        thickness = mix(WEIGHT_MINIMUM, WEIGHT_MAXIMUM, (size - minWeight) / (maxWeight - minWeight)) * edgeScale;
-    }
+    float thickness = mix(edgeScaleMin, edgeScaleMax, (size - minWeight) / weightDifferenceDivisor);
 
     vec2 direction = targetPosition - position;
     vec2 directionNormalized = normalize(direction);

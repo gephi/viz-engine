@@ -35,6 +35,10 @@ public class Constants {
     public static final String UNIFORM_NAME_EDGE_SCALE = "edgeScale";
     public static final String UNIFORM_NAME_MIN_WEIGHT = "minWeight";
     public static final String UNIFORM_NAME_MAX_WEIGHT = "maxWeight";
+    public static final String UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR = "weightDifferenceDivisor";
+    public static final String UNIFORM_NAME_EDGE_SCALE_MIN = "edgeScaleMin";
+    public static final String UNIFORM_NAME_EDGE_SCALE_MAX = "edgeScaleMax";
+    
     public static final String UNIFORM_NAME_BACKGROUND_COLOR = "backgroundColor";
     public static final String UNIFORM_NAME_COLOR_LIGHTEN_FACTOR = "colorLightenFactor";
 
@@ -44,5 +48,8 @@ public class Constants {
 
     public static final float NODER_BORDER_DARKEN_FACTOR = 0.498f;//Configurable?
 
+    public static final float EDGE_SCALE_MIN = 0.4f;
+    public static final float EDGE_SCALE_MAX = 8.0f;
+    
     public static final String SHADERS_ROOT = "/org/gephi/viz-engine/shaders/";
 }

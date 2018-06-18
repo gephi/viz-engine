@@ -58,9 +58,10 @@ public class EdgeLineModelUndirected {
                 .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
                 .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
                 .addUniformName(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR)
-                .addUniformName(UNIFORM_NAME_EDGE_SCALE)
+                .addUniformName(UNIFORM_NAME_EDGE_SCALE_MIN)
+                .addUniformName(UNIFORM_NAME_EDGE_SCALE_MAX)
                 .addUniformName(UNIFORM_NAME_MIN_WEIGHT)
-                .addUniformName(UNIFORM_NAME_MAX_WEIGHT)
+                .addUniformName(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION_TARGET, SHADER_POSITION_TARGET_LOCATION)
@@ -107,9 +108,15 @@ public class EdgeLineModelUndirected {
         gl.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), 1, false, mvpFloats, 0);
         gl.glUniform4fv(program.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), 1, backgroundColorFloats, 0);
         gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
-        gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE), scale);
+        gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MIN), EDGE_SCALE_MIN * scale);
+        gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
         gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
-        gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_MAX_WEIGHT), maxWeight);
+
+        if (maxWeight <= minWeight) {
+            gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);
+        } else {
+            gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), maxWeight - minWeight);
+        }
     }
 
     public static float[] getVertexData() {

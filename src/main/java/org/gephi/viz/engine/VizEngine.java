@@ -140,7 +140,6 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
             throw new IllegalStateException("Call setup and start first!");
         }
 
-        animator.stop();
 
         try {
             updatersThreadPool.shutdown();
@@ -151,6 +150,8 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
         } catch (InterruptedException ex) {
             ex.printStackTrace();
             //NOOP
+        } finally {
+            animator.stop();
         }
     }
 
@@ -643,10 +644,12 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
                         f = null;
                 }
 
-                for (InputListener inputListener : inputListenersPipeline) {
-                    boolean consumed = f.apply(inputListener, (KeyEvent) event);
-                    if (consumed) {
-                        break;
+                if (f != null) {
+                    for (InputListener inputListener : inputListenersPipeline) {
+                        boolean consumed = f.apply(inputListener, (KeyEvent) event);
+                        if (consumed) {
+                            break;
+                        }
                     }
                 }
             } else if (event instanceof MouseEvent) {
