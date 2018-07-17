@@ -7,6 +7,7 @@ import com.jogamp.opengl.util.GLBuffers;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.gephi.graph.api.Edge;
+import org.gephi.graph.api.Graph;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.models.EdgeLineModelDirected;
 import org.gephi.viz.engine.models.EdgeLineModelUndirected;
@@ -41,9 +42,9 @@ public class InstancedEdgeData extends AbstractEdgeData {
         initBuffers(gl);
     }
 
-    public void update(VizEngine engine, GraphIndexImpl spatialIndex) {
+    public void update(VizEngine engine, GraphIndexImpl graphIndex) {
         updateData(
-                spatialIndex,
+                graphIndex,
                 engine.getLookup().lookup(GraphRenderingOptions.class),
                 engine.getLookup().lookup(GraphSelection.class)
         );
@@ -162,14 +163,14 @@ public class InstancedEdgeData extends AbstractEdgeData {
         //TODO: Persistent buffer if available?
     }
     
-    private void updateData(final GraphIndexImpl spatialIndex, final GraphRenderingOptions renderingOptions, final GraphSelection graphSelection) {
+    private void updateData(final GraphIndexImpl graphIndex, final GraphRenderingOptions renderingOptions, final GraphSelection graphSelection) {
         if (!renderingOptions.isShowEdges()) {
             undirectedInstanceCounter.clearCount();
             directedInstanceCounter.clearCount();
             return;
         }
 
-        spatialIndex.indexEdges();
+        graphIndex.indexEdges();
 
         //Selection:
         final boolean someEdgesSelection = graphSelection.getSelectedEdgesCount() > 0;
@@ -181,7 +182,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
         final float edgeInSelectionColor = Float.intBitsToFloat(renderingOptions.getEdgeInSelectionColor().getRGB());
         final float edgeOutSelectionColor = Float.intBitsToFloat(renderingOptions.getEdgeOutSelectionColor().getRGB());
 
-        final int totalEdges = spatialIndex.getEdgeCount();
+        final int totalEdges = graphIndex.getEdgeCount();
 
         final byte nextBufferIndex = (byte) ((currentBufferIndex + 1) % 3);
         final ManagedDirectBuffer attributesBuffer = attributesBuffersList[nextBufferIndex];
@@ -190,16 +191,20 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
         final FloatBuffer attribsDirectBuffer = attributesBuffer.floatBuffer();
 
-        spatialIndex.getVisibleEdges(edgesCallback);
+        graphIndex.getVisibleEdges(edgesCallback);
 
         final Edge[] visibleEdgesArray = edgesCallback.getEdgesArray();
         final int visibleEdgesCount = edgesCallback.getCount();
 
+        final Graph graph = graphIndex.getGraph();
+        
         updateUndirectedData(
+                graph,
                 someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
                 attributesBufferBatch, 0, attribsDirectBuffer
         );
         updateDirectedData(
+                graph,
                 someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
                 attributesBufferBatch, 0, attribsDirectBuffer
         );

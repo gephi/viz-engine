@@ -32,54 +32,54 @@ public class VizEngineDefaultConfigurator implements VizEngineConfigurator {
 
     @Override
     public void configure(VizEngine engine) {
-        final GraphIndexImpl spatialIndex = new GraphIndexImpl(engine);
+        final GraphIndexImpl graphIndex = new GraphIndexImpl(engine);
         final GraphSelection graphSelection = new GraphSelectionImpl(engine);
         final GraphSelectionNeighbours graphSelectionNeighbours = new GraphSelectionNeighboursImpl(engine);
         final GraphRenderingOptionsImpl renderingOptions = new GraphRenderingOptionsImpl();
 
-        engine.addToLookup(spatialIndex);
+        engine.addToLookup(graphIndex);
         engine.addToLookup(graphSelection);
         engine.addToLookup(graphSelectionNeighbours);
         engine.addToLookup(renderingOptions);
 
-        setupIndirectRendering(engine, spatialIndex);
-        setupInstancedRendering(engine, spatialIndex);
-        setupVertexArrayRendering(engine, spatialIndex);
+        setupIndirectRendering(engine, graphIndex);
+        setupInstancedRendering(engine, graphIndex);
+        setupVertexArrayRendering(engine, graphIndex);
 
         setupInputListeners(engine);
     }
 
-    private void setupIndirectRendering(VizEngine engine, GraphIndexImpl spatialIndex) {
+    private void setupIndirectRendering(VizEngine engine, GraphIndexImpl graphIndex) {
         //Only nodes supported, edges don't have a LOD to benefit from
         final IndirectNodeData nodeData = new IndirectNodeData();
 
         engine.addRenderer(new NodeRendererIndirect(engine, nodeData));
-        engine.addWorldUpdater(new NodesUpdaterIndirectRendering(engine, nodeData, spatialIndex));
+        engine.addWorldUpdater(new NodesUpdaterIndirectRendering(engine, nodeData, graphIndex));
     }
 
-    private void setupInstancedRendering(VizEngine engine, GraphIndexImpl spatialIndex) {
+    private void setupInstancedRendering(VizEngine engine, GraphIndexImpl graphIndex) {
         //Nodes:
         final InstancedNodeData nodeData = new InstancedNodeData();
         engine.addRenderer(new NodeRendererInstanced(engine, nodeData));
-        engine.addWorldUpdater(new NodesUpdaterInstancedRendering(engine, nodeData, spatialIndex));
+        engine.addWorldUpdater(new NodesUpdaterInstancedRendering(engine, nodeData, graphIndex));
 
         //Edges:
         final InstancedEdgeData indirectEdgeData = new InstancedEdgeData();
 
         engine.addRenderer(new EdgeRendererInstanced(engine, indirectEdgeData));
-        engine.addWorldUpdater(new EdgesUpdaterInstancedRendering(engine, indirectEdgeData, spatialIndex));
+        engine.addWorldUpdater(new EdgesUpdaterInstancedRendering(engine, indirectEdgeData, graphIndex));
     }
 
-    private void setupVertexArrayRendering(VizEngine engine, GraphIndexImpl spatialIndex) {
+    private void setupVertexArrayRendering(VizEngine engine, GraphIndexImpl graphIndex) {
         //Nodes:
         final ArrayDrawNodeData nodeData = new ArrayDrawNodeData();
         engine.addRenderer(new NodeRendererArrayDraw(engine, nodeData));
-        engine.addWorldUpdater(new NodesUpdaterArrayDrawRendering(engine, nodeData, spatialIndex));
+        engine.addWorldUpdater(new NodesUpdaterArrayDrawRendering(engine, nodeData, graphIndex));
 
         //Edges:
         final ArrayDrawEdgeData edgeData = new ArrayDrawEdgeData();
         engine.addRenderer(new EdgeRendererArrayDraw(engine, edgeData));
-        engine.addWorldUpdater(new EdgesUpdaterArrayDrawRendering(engine, edgeData, spatialIndex));
+        engine.addWorldUpdater(new EdgesUpdaterArrayDrawRendering(engine, edgeData, graphIndex));
     }
 
     private void setupInputListeners(VizEngine engine) {

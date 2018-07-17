@@ -13,6 +13,8 @@ import org.gephi.graph.api.Rect2D;
  * @author Eduardo Ramos
  */
 public interface GraphIndex {
+    
+    Graph getGraph();
 
     int getNodeCount();
 
