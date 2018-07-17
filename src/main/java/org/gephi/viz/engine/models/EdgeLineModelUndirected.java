@@ -5,6 +5,7 @@ import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
 import org.gephi.viz.engine.util.Constants;
 import static org.gephi.viz.engine.util.Constants.*;
+import org.gephi.viz.engine.util.NumberUtils;
 import org.gephi.viz.engine.util.gl.GLShaderProgram;
 
 /**
@@ -112,7 +113,7 @@ public class EdgeLineModelUndirected {
         gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
         gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
 
-        if (maxWeight <= minWeight) {
+        if (NumberUtils.equalsEpsilon(minWeight, maxWeight, 1e-3f)) {
             gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);
         } else {
             gl.glUniform1f(program.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), maxWeight - minWeight);
