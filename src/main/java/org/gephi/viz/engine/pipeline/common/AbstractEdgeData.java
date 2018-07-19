@@ -79,6 +79,8 @@ public class AbstractEdgeData {
             return index;
         }
 
+        saveSelectionState(someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+
         int newEdgesCountUnselected = 0;
         int newEdgesCountSelected = 0;
         if (someEdgesSelection) {
@@ -96,7 +98,7 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, selected, someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, selected);
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -117,7 +119,7 @@ public class AbstractEdgeData {
 
                     newEdgesCountUnselected++;
 
-                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, false, someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, false);
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -138,7 +140,7 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, true, someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -198,6 +200,8 @@ public class AbstractEdgeData {
             return index;
         }
 
+        saveSelectionState(someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+
         int newEdgesCountUnselected = 0;
         int newEdgesCountSelected = 0;
         //Undirected edges:
@@ -215,7 +219,7 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true, someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -236,7 +240,7 @@ public class AbstractEdgeData {
 
                     newEdgesCountUnselected++;
 
-                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, false, someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, false);
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -257,7 +261,7 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true, someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -308,6 +312,22 @@ public class AbstractEdgeData {
         }
     }
 
+    private boolean someNodesSelection;
+    private boolean edgeSelectionColor;
+    private GraphSelection graphSelection;
+    private float edgeBothSelectionColor;
+    private float edgeOutSelectionColor;
+    private float edgeInSelectionColor;
+
+    private void saveSelectionState(final boolean someNodesSelection1, final boolean edgeSelectionColor1, final GraphSelection graphSelection1, final float edgeBothSelectionColor1, final float edgeOutSelectionColor1, final float edgeInSelectionColor1) {
+        this.someNodesSelection = someNodesSelection1;
+        this.edgeSelectionColor = edgeSelectionColor1;
+        this.graphSelection = graphSelection1;
+        this.edgeBothSelectionColor = edgeBothSelectionColor1;
+        this.edgeOutSelectionColor = edgeOutSelectionColor1;
+        this.edgeInSelectionColor = edgeInSelectionColor1;
+    }
+
     protected void fillUndirectedEdgeAttributesDataBase(final float[] buffer, final Edge edge, final int index) {
         final Node source = edge.getSource();
         final Node target = edge.getTarget();
@@ -346,7 +366,7 @@ public class AbstractEdgeData {
         return index + ATTRIBS_STRIDE;
     }
 
-    protected int fillUndirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected, final boolean someNodesSelection, final boolean edgeSelectionColor, final GraphSelection graphSelection, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor) {
+    protected int fillUndirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
         final Node source = edge.getSource();
         final Node target = edge.getTarget();
 
@@ -431,7 +451,7 @@ public class AbstractEdgeData {
         return index + ATTRIBS_STRIDE;
     }
 
-    protected int fillDirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected, final boolean someNodesSelection, final boolean edgeSelectionColor, final GraphSelection graphSelection, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor) {
+    protected int fillDirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
         final Node source = edge.getSource();
         final Node target = edge.getTarget();
 
