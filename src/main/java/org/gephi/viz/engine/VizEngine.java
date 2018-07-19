@@ -13,6 +13,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.FPSAnimator;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +52,8 @@ import org.openide.util.lookup.InstanceContent;
  * @author Eduardo Ramos
  */
 public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyListener, com.jogamp.newt.event.MouseListener {
+
+    public static final int DEFAULT_MAX_WORLD_UPDATES_PER_SECOND = 30;
 
     //State
     private int width = 0;
@@ -92,6 +95,7 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
 
     //Settings:
     private final float[] backgroundColor = new float[]{1, 1, 1, 1};
+    private int maxWorldUpdatesPerSecond = DEFAULT_MAX_WORLD_UPDATES_PER_SECOND;
 
     //Lookup for communication between components:
     private final InstanceContent instanceContent;
@@ -140,10 +144,9 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
             throw new IllegalStateException("Call setup and start first!");
         }
 
-
         try {
             updatersThreadPool.shutdown();
-            boolean terminated = updatersThreadPool.awaitTermination(10, TimeUnit.SECONDS);
+            boolean terminated = updatersThreadPool.awaitTermination(DEFAULT_MAX_WORLD_UPDATES_PER_SECOND, TimeUnit.SECONDS);
             if (!terminated) {
                 updatersThreadPool.shutdownNow();
             }
@@ -467,16 +470,17 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
         gl.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
         gl.glClear(GL_COLOR_BUFFER_BIT);
 
-        //Call updaters again when all of them are finished:
-        boolean worldUpdateDone = allUpdatersCompletableFuture != null && allUpdatersCompletableFuture.isDone();
+        //Notify renderers when next world data update is done:
+        final boolean worldUpdateDone = allUpdatersCompletableFuture != null && allUpdatersCompletableFuture.isDone();
         if (worldUpdateDone) {
-            //Signal renderers:
+            allUpdatersCompletableFuture = null;
+
             for (Renderer renderer : renderersPipeline) {
                 renderer.worldUpdated(drawable);
             }
         }
 
-        //Call renderers:
+        //Call renderers for the current frame:
         for (RenderingLayer layer : RenderingLayer.values()) {
             for (Renderer renderer : renderersPipeline) {
                 if (renderer.getLayers().contains(layer)) {
@@ -485,18 +489,29 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
             }
         }
 
-        if (!updatersThreadPool.isShutdown()) {
-            if (allUpdatersCompletableFuture == null || worldUpdateDone) {
-                final CompletableFuture[] futures = new CompletableFuture[updatersPipeline.size()];
-                for (int i = 0; i < futures.length; i++) {
-                    final WorldUpdater worldUpdater = updatersPipeline.get(i);
-                    futures[i] = completableFutureOfUpdater(worldUpdater);
+        //Schedule next world update:
+        if (!updatersThreadPool.isShutdown() && allUpdatersCompletableFuture == null) {
+            //Control max world updates per second
+            if (maxWorldUpdatesPerSecond >= 1) {
+                if (System.currentTimeMillis() < lastWorldUpdateMillis + 1000 / maxWorldUpdatesPerSecond) {
+                    //Skip world update
+                    return;
                 }
-
-                allUpdatersCompletableFuture = CompletableFuture.allOf(futures);
             }
+
+            final CompletableFuture[] futures = new CompletableFuture[updatersPipeline.size()];
+            for (int i = 0; i < futures.length; i++) {
+                final WorldUpdater worldUpdater = updatersPipeline.get(i);
+                futures[i] = completableFutureOfUpdater(worldUpdater);
+            }
+
+            allUpdatersCompletableFuture = CompletableFuture.allOf(futures);
+
+            lastWorldUpdateMillis = System.currentTimeMillis();
         }
     }
+
+    private long lastWorldUpdateMillis = 0;
 
     public Lookup getLookup() {
         return lookup;
@@ -568,6 +583,14 @@ public class VizEngine implements GLEventListener, com.jogamp.newt.event.KeyList
         }
 
         System.arraycopy(color, 0, backgroundColor, 0, 4);
+    }
+
+    public int getMaxWorldUpdatesPerSecond() {
+        return maxWorldUpdatesPerSecond;
+    }
+
+    public void setMaxWorldUpdatesPerSecond(int maxWorldUpdatesPerSecond) {
+        this.maxWorldUpdatesPerSecond = maxWorldUpdatesPerSecond;
     }
 
     public float[] getModelViewProjectionMatrixFloats(float[] mvpFloats) {

@@ -22,12 +22,12 @@ public class MainGLCanvas implements KeyListener {
         glCanvas.setSize(1024, 768);
 
 
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("src/main/resources/samples/Les Miserables.gexf"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("src/main/resources/samples/Power Grid.gml"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("src/main/resources/samples/Java.gexf"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("src/main/resources/samples/mixed-sample.gexf"));
-        engine = VizEngineFactory.newEngine(glCanvas, GraphLoader.load("src/main/resources/samples/comic-hero-network.gexf"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("src/main/resources/samples/twitter_combined.csv"));
+        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Les Miserables.gexf"));
+        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Power Grid.gml"));
+        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Java.gexf"));
+        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/mixed-sample.gexf"));
+        engine = VizEngineFactory.newEngine(glCanvas, GraphLoader.load("samples/comic-hero-network.gexf"));
+        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/twitter_combined.csv"));
         engine.start();
 
         frame = new JFrame("VizEngine test");

@@ -19,7 +19,7 @@ void main() {
 
     //bgra -> rgba because Java color is argb big-endian
     vec4 color = elementColor.bgra / 255.0;
-    color.rgb = min(colorBias + color.rgb * colorMultiplier, 1.0);
+    color.rgb = colorBias + color.rgb * colorMultiplier;
     color.rgb = mix(color.rgb, backgroundColor.rgb, colorLightenFactor);
 
     fragColor = color;
