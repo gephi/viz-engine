@@ -13,7 +13,7 @@
         
         <gephi.graphstore.version>0.6.1-SNAPSHOT</gephi.graphstore.version>
         <jogl.version>2.3.2</jogl.version>
-        <joml.version>1.9.9</joml.version>
+        <joml.version>1.9.10</joml.version>
         <netbeans.version>RELEASE82</netbeans.version>
     </properties>
     
