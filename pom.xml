@@ -2,9 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.gephi</groupId>
-    <artifactId>viz-engine</artifactId>
+    <artifactId>viz-engine-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    
+    <name>Viz Engine Parent</name>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -12,52 +14,57 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         
         <gephi.graphstore.version>0.6.1-SNAPSHOT</gephi.graphstore.version>
-        <jogl.version>2.3.2</jogl.version>
         <joml.version>1.9.12</joml.version>
         <netbeans.version>RELEASE82</netbeans.version>
     </properties>
     
-    <dependencies>
-        <dependency>
-            <groupId>org.gephi</groupId>
-            <artifactId>graphstore</artifactId>
-            <version>${gephi.graphstore.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util-lookup</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
+    <modules>
+        <module>modules/engine-core</module>
+        <module>modules/engine-jogl</module>
+        <module>modules/demo-jogl</module>
+    </modules>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>graphstore</artifactId>
+                <version>${gephi.graphstore.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-util-lookup</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
         
-        <!-- JOGL -->
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all</artifactId>
-            <version>${jogl.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt</artifactId>
-            <version>${jogl.version}</version>
-            <scope>provided</scope>
-        </dependency>
+            <!-- JOML -->
+            <dependency>
+                <groupId>org.joml</groupId>
+                <artifactId>joml</artifactId>
+                <version>${joml.version}</version>
+            </dependency>
+            
+            <!-- Engine own modules -->
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>viz-engine-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>viz-engine-jogl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         
-        <!-- JOML -->
-        <dependency>
-            <groupId>org.joml</groupId>
-            <artifactId>joml</artifactId>
-            <version>${joml.version}</version>
-        </dependency>
-        
-        <!-- Test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+            <!-- Test -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     
     <!-- Repositories -->
     <repositories>
