@@ -15,7 +15,7 @@ import javax.swing.JFrame;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
-import org.gephi.viz.engine.jogl.pipeline.VizEngineJOGLConfigurator;
+import org.gephi.viz.engine.jogl.VizEngineJOGLConfigurator;
 
 public class Main implements KeyListener {
 
@@ -55,7 +55,7 @@ public class Main implements KeyListener {
 
         newtCanvas = new NewtCanvasAWT(glWindow);
 
-        frame = new JFrame("VizEngine test");
+        frame = new JFrame("VizEngine demo (JOGL NEWT)");
         frame.add(newtCanvas);
         frame.pack();
 

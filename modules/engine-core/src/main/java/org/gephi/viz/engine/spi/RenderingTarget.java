@@ -14,7 +14,11 @@ public interface RenderingTarget {
 
     void stop();
 
-    void frameStart();
+    default void frameStart() {
+        //NOOP
+    }
 
-    void frameEnd();
+    default void frameEnd() {
+        //NOOP
+    }
 }

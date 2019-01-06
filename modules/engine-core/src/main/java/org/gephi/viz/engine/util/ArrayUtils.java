@@ -62,4 +62,17 @@ public class ArrayUtils {
         }
         return (1 << power);
     }
+
+    public static final long getNextPowerOf2(long number) {
+        if (((number - 1) & number) == 0) {
+            //ex: 8 -> 0b1000; 8-1=7 -> 0b0111; 0b1000&0b0111 == 0
+            return number;
+        }
+        int power = 0;
+        while (number > 0) {
+            number = number >> 1;
+            power++;
+        }
+        return (1 << power);
+    }
 }

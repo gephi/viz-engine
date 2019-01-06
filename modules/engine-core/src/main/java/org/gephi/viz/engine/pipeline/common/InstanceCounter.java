@@ -28,4 +28,9 @@ public class InstanceCounter {
     public int totalToDraw() {
         return unselectedCountToDraw + selectedCountToDraw;
     }
+
+    @Override
+    public String toString() {
+        return "InstanceCounter{" + "unselectedCount=" + unselectedCount + ", selectedCount=" + selectedCount + ", unselectedCountToDraw=" + unselectedCountToDraw + ", selectedCountToDraw=" + selectedCountToDraw + '}';
+    }
 }

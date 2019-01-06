@@ -327,7 +327,7 @@ public class VizEngine<R extends RenderingTarget, I> {
         viewBoundaries = new Rect2D(minCoords.x, minCoords.y, maxCoords.x, maxCoords.y);
     }
 
-    public void reshape(int x, int y, int width, int height) {
+    public void reshape(int width, int height) {
         this.width = width;
         this.height = height;
 

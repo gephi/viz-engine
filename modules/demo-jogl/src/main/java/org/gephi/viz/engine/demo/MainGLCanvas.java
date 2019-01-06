@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
-import org.gephi.viz.engine.jogl.pipeline.VizEngineJOGLConfigurator;
+import org.gephi.viz.engine.jogl.VizEngineJOGLConfigurator;
 
 public class MainGLCanvas implements KeyListener {
 
@@ -44,7 +44,7 @@ public class MainGLCanvas implements KeyListener {
         engine.setup();
         engine.start();
 
-        frame = new JFrame("VizEngine test");
+        frame = new JFrame("VizEngine demo (JOGL GLCanvas)");
         frame.add(glCanvas);
         frame.addKeyListener(this);
         frame.pack();
