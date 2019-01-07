@@ -27,6 +27,7 @@ public class NodeRendererIndirect implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void init(JOGLRenderingTarget target) {
+        //NOOP
     }
 
     @Override

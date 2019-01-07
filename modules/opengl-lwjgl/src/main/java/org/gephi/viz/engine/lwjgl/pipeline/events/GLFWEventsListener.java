@@ -3,8 +3,8 @@ package org.gephi.viz.engine.lwjgl.pipeline.events;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.lwjgl.glfw.GLFW;
@@ -41,8 +41,10 @@ public class GLFWEventsListener {
     private long lastMiddleMouseButtonPressMillis = 0;
     private long lastRightMouseButtonPressMillis = 0;
 
-    private boolean isLeftMouseButtonPressed;
-    private boolean isRightMouseButtonPressed;
+    private AtomicBoolean isLeftMouseButtonPressed = new AtomicBoolean();
+    private AtomicBoolean isLeftMouseButtonPressEventSent = new AtomicBoolean();
+    private AtomicBoolean isRightMouseButtonPressed = new AtomicBoolean();
+    private AtomicBoolean isRightMouseButtonPressEventSent = new AtomicBoolean();
 
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor((Runnable r) -> {
         final Thread t = Executors.defaultThreadFactory().newThread(r);
@@ -82,17 +84,17 @@ public class GLFWEventsListener {
             final long now = System.currentTimeMillis();
             switch (action) {
                 case GLFW_RELEASE:
+                    final boolean isClick
+                            = (button == MouseEvent.Button.LEFT && isLeftMouseButtonPressed.get() && !isLeftMouseButtonPressEventSent.get() && (now - lastLeftMouseButtonPressMillis) < clickTimeDurationMillis)
+                            || (button == MouseEvent.Button.MIDDLE && (now - lastMiddleMouseButtonPressMillis) < clickTimeDurationMillis)
+                            || (button == MouseEvent.Button.RIGHT && isRightMouseButtonPressed.get() && !isRightMouseButtonPressEventSent.get() && (now - lastRightMouseButtonPressMillis) < clickTimeDurationMillis);
+
                     if (button == MouseEvent.Button.LEFT) {
-                        isLeftMouseButtonPressed = false;
+                        isLeftMouseButtonPressed.set(false);
                     }
                     if (button == MouseEvent.Button.RIGHT) {
-                        isRightMouseButtonPressed = false;
+                        isRightMouseButtonPressed.set(false);
                     }
-
-                    final boolean isClick
-                            = (button == MouseEvent.Button.LEFT && (now - lastLeftMouseButtonPressMillis) < clickTimeDurationMillis)
-                            || (button == MouseEvent.Button.MIDDLE && (now - lastMiddleMouseButtonPressMillis) < clickTimeDurationMillis)
-                            || (button == MouseEvent.Button.RIGHT && (now - lastRightMouseButtonPressMillis) < clickTimeDurationMillis);
 
                     if (isClick) {
                         engine.queueEvent(
@@ -106,37 +108,37 @@ public class GLFWEventsListener {
 
                     break;
                 case GLFW_PRESS:
-                    final boolean isDoubleClick
-                            = (button == MouseEvent.Button.LEFT && (now - lastLeftMouseButtonPressMillis) < doubleClickTimePeriodMillis)
-                            || (button == MouseEvent.Button.MIDDLE && (now - lastMiddleMouseButtonPressMillis) < doubleClickTimePeriodMillis)
-                            || (button == MouseEvent.Button.RIGHT && (now - lastRightMouseButtonPressMillis) < doubleClickTimePeriodMillis);
-
-                    if (isDoubleClick) {
-                        engine.queueEvent(
-                                MouseEvent.doubleClick(button, mouseX, mouseY)
-                        );
-                    }
-
                     switch (button) {
                         case LEFT:
                             lastLeftMouseButtonPressMillis = now;
-                            isLeftMouseButtonPressed = true;
+                            isLeftMouseButtonPressed.set(true);
+                            isLeftMouseButtonPressEventSent.set(false);
                             break;
                         case MIDDLE:
                             lastMiddleMouseButtonPressMillis = now;
                             break;
                         case RIGHT:
                             lastRightMouseButtonPressMillis = now;
-                            isRightMouseButtonPressed = true;
+                            isRightMouseButtonPressed.set(true);
+                            isRightMouseButtonPressEventSent.set(false);
                             break;
                     }
 
                     executorService.schedule(() -> {
-                        final boolean isPress
-                                = (button == MouseEvent.Button.LEFT && isLeftMouseButtonPressed)
-                                || (button == MouseEvent.Button.RIGHT && isRightMouseButtonPressed);
+                        final boolean sendPressEvent;
+                        switch (button) {
+                            case LEFT:
+                                sendPressEvent = isLeftMouseButtonPressed.get() && isLeftMouseButtonPressEventSent.compareAndSet(false, true);
+                                break;
+                            case RIGHT:
+                                sendPressEvent = isRightMouseButtonPressed.get() && isRightMouseButtonPressEventSent.compareAndSet(false, true);
+                                break;
+                            default:
+                                sendPressEvent = false;
+                                break;
+                        }
 
-                        if (isPress) {
+                        if (sendPressEvent) {
                             engine.queueEvent(
                                     MouseEvent.press(button, mouseX, mouseY)
                             );
@@ -150,10 +152,25 @@ public class GLFWEventsListener {
             //TODO: generate click, drag...
         });
         glfwSetCursorPosCallback(windowHandle, (windowHnd, xpos, ypos) -> {
+            final boolean isDragging = isLeftMouseButtonPressed.get() || isRightMouseButtonPressed.get();
+
+            if (isDragging) {
+                if (isLeftMouseButtonPressed.get() && isLeftMouseButtonPressEventSent.compareAndSet(false, true)) {
+                    engine.queueEvent(
+                            MouseEvent.press(MouseEvent.Button.LEFT, mouseX, mouseY)
+                    );
+                }
+                if (isRightMouseButtonPressed.get() && isRightMouseButtonPressEventSent.compareAndSet(false, true)) {
+                    engine.queueEvent(
+                            MouseEvent.press(MouseEvent.Button.RIGHT, mouseX, mouseY)
+                    );
+                }
+            }
+
             mouseX = (int) xpos;
             mouseY = (int) ypos;
 
-            if (isLeftMouseButtonPressed || isRightMouseButtonPressed) {
+            if (isDragging) {
                 engine.queueEvent(
                         MouseEvent.drag(mouseX, mouseY)
                 );

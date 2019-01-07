@@ -27,7 +27,7 @@ public class EdgeRendererArrayDraw implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void init(JOGLRenderingTarget target) {
-        edgeData.init(target.getDrawable().getGL().getGL2ES2());
+        //NOOP
     }
 
     @Override

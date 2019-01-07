@@ -26,7 +26,7 @@ public class NodeRendererArrayDraw implements Renderer<LWJGLRenderingTarget> {
 
     @Override
     public void init(LWJGLRenderingTarget target) {
-        nodeData.init();
+        //NOOP
     }
 
     @Override

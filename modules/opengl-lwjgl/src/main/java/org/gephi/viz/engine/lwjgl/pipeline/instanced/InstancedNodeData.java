@@ -140,7 +140,7 @@ public class InstancedNodeData extends AbstractNodeData {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             final FloatBuffer circleVertexBuffer = stack.floats(circleVertexData);
-
+            
             vertexGLBuffer = new GLBufferMutable(bufferName[VERT_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
             vertexGLBuffer.bind();
             vertexGLBuffer.init(circleVertexBuffer, GLBufferMutable.GL_BUFFER_USAGE_STATIC_DRAW);

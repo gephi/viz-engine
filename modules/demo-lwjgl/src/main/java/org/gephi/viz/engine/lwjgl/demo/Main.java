@@ -20,7 +20,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Main {
 
-    private static final boolean DISABLE_INDIRECT_RENDERING = true;//Does not work yet, not sure why
+    private static final boolean DISABLE_INDIRECT_RENDERING = true;//FIXME: Does not work yet, not sure why... blank screen
     private static final boolean DISABLE_INSTANCED_RENDERING = false;
     private static final boolean DISABLE_VAOS = false;
 

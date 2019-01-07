@@ -27,7 +27,7 @@ public class NodeRendererInstanced implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void init(JOGLRenderingTarget target) {
-        nodeData.init(target.getDrawable().getGL().getGL2ES3());
+        //NOOP
     }
 
     @Override

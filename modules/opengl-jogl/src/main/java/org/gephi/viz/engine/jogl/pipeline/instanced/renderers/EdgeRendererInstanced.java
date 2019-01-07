@@ -28,6 +28,7 @@ public class EdgeRendererInstanced implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void init(JOGLRenderingTarget target) {
+        //NOOP
     }
 
     @Override

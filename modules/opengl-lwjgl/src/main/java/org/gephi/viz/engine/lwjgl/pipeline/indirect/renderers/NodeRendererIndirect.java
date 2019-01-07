@@ -26,6 +26,7 @@ public class NodeRendererIndirect implements Renderer<LWJGLRenderingTarget> {
 
     @Override
     public void init(LWJGLRenderingTarget target) {
+        //NOOP
     }
 
     @Override

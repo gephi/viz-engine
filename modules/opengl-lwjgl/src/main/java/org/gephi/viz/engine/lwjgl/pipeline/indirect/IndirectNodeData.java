@@ -7,12 +7,12 @@ import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
+import org.gephi.viz.engine.lwjgl.util.gl.GLBufferImmutable;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.lwjgl.util.gl.GLBufferImmutable;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
 import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;
 import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
@@ -83,7 +83,6 @@ public class IndirectNodeData extends AbstractNodeData {
     }
 
     public void drawIndirect(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
-        //FIXME: Does not work yet, blank screen
         final float[] backgroundColorFloats = engine.getBackgroundColor();
 
         final int instanceCount;
@@ -107,7 +106,7 @@ public class IndirectNodeData extends AbstractNodeData {
 
             buffer.position(instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT);
             
-            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, buffer, instanceCount);
+            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, buffer, 3);
             unsetupVertexArrayAttributes();
         }
     }
@@ -141,8 +140,7 @@ public class IndirectNodeData extends AbstractNodeData {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             final FloatBuffer circleVertexBuffer = stack.floats(circleVertexData);
-            circleVertexBuffer.put(circleVertexData);
-
+            
             final int flags = 0;
             vertexGLBuffer = new GLBufferImmutable(bufferName[VERT_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
             vertexGLBuffer.bind();

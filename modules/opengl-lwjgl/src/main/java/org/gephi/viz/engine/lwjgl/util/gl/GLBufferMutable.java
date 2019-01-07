@@ -109,6 +109,8 @@ public class GLBufferMutable implements GLBuffer {
         }
 
         this.usage = usage;
+        final int elementBytes = bufferElementBytes(buffer);
+        sizeBytes = buffer.capacity() * elementBytes;
 
         bufferData(buffer);
     }

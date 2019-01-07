@@ -27,7 +27,7 @@ public class NodeRendererArrayDraw implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void init(JOGLRenderingTarget target) {
-        nodeData.init(target.getDrawable().getGL().getGL2ES2());
+        //NOOP
     }
 
     @Override
