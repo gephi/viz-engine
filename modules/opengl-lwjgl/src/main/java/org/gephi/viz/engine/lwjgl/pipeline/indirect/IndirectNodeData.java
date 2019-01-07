@@ -106,7 +106,7 @@ public class IndirectNodeData extends AbstractNodeData {
 
             buffer.position(instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT);
             
-            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, buffer, 3);
+            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, buffer, instanceCount);
             unsetupVertexArrayAttributes();
         }
     }

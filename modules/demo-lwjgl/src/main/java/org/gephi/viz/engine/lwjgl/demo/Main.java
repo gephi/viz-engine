@@ -20,7 +20,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Main {
 
-    private static final boolean DISABLE_INDIRECT_RENDERING = true;//FIXME: Does not work yet, not sure why... blank screen
+    private static final boolean DISABLE_INDIRECT_RENDERING = false;
     private static final boolean DISABLE_INSTANCED_RENDERING = false;
     private static final boolean DISABLE_VAOS = false;
 
@@ -31,7 +31,6 @@ public class Main {
     private long windowHandle;
 
     public void run() throws InterruptedException {
-        Configuration.DEBUG.set(true);
         init();
 
         final LWJGLRenderingTarget renderingTarget = new LWJGLRenderingTarget(windowHandle);
@@ -76,7 +75,6 @@ public class Main {
         // Configure GLFW
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
 
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);//DEBUG!!
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
         glfwWindowHint(GLFW_SAMPLES, 4);//4 samples anti-aliasing
