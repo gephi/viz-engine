@@ -18,6 +18,7 @@ import org.gephi.viz.engine.jogl.util.gl.GLBuffer;
 import org.gephi.viz.engine.jogl.util.gl.GLFunctions;
 import org.gephi.viz.engine.jogl.util.gl.GLVertexArrayObject;
 import org.gephi.viz.engine.jogl.util.gl.capabilities.GLCapabilitiesSummary;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.gephi.viz.engine.util.structure.EdgesCallback;
 
 /**
@@ -507,7 +508,10 @@ public class AbstractEdgeData {
 
     public void setupUndirectedVertexArrayAttributes(VizEngine engine, GL2ES2 gl) {
         if (undirectedEdgesVAO == null) {
-            undirectedEdgesVAO = new UndirectedEdgesVAO(engine.getLookup().lookup(GLCapabilitiesSummary.class));
+            undirectedEdgesVAO = new UndirectedEdgesVAO(
+                    engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                    engine.getLookup().lookup(OpenGLOptions.class)
+            );
         }
 
         undirectedEdgesVAO.use(gl);
@@ -519,7 +523,10 @@ public class AbstractEdgeData {
 
     public void setupDirectedVertexArrayAttributes(VizEngine engine, GL2ES2 gl) {
         if (directedEdgesVAO == null) {
-            directedEdgesVAO = new DirectedEdgesVAO(engine.getLookup().lookup(GLCapabilitiesSummary.class));
+            directedEdgesVAO = new DirectedEdgesVAO(
+                    engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                    engine.getLookup().lookup(OpenGLOptions.class)
+            );
         }
 
         directedEdgesVAO.use(gl);
@@ -547,8 +554,8 @@ public class AbstractEdgeData {
 
     private class UndirectedEdgesVAO extends GLVertexArrayObject {
 
-        public UndirectedEdgesVAO(GLCapabilitiesSummary capabilities) {
-            super(capabilities);
+        public UndirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions) {
+            super(capabilities, openGLOptions);
         }
 
         @Override
@@ -627,8 +634,8 @@ public class AbstractEdgeData {
 
     private class DirectedEdgesVAO extends GLVertexArrayObject {
 
-        public DirectedEdgesVAO(GLCapabilitiesSummary capabilities) {
-            super(capabilities);
+        public DirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions) {
+            super(capabilities, openGLOptions);
         }
 
         @Override

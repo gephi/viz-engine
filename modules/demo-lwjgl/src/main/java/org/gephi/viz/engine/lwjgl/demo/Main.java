@@ -9,7 +9,9 @@ import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.gephi.viz.engine.lwjgl.VizEngineLWJGLConfigurator;
+import org.gephi.viz.engine.lwjgl.pipeline.events.GLFWEventsListener;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -17,6 +19,10 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class Main {
+
+    private static final boolean DISABLE_INDIRECT_RENDERING = true;//Does not work yet, not sure why
+    private static final boolean DISABLE_INSTANCED_RENDERING = false;
+    private static final boolean DISABLE_VAOS = false;
 
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 760;
@@ -39,11 +45,13 @@ public class Main {
                 )
         );
 
-        glfwSetMouseButtonCallback(windowHandle, (window, button, action, modifiers) -> {
-            engine.queueEvent(
-                    new LWJGLInputEvent()
-            );
-        });
+        final OpenGLOptions glOptions = engine.getLookup().lookup(OpenGLOptions.class);
+        glOptions.setDisableIndirectDrawing(DISABLE_INDIRECT_RENDERING);
+        glOptions.setDisableInstancedDrawing(DISABLE_INSTANCED_RENDERING);
+        glOptions.setDisableVAOS(DISABLE_VAOS);
+
+        final GLFWEventsListener glfwEventsListener = new GLFWEventsListener(windowHandle, engine);
+        glfwEventsListener.register();
         engine.reshape(WIDTH, HEIGHT);
 
         engine.start();
@@ -82,13 +90,6 @@ public class Main {
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
-
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
-            }
-        });
 
         // Get the thread stack and push a new frame
         try (MemoryStack stack = stackPush()) {

@@ -22,6 +22,7 @@ import org.gephi.viz.engine.jogl.util.gl.BufferUtils;
 import org.gephi.viz.engine.jogl.util.gl.GLBuffer;
 import org.gephi.viz.engine.jogl.util.gl.GLBufferImmutable;
 import org.gephi.viz.engine.jogl.util.gl.GLBufferMutable;
+import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_BYTES;
 import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;
 
 /**
@@ -157,7 +158,7 @@ public class IndirectNodeData extends AbstractNodeData {
 
         commandsGLBuffer = new GLBufferMutable(bufferName.get(INDIRECT_DRAW_BUFFER), GLBufferMutable.GL_BUFFER_TYPE_DRAW_INDIRECT);
         commandsGLBuffer.bind(gl);
-        commandsGLBuffer.init(gl, INDIRECT_DRAW_COMMAND_INTS_COUNT * Integer.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
+        commandsGLBuffer.init(gl, INDIRECT_DRAW_COMMAND_BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         commandsGLBuffer.unbind(gl);
 
         for (int i = 0; i < NUM_BUFFERS; i++) {

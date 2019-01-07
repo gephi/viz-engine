@@ -2,13 +2,7 @@ package org.gephi.viz.engine.jogl.util.gl;
 
 import com.jogamp.opengl.GL;
 import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import static org.gephi.viz.engine.util.gl.Buffers.bufferElementBytes;
 
 /**
  *
@@ -35,32 +29,6 @@ public class GLBufferImmutable implements GLBuffer {
     @Override
     public void unbind(GL gl) {
         gl.glBindBuffer(type, 0);
-    }
-
-    private int bufferElementBytes(Buffer buf) {
-        if (buf instanceof FloatBuffer) {
-            return Float.BYTES;
-        }
-        if (buf instanceof IntBuffer) {
-            return Integer.BYTES;
-        }
-        if (buf instanceof ShortBuffer) {
-            return Short.BYTES;
-        }
-        if (buf instanceof ByteBuffer) {
-            return Byte.BYTES;
-        }
-        if (buf instanceof DoubleBuffer) {
-            return Double.BYTES;
-        }
-        if (buf instanceof LongBuffer) {
-            return Long.BYTES;
-        }
-        if (buf instanceof CharBuffer) {
-            return Character.BYTES;
-        }
-
-        return 1;
     }
 
     @Override
@@ -111,12 +79,12 @@ public class GLBufferImmutable implements GLBuffer {
     }
 
     @Override
-    public void update(GL gl, Buffer buffer, long size) {
-        update(gl, buffer, 0, size);
+    public void update(GL gl, Buffer buffer, long sizeBytes) {
+        update(gl, buffer, 0, sizeBytes);
     }
 
     @Override
-    public void update(GL gl, Buffer buffer, long offset, long size) {
+    public void update(GL gl, Buffer buffer, long offsetBytes, long sizeBytes) {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");
         }
@@ -124,10 +92,10 @@ public class GLBufferImmutable implements GLBuffer {
             throw new IllegalStateException("You should bind the buffer first!");
         }
 
-        final long neededBytesCapacity = offset + size;
+        final long neededBytesCapacity = offsetBytes + sizeBytes;
         ensureCapacity(gl, neededBytesCapacity);
 
-        gl.glBufferSubData(type, offset, size, buffer);
+        gl.glBufferSubData(type, offsetBytes, sizeBytes, buffer);
     }
 
     @Override

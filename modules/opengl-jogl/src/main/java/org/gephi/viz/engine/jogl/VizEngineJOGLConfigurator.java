@@ -32,6 +32,7 @@ import org.gephi.viz.engine.status.GraphSelectionImpl;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.status.GraphSelectionNeighboursImpl;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 /**
  *
@@ -78,11 +79,13 @@ public class VizEngineJOGLConfigurator implements VizEngineConfigurator<JOGLRend
         final GraphSelection graphSelection = new GraphSelectionImpl(engine);
         final GraphSelectionNeighbours graphSelectionNeighbours = new GraphSelectionNeighboursImpl(engine);
         final GraphRenderingOptionsImpl renderingOptions = new GraphRenderingOptionsImpl();
+        final OpenGLOptions openGLOptions = new OpenGLOptions();
 
         engine.addToLookup(graphIndex);
         engine.addToLookup(graphSelection);
         engine.addToLookup(graphSelectionNeighbours);
         engine.addToLookup(renderingOptions);
+        engine.addToLookup(openGLOptions);
 
         setupIndirectRendering(engine, graphIndex);
         setupInstancedRendering(engine, graphIndex);

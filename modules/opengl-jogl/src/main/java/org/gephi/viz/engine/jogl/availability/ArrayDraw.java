@@ -2,7 +2,7 @@ package org.gephi.viz.engine.jogl.availability;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.util.gl.DebugConstants;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 /**
  *
@@ -15,7 +15,7 @@ public class ArrayDraw {
     }
 
     public static boolean isAvailable(VizEngine engine, GLAutoDrawable drawable) {
-        if (DebugConstants.DEBUG_DISABLE_VERTEX_ARRAY_DRAWING) {
+        if (engine.getLookup().lookup(OpenGLOptions.class).isDisableVertexArrayDrawing()) {
             return false;
         }
 

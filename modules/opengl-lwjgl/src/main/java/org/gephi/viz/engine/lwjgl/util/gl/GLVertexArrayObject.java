@@ -1,6 +1,6 @@
 package org.gephi.viz.engine.lwjgl.util.gl;
 
-import org.gephi.viz.engine.util.gl.DebugConstants;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
@@ -19,8 +19,8 @@ public abstract class GLVertexArrayObject {
     private int[] instancedAttributeLocations;
     private int arrayId = -1;
 
-    public GLVertexArrayObject(GLCapabilities capabilities) {
-        vaoSupported = capabilities.GL_ARB_vertex_array_object && !DebugConstants.DEBUG_DISABLE_VAOS;
+    public GLVertexArrayObject(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
+        vaoSupported = capabilities.GL_ARB_vertex_array_object && !openGLOptions.isDisableVAOS();
     }
 
     private void init() {

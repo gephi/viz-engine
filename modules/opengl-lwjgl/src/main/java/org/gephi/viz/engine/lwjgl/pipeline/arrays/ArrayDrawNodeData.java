@@ -43,7 +43,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
     private final InstanceCounter instanceCounter = new InstanceCounter();
 
-    private int[] bufferName;
+    private final int[] bufferName = new int[3];
 
     private static final int VERT_BUFFER = 0;
 
@@ -168,7 +168,6 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     private void initBuffers() {
         attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2];
 
-        bufferName = new int[3];
         glGenBuffers(bufferName);
 
         final float[] circleVertexData = new float[diskModel64.getVertexData().length + diskModel32.getVertexData().length + diskModel16.getVertexData().length + diskModel8.getVertexData().length];

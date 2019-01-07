@@ -9,6 +9,9 @@ import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.indirect.IndirectNodeData;
 import org.gephi.viz.engine.lwjgl.pipeline.indirect.renderers.NodeRendererIndirect;
 import org.gephi.viz.engine.lwjgl.pipeline.indirect.updaters.NodesUpdaterIndirectRendering;
+import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedNodeData;
+import org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers.NodeRendererInstanced;
+import org.gephi.viz.engine.lwjgl.pipeline.instanced.updaters.NodesUpdaterInstancedRendering;
 import org.gephi.viz.engine.spi.VizEngineConfigurator;
 import org.gephi.viz.engine.status.GraphRenderingOptionsImpl;
 import org.gephi.viz.engine.status.GraphSelection;
@@ -16,6 +19,7 @@ import org.gephi.viz.engine.status.GraphSelectionImpl;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.status.GraphSelectionNeighboursImpl;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 /**
  *
@@ -29,11 +33,13 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         final GraphSelection graphSelection = new GraphSelectionImpl(engine);
         final GraphSelectionNeighbours graphSelectionNeighbours = new GraphSelectionNeighboursImpl(engine);
         final GraphRenderingOptionsImpl renderingOptions = new GraphRenderingOptionsImpl();
+        final OpenGLOptions openGLOptions = new OpenGLOptions();
 
         engine.addToLookup(graphIndex);
         engine.addToLookup(graphSelection);
         engine.addToLookup(graphSelectionNeighbours);
         engine.addToLookup(renderingOptions);
+        engine.addToLookup(openGLOptions);
 
         setupIndirectRendering(engine, graphIndex);
         setupInstancedRendering(engine, graphIndex);
@@ -52,7 +58,9 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
 
     private void setupInstancedRendering(VizEngine engine, GraphIndexImpl graphIndex) {
         //Nodes:
-        //TODO
+        final InstancedNodeData nodeData = new InstancedNodeData();
+        engine.addRenderer(new NodeRendererInstanced(engine, nodeData));
+        engine.addWorldUpdater(new NodesUpdaterInstancedRendering(engine, nodeData, graphIndex));
 
         //Edges:
         //TODO

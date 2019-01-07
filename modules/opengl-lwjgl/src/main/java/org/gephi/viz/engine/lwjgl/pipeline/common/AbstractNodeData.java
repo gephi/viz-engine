@@ -7,6 +7,7 @@ import org.gephi.viz.engine.lwjgl.util.gl.GLBuffer;
 import org.gephi.viz.engine.lwjgl.util.gl.GLVertexArrayObject;
 import org.gephi.viz.engine.util.Constants;
 import static org.gephi.viz.engine.util.Constants.*;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.gephi.viz.engine.util.structure.NodesCallback;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
@@ -103,7 +104,10 @@ public abstract class AbstractNodeData {
 
     public void setupVertexArrayAttributes(VizEngine engine) {
         if (nodesVAO == null) {
-            nodesVAO = new NodesVAO(engine.getLookup().lookup(GLCapabilities.class));
+            nodesVAO = new NodesVAO(
+                    engine.getLookup().lookup(GLCapabilities.class),
+                    engine.getLookup().lookup(OpenGLOptions.class)
+            );
         }
 
         nodesVAO.use();
@@ -127,8 +131,8 @@ public abstract class AbstractNodeData {
 
     private class NodesVAO extends GLVertexArrayObject {
 
-        public NodesVAO(GLCapabilities capabilities) {
-            super(capabilities);
+        public NodesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
+            super(capabilities, openGLOptions);
         }
 
         @Override

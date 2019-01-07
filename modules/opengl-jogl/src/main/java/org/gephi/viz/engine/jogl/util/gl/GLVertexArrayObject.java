@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.util.GLBuffers;
 import java.nio.IntBuffer;
 import org.gephi.viz.engine.jogl.util.gl.capabilities.GLCapabilitiesSummary;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 /**
  * VAO abstraction that checks for actual support of VAOs and emulates it if not supported.
@@ -18,8 +19,8 @@ public abstract class GLVertexArrayObject {
     private int[] instancedAttributeLocations;
     private int arrayId = -1;
 
-    public GLVertexArrayObject(GLCapabilitiesSummary capabilities) {
-        vaoSupported = capabilities.isVAOSupported();
+    public GLVertexArrayObject(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions) {
+        vaoSupported = capabilities.isVAOSupported(openGLOptions);
     }
 
     private void init(GL2ES2 gl) {

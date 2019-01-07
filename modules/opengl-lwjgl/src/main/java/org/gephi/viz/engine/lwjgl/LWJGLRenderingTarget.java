@@ -2,6 +2,7 @@ package org.gephi.viz.engine.lwjgl;
 
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.spi.RenderingTarget;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
@@ -84,6 +85,7 @@ public class LWJGLRenderingTarget implements RenderingTarget {
         //Disable blending for better performance
         glDisable(GL11.GL_BLEND);
 
+        System.out.println("OpenGL options: " + engine.getLookup().lookup(OpenGLOptions.class));
         engine.initPipeline();
 
         animatorContextInitialized = true;

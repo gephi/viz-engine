@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.gephi.viz.engine.jogl.util.gl.GLFunctions;
-import org.gephi.viz.engine.util.gl.DebugConstants;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 /**
  *
@@ -686,8 +686,8 @@ public final class GLCapabilitiesSummary {
         }
     }
 
-    public boolean isVAOSupported() {
-        return extensions.ARB_vertex_array_object && !DebugConstants.DEBUG_DISABLE_VAOS;
+    public boolean isVAOSupported(OpenGLOptions openGLOptions) {
+        return extensions.ARB_vertex_array_object && !openGLOptions.isDisableVAOS();
     }
 
     public boolean isInstancingSupported() {

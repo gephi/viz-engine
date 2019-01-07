@@ -2,13 +2,13 @@ package org.gephi.viz.engine.lwjgl.util.gl;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import static org.gephi.viz.engine.util.ArrayUtils.getNextPowerOf2;
+import static org.gephi.viz.engine.util.gl.Buffers.bufferElementBytes;
 import static org.lwjgl.opengl.GL20.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glBufferData;
 import static org.lwjgl.opengl.GL20.glBufferSubData;
@@ -72,48 +72,22 @@ public class GLBufferMutable implements GLBuffer {
         }
     }
 
-    private void bufferSubData(Buffer buf, long offset) {
+    private void bufferSubData(Buffer buf, long offsetBytes) {
         if (buf instanceof FloatBuffer) {
-            glBufferSubData(type, offset, (FloatBuffer) buf);
+            glBufferSubData(type, offsetBytes, (FloatBuffer) buf);
         } else if (buf instanceof IntBuffer) {
-            glBufferSubData(type, offset, (IntBuffer) buf);
+            glBufferSubData(type, offsetBytes, (IntBuffer) buf);
         } else if (buf instanceof ShortBuffer) {
-            glBufferSubData(type, offset, (ShortBuffer) buf);
+            glBufferSubData(type, offsetBytes, (ShortBuffer) buf);
         } else if (buf instanceof ByteBuffer) {
-            glBufferSubData(type, offset, (ByteBuffer) buf);
+            glBufferSubData(type, offsetBytes, (ByteBuffer) buf);
         } else if (buf instanceof DoubleBuffer) {
-            glBufferSubData(type, offset, (DoubleBuffer) buf);
+            glBufferSubData(type, offsetBytes, (DoubleBuffer) buf);
         } else if (buf instanceof LongBuffer) {
-            glBufferSubData(type, offset, (LongBuffer) buf);
+            glBufferSubData(type, offsetBytes, (LongBuffer) buf);
         } else {
             throw new UnsupportedOperationException("Buffer class not supported: " + buf.getClass().getName());
         }
-    }
-
-    private int bufferElementBytes(Buffer buf) {
-        if (buf instanceof FloatBuffer) {
-            return Float.BYTES;
-        }
-        if (buf instanceof IntBuffer) {
-            return Integer.BYTES;
-        }
-        if (buf instanceof ShortBuffer) {
-            return Short.BYTES;
-        }
-        if (buf instanceof ByteBuffer) {
-            return Byte.BYTES;
-        }
-        if (buf instanceof DoubleBuffer) {
-            return Double.BYTES;
-        }
-        if (buf instanceof LongBuffer) {
-            return Long.BYTES;
-        }
-        if (buf instanceof CharBuffer) {
-            return Character.BYTES;
-        }
-
-        return 1;
     }
 
     @Override
@@ -141,16 +115,16 @@ public class GLBufferMutable implements GLBuffer {
 
     @Override
     public void update(Buffer buffer) {
-        update(buffer, buffer.limit() * bufferElementBytes(buffer));
+        update(buffer, buffer.limit());
     }
 
     @Override
-    public void update(Buffer buffer, long size) {
-        update(buffer, 0, size);
+    public void update(Buffer buffer, int elements) {
+        update(buffer, 0, elements);
     }
 
     @Override
-    public void update(Buffer buffer, long offset, long size) {
+    public void update(Buffer buffer, int offsetElements, int elements) {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");
         }
@@ -158,13 +132,13 @@ public class GLBufferMutable implements GLBuffer {
             throw new IllegalStateException("You should bind the buffer first!");
         }
 
-        final long neededBytesCapacity = offset + size;
+        final int elementBytes = bufferElementBytes(buffer);
+        final long neededBytesCapacity = (offsetElements + elements) * elementBytes;
         ensureCapacity(neededBytesCapacity);
 
         final int originalLimit = buffer.limit();
-        System.out.println(originalLimit);
-        buffer.limit((int) (size / bufferElementBytes(buffer)));
-        bufferSubData(buffer, offset);
+        buffer.limit(elements);
+        bufferSubData(buffer, offsetElements * elementBytes);
         buffer.limit(originalLimit);
     }
 

@@ -15,9 +15,9 @@ public interface GLBuffer {
 
     void update(GL gl, Buffer buffer);
 
-    void update(GL gl, Buffer buffer, long size);
+    void update(GL gl, Buffer buffer, long sizeBytes);
 
-    void update(GL gl, Buffer buffer, long offset, long size);
+    void update(GL gl, Buffer buffer, long offsetBytes, long sizeBytes);
 
     void bind(GL gl);
 

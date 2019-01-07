@@ -14,9 +14,9 @@ public interface GLBuffer {
 
     void update(Buffer buffer);
 
-    void update(Buffer buffer, long size);
+    void update(Buffer buffer, int elements);
 
-    void update(Buffer buffer, long offset, long size);
+    void update(Buffer buffer, int offsetElements, int elements);
 
     void bind();
 
