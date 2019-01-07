@@ -5,6 +5,7 @@ import org.gephi.viz.engine.spi.RenderingTarget;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
@@ -29,12 +30,13 @@ import org.lwjgl.opengl.GLCapabilities;
 public class LWJGLRenderingTarget implements RenderingTarget {
 
     private final long windowHandle;
-    private BasicFPSAnimator animator;
     private VizEngine engine;
 
     public LWJGLRenderingTarget(long windowHandle) {
         this.windowHandle = windowHandle;
     }
+
+    private boolean sizeChanged = false;
 
     @Override
     public void setup(VizEngine engine) {
@@ -42,31 +44,37 @@ public class LWJGLRenderingTarget implements RenderingTarget {
 
         glfwSetWindowSizeCallback(windowHandle, (window, width, height) -> {
             engine.reshape(width, height);
-            glViewport(0, 0, width, height);
+            sizeChanged = true;
         });
     }
 
+    private volatile boolean isRunning = false;
+
     @Override
     public void start() {
-        animator = new BasicFPSAnimator(this::loop, this, "LWJGL animator", 60);
-        animator.start();
+        initializeContext();
+        isRunning = true;
+
+        while (isRunning) {
+            loop();
+        }
     }
 
     @Override
     public void stop() {
-        animator.shutdown();
+        isRunning = false;
     }
 
-    public void join() throws InterruptedException {
-        animator.join();
-    }
-
-    private void initializeAnimatorContext() {
+    private void initializeContext() {
         //Make the OpenGL context current
         glfwMakeContextCurrent(windowHandle);
 
         //Disable v-sync
         glfwSwapInterval(0);
+
+        glfwSetWindowCloseCallback(windowHandle, window -> {
+            stop();
+        });
 
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
@@ -87,23 +95,25 @@ public class LWJGLRenderingTarget implements RenderingTarget {
 
         System.out.println("OpenGL options: " + engine.getLookup().lookup(OpenGLOptions.class));
         engine.initPipeline();
-
-        animatorContextInitialized = true;
     }
-
-    private boolean animatorContextInitialized = false;
 
     private final float[] backgroundColor = new float[4];
 
-    private void loop() {
-        if (!animatorContextInitialized) {
-            initializeAnimatorContext();
+    public void loop() {
+        if (!isRunning) {
+            return;
         }
-
+        
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         if (glfwWindowShouldClose(windowHandle)) {
-            animator.shutdown();
+            stop();
+            return;
+        }
+
+        if (sizeChanged) {
+            glViewport(0, 0, engine.getWidth(), engine.getHeight());
+            sizeChanged = false;
         }
 
         // Set the clear color

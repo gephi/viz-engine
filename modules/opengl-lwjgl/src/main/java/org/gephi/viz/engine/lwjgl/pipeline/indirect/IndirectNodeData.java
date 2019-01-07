@@ -91,7 +91,7 @@ public class IndirectNodeData extends AbstractNodeData {
         final int instanceCount;
         final int instancesOffset;
         final float colorLightenFactor;
-        
+
         if (layer == RenderingLayer.BACK) {
             instanceCount = instanceCounter.unselectedCountToDraw * 2;
             instancesOffset = 0;
@@ -195,7 +195,7 @@ public class IndirectNodeData extends AbstractNodeData {
         final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
 
         final int totalNodes = spatialIndex.getNodeCount();
-        
+
         final byte nextBufferIndex = (byte) ((currentBufferIndex + 1) % 3);
         final ManagedDirectBuffer attributesBuffer = attributesBuffersList[nextBufferIndex];
         final ManagedDirectBuffer commandsBuffer = commandsBuffersList[nextBufferIndex];
@@ -210,7 +210,7 @@ public class IndirectNodeData extends AbstractNodeData {
 
         final Node[] visibleNodesArray = nodesCallback.getNodesArray();
         final int visibleNodesCount = nodesCallback.getCount();
-        
+
         int newNodesCountUnselected = 0;
         int newNodesCountSelected = 0;
 

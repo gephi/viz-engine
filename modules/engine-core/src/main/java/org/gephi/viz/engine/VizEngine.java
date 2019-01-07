@@ -72,7 +72,7 @@ public class VizEngine<R extends RenderingTarget, I> {
     private ExecutorService updatersThreadPool;
 
     //Input listeners:
-    private final List<I> eventsQueue = new ArrayList<>();
+    private final List<I> eventsQueue = Collections.synchronizedList(new ArrayList<>());
     private final Set<InputListener<R, I>> allInuptListeners = new LinkedHashSet<>();
     private final List<InputListener<R, I>> inputListenersPipeline = new ArrayList<>();
 
@@ -576,16 +576,17 @@ public class VizEngine<R extends RenderingTarget, I> {
             inputListener.frameStart();
         }
 
-        for (I event : eventsQueue) {
+        final Object[] events = eventsQueue.toArray();
+        eventsQueue.clear();
+
+        for (Object event : events) {
             for (InputListener<R, I> inputListener : inputListenersPipeline) {
-                final boolean consumed = inputListener.processEvent(event);
+                final boolean consumed = inputListener.processEvent((I) event);
                 if (consumed) {
                     break;
                 }
             }
         }
-
-        eventsQueue.clear();
 
         for (InputListener<R, I> inputListener : inputListenersPipeline) {
             inputListener.frameEnd();

@@ -115,16 +115,6 @@ public class GLBufferMutable implements GLBuffer {
 
     @Override
     public void update(Buffer buffer) {
-        update(buffer, buffer.limit());
-    }
-
-    @Override
-    public void update(Buffer buffer, int elements) {
-        update(buffer, 0, elements);
-    }
-
-    @Override
-    public void update(Buffer buffer, int offsetElements, int elements) {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");
         }
@@ -133,13 +123,10 @@ public class GLBufferMutable implements GLBuffer {
         }
 
         final int elementBytes = bufferElementBytes(buffer);
-        final long neededBytesCapacity = (offsetElements + elements) * elementBytes;
+        final long neededBytesCapacity = buffer.remaining() * elementBytes;
         ensureCapacity(neededBytesCapacity);
 
-        final int originalLimit = buffer.limit();
-        buffer.limit(elements);
-        bufferSubData(buffer, offsetElements * elementBytes);
-        buffer.limit(originalLimit);
+        bufferSubData(buffer, 0);
     }
 
     @Override

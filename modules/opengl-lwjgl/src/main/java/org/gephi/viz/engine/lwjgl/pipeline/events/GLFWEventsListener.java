@@ -50,6 +50,10 @@ public class GLFWEventsListener {
         return t;
     });
 
+    public void destroy() {
+        executorService.shutdown();
+    }
+
     public void register() {
         glfwSetKeyCallback(windowHandle, (windowHnd, key, scancode, action, mods) -> {
             String state;

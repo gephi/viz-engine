@@ -69,7 +69,7 @@ public class GLBufferMutable implements GLBuffer {
 
     @Override
     public void update(GL gl, Buffer buffer) {
-        update(gl, buffer, buffer.limit() * bufferElementBytes(buffer));
+        update(gl, buffer, buffer.remaining() * bufferElementBytes(buffer));
     }
 
     @Override

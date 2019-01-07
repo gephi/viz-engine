@@ -54,13 +54,12 @@ public class Main {
         glfwEventsListener.register();
         engine.reshape(WIDTH, HEIGHT);
 
-        engine.start();
-
         // Make the window visible
         glfwShowWindow(windowHandle);
 
-        renderingTarget.join();
+        engine.start();//This starts the loop for GLFW in LWJGLRenderingTarget, which MUST be in main thread
 
+        glfwEventsListener.destroy();
         destroy();
     }
 
@@ -78,12 +77,9 @@ public class Main {
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
 
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);//DEBUG!!
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
-        glfwWindowHint(GLFW_SAMPLES, 4);
+        glfwWindowHint(GLFW_SAMPLES, 4);//4 samples anti-aliasing
 
         // Create the window
         windowHandle = glfwCreateWindow(WIDTH, HEIGHT, "VizEngine demo (LWJGL GLFW)", NULL, NULL);
