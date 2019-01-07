@@ -15,7 +15,6 @@ import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphSelection;
 import static org.gephi.viz.engine.util.Constants.*;
 import org.gephi.viz.engine.jogl.util.gl.GLBuffer;
-import org.gephi.viz.engine.jogl.util.gl.GLFunctions;
 import org.gephi.viz.engine.jogl.util.gl.GLVertexArrayObject;
 import org.gephi.viz.engine.jogl.util.gl.capabilities.GLCapabilitiesSummary;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
@@ -671,17 +670,6 @@ public class AbstractEdgeData {
                 offset += EdgeLineModelDirected.COLOR_MULTIPLIER_FLOATS * Float.BYTES;
 
                 gl.glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
-
-                if (instanced) {
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_POSITION_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_POSITION_TARGET_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_SIZE_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_SOURCE_COLOR_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_COLOR_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_COLOR_BIAS_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_COLOR_MULTIPLIER_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_TARGET_SIZE_LOCATION, 1);
-                }
             }
             attributesGLBuffer.unbind(gl);
         }

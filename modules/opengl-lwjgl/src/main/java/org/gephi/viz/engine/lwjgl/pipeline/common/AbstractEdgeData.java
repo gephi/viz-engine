@@ -17,7 +17,6 @@ import org.gephi.viz.engine.util.structure.EdgesCallback;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 import org.lwjgl.opengl.GLCapabilities;
 
 /**
@@ -670,17 +669,6 @@ public class AbstractEdgeData {
                 offset += EdgeLineModelDirected.COLOR_MULTIPLIER_FLOATS * Float.BYTES;
 
                 glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
-
-                if (instanced) {
-                    glVertexAttribDivisor(SHADER_POSITION_LOCATION, 1);
-                    glVertexAttribDivisor(SHADER_POSITION_TARGET_LOCATION, 1);
-                    glVertexAttribDivisor(SHADER_SIZE_LOCATION, 1);
-                    glVertexAttribDivisor(SHADER_SOURCE_COLOR_LOCATION, 1);
-                    glVertexAttribDivisor(SHADER_COLOR_LOCATION, 1);
-                    glVertexAttribDivisor(SHADER_COLOR_BIAS_LOCATION, 1);
-                    glVertexAttribDivisor(SHADER_COLOR_MULTIPLIER_LOCATION, 1);
-                    glVertexAttribDivisor(SHADER_TARGET_SIZE_LOCATION, 1);
-                }
             }
             attributesGLBuffer.unbind();
         }
