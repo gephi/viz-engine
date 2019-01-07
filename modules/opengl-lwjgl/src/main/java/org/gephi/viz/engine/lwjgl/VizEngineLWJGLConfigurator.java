@@ -2,15 +2,21 @@ package org.gephi.viz.engine.lwjgl;
 
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.pipeline.DefaultLWJGLEventListener;
+import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawEdgeData;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawNodeData;
+import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.EdgeRendererArrayDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.NodeRendererArrayDraw;
+import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.EdgesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.NodesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.indirect.IndirectNodeData;
 import org.gephi.viz.engine.lwjgl.pipeline.indirect.renderers.NodeRendererIndirect;
 import org.gephi.viz.engine.lwjgl.pipeline.indirect.updaters.NodesUpdaterIndirectRendering;
+import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedEdgeData;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedNodeData;
+import org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers.EdgeRendererInstanced;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers.NodeRendererInstanced;
+import org.gephi.viz.engine.lwjgl.pipeline.instanced.updaters.EdgesUpdaterInstancedRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.updaters.NodesUpdaterInstancedRendering;
 import org.gephi.viz.engine.spi.VizEngineConfigurator;
 import org.gephi.viz.engine.status.GraphRenderingOptionsImpl;
@@ -63,7 +69,10 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         engine.addWorldUpdater(new NodesUpdaterInstancedRendering(engine, nodeData, graphIndex));
 
         //Edges:
-        //TODO
+        final InstancedEdgeData indirectEdgeData = new InstancedEdgeData();
+
+        engine.addRenderer(new EdgeRendererInstanced(engine, indirectEdgeData));
+        engine.addWorldUpdater(new EdgesUpdaterInstancedRendering(engine, indirectEdgeData, graphIndex));
     }
 
     private void setupVertexArrayRendering(VizEngine engine, GraphIndexImpl graphIndex) {
@@ -73,7 +82,9 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         engine.addWorldUpdater(new NodesUpdaterArrayDrawRendering(engine, nodeData, graphIndex));
 
         //Edges:
-        //TODO
+        final ArrayDrawEdgeData edgeData = new ArrayDrawEdgeData();
+        engine.addRenderer(new EdgeRendererArrayDraw(engine, edgeData));
+        engine.addWorldUpdater(new EdgesUpdaterArrayDrawRendering(engine, edgeData, graphIndex));
     }
 
     private void setupInputListeners(VizEngine engine) {

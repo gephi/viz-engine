@@ -1,25 +1,24 @@
-package org.gephi.viz.engine.jogl.pipeline.common;
+package org.gephi.viz.engine.lwjgl.pipeline.common;
 
-import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_FLOAT;
-import static com.jogamp.opengl.GL.GL_UNSIGNED_BYTE;
-import com.jogamp.opengl.GL2ES2;
 import java.nio.FloatBuffer;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.jogl.models.EdgeLineModelDirected;
-import org.gephi.viz.engine.jogl.models.EdgeLineModelUndirected;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphSelection;
 import static org.gephi.viz.engine.util.Constants.*;
-import org.gephi.viz.engine.jogl.util.gl.GLBuffer;
-import org.gephi.viz.engine.jogl.util.gl.GLFunctions;
-import org.gephi.viz.engine.jogl.util.gl.GLVertexArrayObject;
-import org.gephi.viz.engine.jogl.util.gl.capabilities.GLCapabilitiesSummary;
+import org.gephi.viz.engine.lwjgl.models.EdgeLineModelDirected;
+import org.gephi.viz.engine.lwjgl.models.EdgeLineModelUndirected;
+import org.gephi.viz.engine.lwjgl.util.gl.GLBuffer;
+import org.gephi.viz.engine.lwjgl.util.gl.GLVertexArrayObject;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.gephi.viz.engine.util.structure.EdgesCallback;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
+import org.lwjgl.opengl.GLCapabilities;
 
 /**
  *
@@ -55,9 +54,9 @@ public class AbstractEdgeData {
         this.instanced = instanced;
     }
 
-    public void init(GL2ES2 gl) {
-        lineModelDirected.initGLPrograms(gl);
-        lineModelUndirected.initGLPrograms(gl);
+    public void init() {
+        lineModelDirected.initGLPrograms();
+        lineModelUndirected.initGLPrograms();
     }
 
     protected int updateDirectedData(
@@ -506,47 +505,47 @@ public class AbstractEdgeData {
     private UndirectedEdgesVAO undirectedEdgesVAO;
     private DirectedEdgesVAO directedEdgesVAO;
 
-    public void setupUndirectedVertexArrayAttributes(VizEngine engine, GL2ES2 gl) {
+    public void setupUndirectedVertexArrayAttributes(VizEngine engine) {
         if (undirectedEdgesVAO == null) {
             undirectedEdgesVAO = new UndirectedEdgesVAO(
-                    engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                    engine.getLookup().lookup(GLCapabilities.class),
                     engine.getLookup().lookup(OpenGLOptions.class)
             );
         }
 
-        undirectedEdgesVAO.use(gl);
+        undirectedEdgesVAO.use();
     }
 
-    public void unsetupUndirectedVertexArrayAttributes(GL2ES2 gl) {
-        undirectedEdgesVAO.stopUsing(gl);
+    public void unsetupUndirectedVertexArrayAttributes() {
+        undirectedEdgesVAO.stopUsing();
     }
 
-    public void setupDirectedVertexArrayAttributes(VizEngine engine, GL2ES2 gl) {
+    public void setupDirectedVertexArrayAttributes(VizEngine engine) {
         if (directedEdgesVAO == null) {
             directedEdgesVAO = new DirectedEdgesVAO(
-                    engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                    engine.getLookup().lookup(GLCapabilities.class),
                     engine.getLookup().lookup(OpenGLOptions.class)
             );
         }
 
-        directedEdgesVAO.use(gl);
+        directedEdgesVAO.use();
     }
 
-    public void unsetupDirectedVertexArrayAttributes(GL2ES2 gl) {
-        directedEdgesVAO.stopUsing(gl);
+    public void unsetupDirectedVertexArrayAttributes() {
+        directedEdgesVAO.stopUsing();
     }
 
-    public void dispose(GL gl) {
+    public void dispose() {
         if (vertexGLBufferUndirected != null) {
-            vertexGLBufferUndirected.destroy(gl);
+            vertexGLBufferUndirected.destroy();
         }
 
         if (vertexGLBufferDirected != null) {
-            vertexGLBufferDirected.destroy(gl);
+            vertexGLBufferDirected.destroy();
         }
 
         if (attributesGLBuffer != null) {
-            attributesGLBuffer.destroy(gl);
+            attributesGLBuffer.destroy();
         }
 
         edgesCallback.reset();
@@ -554,46 +553,46 @@ public class AbstractEdgeData {
 
     private class UndirectedEdgesVAO extends GLVertexArrayObject {
 
-        public UndirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions) {
+        public UndirectedEdgesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
             super(capabilities, openGLOptions);
         }
 
         @Override
-        protected void configure(GL2ES2 gl) {
-            vertexGLBufferUndirected.bind(gl);
+        protected void configure() {
+            vertexGLBufferUndirected.bind();
             {
-                gl.glVertexAttribPointer(SHADER_VERT_LOCATION, EdgeLineModelUndirected.VERTEX_FLOATS, GL_FLOAT, false, 0, 0);
+                glVertexAttribPointer(SHADER_VERT_LOCATION, EdgeLineModelUndirected.VERTEX_FLOATS, GL_FLOAT, false, 0, 0);
             }
-            vertexGLBufferUndirected.unbind(gl);
+            vertexGLBufferUndirected.unbind();
 
-            attributesGLBuffer.bind(gl);
+            attributesGLBuffer.bind();
             {
                 int stride = ATTRIBS_STRIDE * Float.BYTES;
                 int offset = 0;
-                gl.glVertexAttribPointer(SHADER_POSITION_LOCATION, EdgeLineModelUndirected.POSITION_SOURCE_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_POSITION_LOCATION, EdgeLineModelUndirected.POSITION_SOURCE_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelUndirected.POSITION_SOURCE_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_POSITION_TARGET_LOCATION, EdgeLineModelUndirected.POSITION_TARGET_LOCATION, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_POSITION_TARGET_LOCATION, EdgeLineModelUndirected.POSITION_TARGET_LOCATION, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelUndirected.POSITION_TARGET_LOCATION * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_SIZE_LOCATION, EdgeLineModelUndirected.SIZE_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_SIZE_LOCATION, EdgeLineModelUndirected.SIZE_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelUndirected.SIZE_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_SOURCE_COLOR_LOCATION, EdgeLineModelUndirected.SOURCE_COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
+                glVertexAttribPointer(SHADER_SOURCE_COLOR_LOCATION, EdgeLineModelUndirected.SOURCE_COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                 offset += EdgeLineModelUndirected.SOURCE_COLOR_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_TARGET_COLOR_LOCATION, EdgeLineModelUndirected.TARGET_COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
+                glVertexAttribPointer(SHADER_TARGET_COLOR_LOCATION, EdgeLineModelUndirected.TARGET_COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                 offset += EdgeLineModelUndirected.TARGET_COLOR_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelUndirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
+                glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelUndirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                 offset += EdgeLineModelUndirected.COLOR_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_COLOR_BIAS_LOCATION, EdgeLineModelUndirected.COLOR_BIAS_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_COLOR_BIAS_LOCATION, EdgeLineModelUndirected.COLOR_BIAS_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelUndirected.COLOR_BIAS_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, EdgeLineModelUndirected.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, EdgeLineModelUndirected.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
             }
-            attributesGLBuffer.unbind(gl);
+            attributesGLBuffer.unbind();
         }
 
         @Override
@@ -633,57 +632,57 @@ public class AbstractEdgeData {
 
     private class DirectedEdgesVAO extends GLVertexArrayObject {
 
-        public DirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions) {
+        public DirectedEdgesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
             super(capabilities, openGLOptions);
         }
 
         @Override
-        protected void configure(GL2ES2 gl) {
-            vertexGLBufferDirected.bind(gl);
+        protected void configure() {
+            vertexGLBufferDirected.bind();
             {
-                gl.glVertexAttribPointer(SHADER_VERT_LOCATION, EdgeLineModelDirected.VERTEX_FLOATS, GL_FLOAT, false, 0, 0);
+                glVertexAttribPointer(SHADER_VERT_LOCATION, EdgeLineModelDirected.VERTEX_FLOATS, GL_FLOAT, false, 0, 0);
             }
-            vertexGLBufferDirected.unbind(gl);
+            vertexGLBufferDirected.unbind();
 
-            attributesGLBuffer.bind(gl);
+            attributesGLBuffer.bind();
             {
                 int stride = ATTRIBS_STRIDE * Float.BYTES;
                 int offset = 0;
-                gl.glVertexAttribPointer(SHADER_POSITION_LOCATION, EdgeLineModelDirected.POSITION_SOURCE_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_POSITION_LOCATION, EdgeLineModelDirected.POSITION_SOURCE_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelDirected.POSITION_SOURCE_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_POSITION_TARGET_LOCATION, EdgeLineModelDirected.POSITION_TARGET_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_POSITION_TARGET_LOCATION, EdgeLineModelDirected.POSITION_TARGET_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelDirected.POSITION_TARGET_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_SIZE_LOCATION, EdgeLineModelDirected.SIZE_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_SIZE_LOCATION, EdgeLineModelDirected.SIZE_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelDirected.SIZE_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_SOURCE_COLOR_LOCATION, EdgeLineModelDirected.SOURCE_COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
+                glVertexAttribPointer(SHADER_SOURCE_COLOR_LOCATION, EdgeLineModelDirected.SOURCE_COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                 offset += EdgeLineModelDirected.SOURCE_COLOR_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelDirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
+                glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelDirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                 offset += EdgeLineModelDirected.COLOR_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_COLOR_BIAS_LOCATION, EdgeLineModelDirected.COLOR_BIAS_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_COLOR_BIAS_LOCATION, EdgeLineModelDirected.COLOR_BIAS_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelDirected.COLOR_BIAS_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, EdgeLineModelDirected.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, EdgeLineModelDirected.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
                 offset += EdgeLineModelDirected.COLOR_MULTIPLIER_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
+                glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
 
                 if (instanced) {
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_POSITION_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_POSITION_TARGET_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_SIZE_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_SOURCE_COLOR_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_COLOR_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_COLOR_BIAS_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_COLOR_MULTIPLIER_LOCATION, 1);
-                    GLFunctions.glVertexAttribDivisor(gl, SHADER_TARGET_SIZE_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_POSITION_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_POSITION_TARGET_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_SIZE_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_SOURCE_COLOR_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_COLOR_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_COLOR_BIAS_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_COLOR_MULTIPLIER_LOCATION, 1);
+                    glVertexAttribDivisor(SHADER_TARGET_SIZE_LOCATION, 1);
                 }
             }
-            attributesGLBuffer.unbind(gl);
+            attributesGLBuffer.unbind();
         }
 
         @Override

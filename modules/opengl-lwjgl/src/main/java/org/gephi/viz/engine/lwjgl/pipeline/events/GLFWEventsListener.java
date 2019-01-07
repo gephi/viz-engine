@@ -97,6 +97,7 @@ public class GLFWEventsListener {
                     }
 
                     if (isClick) {
+                        //TODO: implement double click
                         engine.queueEvent(
                                 MouseEvent.click(button, mouseX, mouseY)
                         );
