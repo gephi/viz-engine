@@ -12,10 +12,6 @@
 
     <name>Viz Engine (JOGL)</name>
     
-    <properties>
-        <jogl.version>2.3.2</jogl.version>
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>org.gephi</groupId>
@@ -30,13 +26,11 @@
         <dependency>
             <groupId>org.jogamp.jogl</groupId>
             <artifactId>jogl-all</artifactId>
-            <version>${jogl.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
             <artifactId>gluegen-rt</artifactId>
-            <version>${jogl.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

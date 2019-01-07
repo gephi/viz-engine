@@ -13,8 +13,6 @@
     <name>Viz Engine Demo (LWJGL)</name>
     
     <properties>
-        <gephi.version>0.9.2</gephi.version>
-        <lwjgl.version>3.2.1</lwjgl.version>
         <viz-demo.maven-jar-plugin.version>3.1.1</viz-demo.maven-jar-plugin.version>
         <viz-demo.maven-dependency-plugin.version>3.1.1</viz-demo.maven-dependency-plugin.version>
     </properties>
@@ -105,22 +103,18 @@
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-glfw</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-opengl</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-stb</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>

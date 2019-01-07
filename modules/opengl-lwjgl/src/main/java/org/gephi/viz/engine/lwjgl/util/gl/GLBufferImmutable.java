@@ -105,6 +105,9 @@ public class GLBufferImmutable implements GLBuffer {
         }
 
         this.flags = flags;
+        final int elementBytes = bufferElementBytes(buffer);
+
+        sizeBytes = buffer.capacity() * elementBytes;
 
         bufferStorage(buffer);
     }

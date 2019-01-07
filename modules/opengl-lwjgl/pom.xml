@@ -12,10 +12,6 @@
 
     <name>Viz Engine (LWJGL)</name>
     
-    <properties>
-        <lwjgl.version>3.2.1</lwjgl.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.gephi</groupId>
@@ -29,25 +25,21 @@
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
-            <version>${lwjgl.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-glfw</artifactId>
-            <version>${lwjgl.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-opengl</artifactId>
-            <version>${lwjgl.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-stb</artifactId>
-            <version>${lwjgl.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -12,12 +12,11 @@ import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.lwjgl.util.gl.GLBuffer;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBufferImmutable;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
 import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;
 import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
-import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_BYTES;
+import org.gephi.viz.engine.util.gl.GLConstants;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
@@ -63,11 +62,10 @@ public class IndirectNodeData extends AbstractNodeData {
         firstVertex8 = firstVertex16 + circleVertexCount16;
     }
 
-    private final int[] bufferName = new int[3];
+    private final int[] bufferName = new int[2];
 
     private static final int VERT_BUFFER = 0;
     private static final int ATTRIBS_BUFFER = 1;
-    private static final int INDIRECT_DRAW_BUFFER = 2;
 
     public void init() {
         initBuffers();
@@ -104,9 +102,12 @@ public class IndirectNodeData extends AbstractNodeData {
 
         if (instanceCount > 0) {
             setupVertexArrayAttributes(engine);
-            commandsGLBuffer.bind();
-            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
-            commandsGLBuffer.unbind();
+
+            final IntBuffer buffer = commandsBufferToDraw.intBuffer();
+
+            buffer.position(instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT);
+            
+            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, buffer, instanceCount);
             unsetupVertexArrayAttributes();
         }
     }
@@ -116,8 +117,7 @@ public class IndirectNodeData extends AbstractNodeData {
     private int currentBufferIndex = 0;
     private final ManagedDirectBuffer[] attributesBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
     private final ManagedDirectBuffer[] commandsBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
-
-    private GLBuffer commandsGLBuffer;
+    private ManagedDirectBuffer commandsBufferToDraw = null;
 
     private float[] attributesBufferBatch;
     private int[] commandsBufferBatch;
@@ -156,11 +156,6 @@ public class IndirectNodeData extends AbstractNodeData {
         attributesGLBuffer.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBuffer.unbind();
 
-        commandsGLBuffer = new GLBufferMutable(bufferName[INDIRECT_DRAW_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_DRAW_INDIRECT);
-        commandsGLBuffer.bind();
-        commandsGLBuffer.init(INDIRECT_DRAW_COMMAND_BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
-        commandsGLBuffer.unbind();
-
         for (int i = 0; i < NUM_BUFFERS; i++) {
             attributesBuffersList[i] = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
             commandsBuffersList[i] = new ManagedDirectBuffer(GL_UNSIGNED_INT, INDIRECT_DRAW_COMMAND_INTS_COUNT * BATCH_NODES_SIZE * 2);
@@ -172,9 +167,7 @@ public class IndirectNodeData extends AbstractNodeData {
         attributesGLBuffer.update(attributesBuffersList[currentBufferIndex].floatBuffer());
         attributesGLBuffer.unbind();
 
-        commandsGLBuffer.bind();
-        commandsGLBuffer.update(commandsBuffersList[currentBufferIndex].intBuffer());
-        commandsGLBuffer.unbind();
+        commandsBufferToDraw = commandsBuffersList[currentBufferIndex];
 
         instanceCounter.promoteCountToDraw();
         //TODO: Persistent buffer if available?

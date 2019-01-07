@@ -1,8 +1,8 @@
 package org.gephi.viz.engine.lwjgl.models;
 
+import java.nio.IntBuffer;
 import org.gephi.viz.engine.util.Constants;
 import static org.gephi.viz.engine.util.Constants.*;
-import org.gephi.viz.engine.util.gl.GLConstants;
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
@@ -93,9 +93,9 @@ public class NodeDiskModel {
         drawInstanced(0, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
     }
 
-    public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
+    public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, IntBuffer buffer, int instanceCount) {
         useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
-        GL43.glMultiDrawArraysIndirect(GL20.GL_TRIANGLES, instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_BYTES, instanceCount, 0);
+        GL43.glMultiDrawArraysIndirect(GL20.GL_TRIANGLES, buffer, instanceCount, 0);
         stopUsingProgram();
     }
 
