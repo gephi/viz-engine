@@ -9,7 +9,8 @@ It aims to be:
 * Retro-compatible with old OpenGL versions through feature discovery, falling back to the best supported by the graphics card
 * High performance using most modern OpenGL when available, specially due to instancing, manual buffer management, using simple shaders and avoiding memory allocation when possible
 * Extensible with plugins (rendering and input)
-* Usable in AWT/Swing/NEWT/SWT (only possible with JOGL at the moment, LWJGL3 does not support AWT)
+* JOGL and LWJGL3 version
+* Usable in AWT/Swing/NEWT/SWT (only possible with JOGL at the moment). For LWJGL3 GLFW is used.
 * Nicely interactive with mouse, directional zooming, etc with default input handler
 * Only a 2D engine for the moment
 * The only gephi-related dependency is graphstore
