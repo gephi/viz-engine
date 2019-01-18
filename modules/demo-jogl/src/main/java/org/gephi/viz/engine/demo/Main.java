@@ -19,10 +19,12 @@ import org.gephi.viz.engine.jogl.VizEngineJOGLConfigurator;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 public class Main implements KeyListener {
-    
+
     private static final boolean DISABLE_INDIRECT_RENDERING = true;
     private static final boolean DISABLE_INSTANCED_RENDERING = true;
     private static final boolean DISABLE_VAOS = false;
+
+    private static final boolean DEBUG = true;
 
     private VizEngine<JOGLRenderingTarget, NEWTEvent> engine;
     private JFrame frame;
@@ -36,8 +38,10 @@ public class Main implements KeyListener {
         final Screen screen = NewtFactory.createScreen(display, 0);
 
         glWindow = GLWindow.create(screen, caps);
-        glWindow.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
         glWindow.setSize(1024, 768);
+        if (DEBUG) {
+            glWindow.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
+        }
 
         glWindow.addKeyListener(this);
 
@@ -55,12 +59,13 @@ public class Main implements KeyListener {
                         new VizEngineJOGLConfigurator()
                 )
         );
-        
+
         final OpenGLOptions glOptions = engine.getLookup().lookup(OpenGLOptions.class);
         glOptions.setDisableIndirectDrawing(DISABLE_INDIRECT_RENDERING);
         glOptions.setDisableInstancedDrawing(DISABLE_INSTANCED_RENDERING);
         glOptions.setDisableVAOS(DISABLE_VAOS);
-        
+        glOptions.setDebug(DEBUG);
+
         engine.start();
 
         newtCanvas = new NewtCanvasAWT(glWindow);

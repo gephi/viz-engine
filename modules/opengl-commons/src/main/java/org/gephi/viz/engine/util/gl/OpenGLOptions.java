@@ -10,6 +10,7 @@ public class OpenGLOptions {
     private boolean disableInstancedDrawing = false;
     private boolean disableVertexArrayDrawing = false;
     private boolean disableVAOS = false;
+    private boolean debug = false;
 
     public OpenGLOptions() {
     }
@@ -46,9 +47,17 @@ public class OpenGLOptions {
         this.disableVAOS = disableVAOS;
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     @Override
     public String toString() {
-        return "OpenGLOptions{" + "disableIndirectDrawing=" + disableIndirectDrawing + ", disableInstancedDrawing=" + disableInstancedDrawing + ", disableVertexArrayDrawing=" + disableVertexArrayDrawing + ", disableVAOS=" + disableVAOS + '}';
+        return "OpenGLOptions{" + "disableIndirectDrawing=" + disableIndirectDrawing + ", disableInstancedDrawing=" + disableInstancedDrawing + ", disableVertexArrayDrawing=" + disableVertexArrayDrawing + ", disableVAOS=" + disableVAOS + ", debug=" + debug + '}';
     }
 
 }

@@ -24,6 +24,9 @@ public class Main {
     private static final boolean DISABLE_INSTANCED_RENDERING = false;
     private static final boolean DISABLE_VAOS = false;
 
+    private static final boolean DEBUG = true;
+    private static final boolean USE_OPENGL_ES = false;
+
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 760;
 
@@ -48,6 +51,7 @@ public class Main {
         glOptions.setDisableIndirectDrawing(DISABLE_INDIRECT_RENDERING);
         glOptions.setDisableInstancedDrawing(DISABLE_INSTANCED_RENDERING);
         glOptions.setDisableVAOS(DISABLE_VAOS);
+        glOptions.setDebug(DEBUG);
 
         final GLFWEventsListener glfwEventsListener = new GLFWEventsListener(windowHandle, engine);
         glfwEventsListener.register();
@@ -78,10 +82,19 @@ public class Main {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
         glfwWindowHint(GLFW_SAMPLES, 4);//4 samples anti-aliasing
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        if (DEBUG) {
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+        }
+
+        if (USE_OPENGL_ES) {
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+        } else {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+        }
 
         // Create the window
         windowHandle = glfwCreateWindow(WIDTH, HEIGHT, "VizEngine demo (LWJGL GLFW)", NULL, NULL);

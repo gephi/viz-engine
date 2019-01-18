@@ -22,6 +22,7 @@ import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glGetString;
 import static org.lwjgl.opengl.GL11.glViewport;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.GLUtil;
 
 /**
  *
@@ -84,6 +85,10 @@ public class LWJGLRenderingTarget implements RenderingTarget {
         final GLCapabilities capabilities = GL.createCapabilities();
         engine.addToLookup(capabilities);
 
+        if (engine.getLookup().lookup(OpenGLOptions.class).isDebug()) {
+            GLUtil.setupDebugMessageCallback();
+        }
+
         System.err.println("GL_VENDOR: " + glGetString(GL_VENDOR));
         System.err.println("GL_RENDERER: " + glGetString(GL_RENDERER));
         System.err.println("GL_VERSION: " + glGetString(GL_VERSION));
@@ -103,7 +108,7 @@ public class LWJGLRenderingTarget implements RenderingTarget {
         if (!isRunning) {
             return;
         }
-        
+
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         if (glfwWindowShouldClose(windowHandle)) {
