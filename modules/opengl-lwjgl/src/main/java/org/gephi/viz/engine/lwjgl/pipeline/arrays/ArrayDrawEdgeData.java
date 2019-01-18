@@ -108,9 +108,10 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                     );
                 }
 
+                batchUpdateBuffer.clear();
                 batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED);
-                batchUpdateBuffer.rewind();
-
+                batchUpdateBuffer.flip();
+                
                 attributesGLBuffer.bind();
                 attributesGLBuffer.update(batchUpdateBuffer);
                 attributesGLBuffer.unbind();
@@ -163,8 +164,9 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                     );
                 }
 
+                batchUpdateBuffer.clear();
                 batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED);
-                batchUpdateBuffer.rewind();
+                batchUpdateBuffer.flip();
 
                 attributesGLBuffer.bind();
                 attributesGLBuffer.update(batchUpdateBuffer);
@@ -203,6 +205,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
 
             final FloatBuffer undirectedVertexData = MemoryUtil.memAllocFloat(undirectedVertexDataArray.length);
             undirectedVertexData.put(undirectedVertexDataArray);
+            undirectedVertexData.flip();
 
             vertexGLBufferUndirected = new GLBufferMutable(bufferName[VERT_BUFFER_UNDIRECTED], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
             vertexGLBufferUndirected.bind();
@@ -220,6 +223,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
 
             final FloatBuffer directedVertexData = MemoryUtil.memAllocFloat(directedVertexDataArray.length);
             directedVertexData.put(directedVertexDataArray);
+            directedVertexData.flip();
 
             vertexGLBufferDirected = new GLBufferMutable(bufferName[VERT_BUFFER_DIRECTED], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
             vertexGLBufferDirected.bind();

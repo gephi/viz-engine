@@ -27,12 +27,12 @@ public class MainGLCanvas implements KeyListener {
 
         final JOGLRenderingTarget renderingTarget = new JOGLRenderingTarget(glCanvas);
 
+        //final String graphFile = "samples/Java.gexf";
+        //final String graphFile = "samples/mixed-sample.gexf";
+        //final String graphFile = "samples/Les Miserables.gexf";
         final String graphFile = "samples/comic-hero-network.gexf";
-
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Les Miserables.gexf"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Power Grid.gml"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Java.gexf"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/mixed-sample.gexf"));
+        //final String graphFile = "samples/Power Grid.gml";
+        //final String graphFile = "samples/twitter_combined.csv";
         engine = VizEngineFactory.<JOGLRenderingTarget, NEWTEvent>newEngine(
                 renderingTarget,
                 GraphLoader.load(graphFile),
@@ -40,7 +40,6 @@ public class MainGLCanvas implements KeyListener {
                         new VizEngineJOGLConfigurator()
                 )
         );
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/twitter_combined.csv"));
         engine.setup();
         engine.start();
 

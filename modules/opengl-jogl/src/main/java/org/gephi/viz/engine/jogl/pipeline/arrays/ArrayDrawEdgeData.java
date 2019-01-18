@@ -111,8 +111,9 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                     );
                 }
 
+                batchUpdateBuffer.clear();
                 batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED);
-                batchUpdateBuffer.rewind();
+                batchUpdateBuffer.flip();
 
                 attributesGLBuffer.bind(gl);
                 attributesGLBuffer.update(gl, batchUpdateBuffer);
@@ -167,8 +168,9 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                     );
                 }
 
+                batchUpdateBuffer.clear();
                 batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED);
-                batchUpdateBuffer.rewind();
+                batchUpdateBuffer.flip();
 
                 attributesGLBuffer.bind(gl);
                 attributesGLBuffer.update(gl, batchUpdateBuffer);

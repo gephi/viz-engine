@@ -38,7 +38,12 @@ public class Main {
 
         final LWJGLRenderingTarget renderingTarget = new LWJGLRenderingTarget(windowHandle);
 
+        //final String graphFile = "samples/Java.gexf";
+        //final String graphFile = "samples/mixed-sample.gexf";
+        //final String graphFile = "samples/Les Miserables.gexf";
         final String graphFile = "samples/comic-hero-network.gexf";
+        //final String graphFile = "samples/Power Grid.gml";
+        //final String graphFile = "samples/twitter_combined.csv";
         final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine = VizEngineFactory.<LWJGLRenderingTarget, LWJGLInputEvent>newEngine(
                 renderingTarget,
                 GraphLoader.load(graphFile),
@@ -91,9 +96,9 @@ public class Main {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         } else {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         }
 
         // Create the window

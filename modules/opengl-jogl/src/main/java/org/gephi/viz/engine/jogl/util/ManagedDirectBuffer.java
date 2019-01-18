@@ -28,11 +28,11 @@ public class ManagedDirectBuffer {
     }
 
     public FloatBuffer floatBuffer() {
-        return (FloatBuffer) buffer.rewind();
+        return (FloatBuffer) buffer.clear();
     }
 
     public IntBuffer intBuffer() {
-        return (IntBuffer) buffer.rewind();
+        return (IntBuffer) buffer.clear();
     }
 
     public void ensureCapacity(int elements) {

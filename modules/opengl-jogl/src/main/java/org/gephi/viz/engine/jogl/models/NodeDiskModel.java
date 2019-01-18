@@ -95,7 +95,7 @@ public class NodeDiskModel {
 
     public void drawIndirect(GL4 gl, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
         useProgram(gl, mvpFloats, backgroundColorFloats, colorLightenFactor);
-        gl.glMultiDrawArraysIndirect(GL.GL_TRIANGLES, instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_BYTES, instanceCount, 0);
+        gl.glMultiDrawArraysIndirect(GL.GL_TRIANGLES, instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_BYTES, instanceCount, GLConstants.INDIRECT_DRAW_COMMAND_BYTES);
         stopUsingProgram(gl);
     }
 

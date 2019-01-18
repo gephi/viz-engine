@@ -20,8 +20,8 @@ import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 public class Main implements KeyListener {
 
-    private static final boolean DISABLE_INDIRECT_RENDERING = true;
-    private static final boolean DISABLE_INSTANCED_RENDERING = true;
+    private static final boolean DISABLE_INDIRECT_RENDERING = false;
+    private static final boolean DISABLE_INSTANCED_RENDERING = false;
     private static final boolean DISABLE_VAOS = false;
 
     private static final boolean DEBUG = true;
@@ -47,11 +47,12 @@ public class Main implements KeyListener {
 
         final JOGLRenderingTarget renderingTarget = new JOGLRenderingTarget(glWindow);
 
+        //final String graphFile = "samples/Java.gexf";
+        //final String graphFile = "samples/mixed-sample.gexf";
+        //final String graphFile = "samples/Les Miserables.gexf";
         final String graphFile = "samples/comic-hero-network.gexf";
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Les Miserables.gexf"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Power Grid.gml"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/Java.gexf"));
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/mixed-sample.gexf"));
+        //final String graphFile = "samples/Power Grid.gml";
+        //final String graphFile = "samples/twitter_combined.csv";
         engine = VizEngineFactory.<JOGLRenderingTarget, NEWTEvent>newEngine(
                 renderingTarget,
                 GraphLoader.load(graphFile),
