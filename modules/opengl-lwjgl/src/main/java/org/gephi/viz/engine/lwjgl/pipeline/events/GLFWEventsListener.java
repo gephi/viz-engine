@@ -62,8 +62,10 @@ public class GLFWEventsListener {
             switch (action) {
                 case GLFW_RELEASE:
                     state = "released";
+                    engine.queueEvent(new KeyEvent(key, KeyEvent.Action.RELEASE));//TODO: map to universal key codes
                     break;
                 case GLFW_PRESS:
+                    engine.queueEvent(new KeyEvent(key, KeyEvent.Action.PRESS));//TODO: map to universal key codes
                     state = "pressed";
                     break;
                 case GLFW_REPEAT:

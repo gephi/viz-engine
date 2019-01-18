@@ -5,12 +5,19 @@ import org.lwjgl.system.*;
 
 import java.nio.*;
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.gephi.graph.api.GraphModel;
+import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
+import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.gephi.viz.engine.lwjgl.VizEngineLWJGLConfigurator;
 import org.gephi.viz.engine.lwjgl.pipeline.events.GLFWEventsListener;
+import org.gephi.viz.engine.lwjgl.pipeline.events.KeyEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
+import org.gephi.viz.engine.spi.InputListener;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 import static org.lwjgl.glfw.Callbacks.*;
@@ -24,7 +31,7 @@ public class Main {
     private static final boolean DISABLE_INSTANCED_RENDERING = false;
     private static final boolean DISABLE_VAOS = false;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final boolean USE_OPENGL_ES = false;
 
     private static final int WIDTH = 1024;
@@ -65,7 +72,11 @@ public class Main {
         // Make the window visible
         glfwShowWindow(windowHandle);
 
+        setupTestEventListeners(engine);
+
         engine.start();//This starts the loop for GLFW in LWJGLRenderingTarget, which MUST be in main thread
+
+        stopTestEventListeners();
 
         glfwEventsListener.destroy();
         destroy();
@@ -141,4 +152,76 @@ public class Main {
         new Main().run();
     }
 
+    private final ExecutorService LAYOUT_THREAD_POOL = Executors.newSingleThreadExecutor();
+
+    private void setupTestEventListeners(final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
+
+        engine.addInputListener(new InputListener<LWJGLRenderingTarget, LWJGLInputEvent>() {
+            private volatile boolean layoutEnabled = false;
+
+            @Override
+            public boolean processEvent(LWJGLInputEvent event) {
+                if (event instanceof KeyEvent) {
+                    final KeyEvent keyEvent = (KeyEvent) event;
+                    if (keyEvent.getKeyCode() == GLFW_KEY_SPACE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
+                        toggleLayout(engine);
+                    }
+                }
+
+                return false;
+            }
+
+            @Override
+            public String getCategory() {
+                return "DEMO";
+            }
+
+            @Override
+            public int getPreferenceInCategory() {
+                return 0;
+            }
+
+            @Override
+            public String getName() {
+                return "Demo event listener";
+            }
+
+            @Override
+            public void init(LWJGLRenderingTarget target) {
+                //NOOP
+            }
+
+            @Override
+            public int getOrder() {
+                return 0;
+            }
+
+            private void toggleLayout(VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
+                if (layoutEnabled) {
+                    System.out.println("Stopping layout");
+                    layoutEnabled = false;
+                } else {
+                    System.out.println("Starting layout");
+                    LAYOUT_THREAD_POOL.submit(() -> {
+                        layoutEnabled = true;
+                        final GraphModel graphModel = engine.getGraphModel();
+
+                        final ForceAtlas2Builder forceAtlas2Builder = new ForceAtlas2Builder();
+                        final ForceAtlas2 forceAtlas2 = forceAtlas2Builder.buildLayout();
+
+                        forceAtlas2.setGraphModel(graphModel);
+                        forceAtlas2.initAlgo();
+                        while (layoutEnabled && forceAtlas2.canAlgo()) {
+                            forceAtlas2.goAlgo();
+                        }
+                        forceAtlas2.endAlgo();
+                    });
+                }
+            }
+        });
+    }
+
+    private void stopTestEventListeners() {
+        LAYOUT_THREAD_POOL.shutdown();
+    }
 }

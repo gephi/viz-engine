@@ -114,7 +114,7 @@ public class IndirectNodeData extends AbstractNodeData {
 
     //Triple buffering to ensure CPU and GPU don't access the same buffer at the same time:
     private static final int NUM_BUFFERS = 3;
-    private int currentBufferIndex = 0;
+    private int currentBufferIndex = 0;//TODO: use different GL buffers to avoid synchronization, not direct buffers!!
     private final ManagedDirectBuffer[] attributesBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
     private final ManagedDirectBuffer[] commandsBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
 

@@ -89,6 +89,16 @@
             <version>${gephi.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.gephi</groupId>
+            <artifactId>layout-api</artifactId>
+            <version>${gephi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gephi</groupId>
+            <artifactId>layout-plugin</artifactId>
+            <version>${gephi.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>
             <version>${netbeans.version}</version>
