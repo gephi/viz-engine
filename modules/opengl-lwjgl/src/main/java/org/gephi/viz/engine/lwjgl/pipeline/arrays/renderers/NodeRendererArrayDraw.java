@@ -8,7 +8,7 @@ import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.gephi.viz.engine.lwjgl.availability.ArrayDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawNodeData;
 import org.gephi.viz.engine.spi.Renderer;
-import org.gephi.viz.engine.util.Constants;
+import org.gephi.viz.engine.util.gl.Constants;
 
 /**
  *

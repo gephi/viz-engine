@@ -1,7 +1,7 @@
 package org.gephi.viz.engine.lwjgl.models;
 
-import org.gephi.viz.engine.util.Constants;
-import static org.gephi.viz.engine.util.Constants.*;
+import org.gephi.viz.engine.util.gl.Constants;
+import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.util.NumberUtils;
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
 import org.lwjgl.opengl.GL20;

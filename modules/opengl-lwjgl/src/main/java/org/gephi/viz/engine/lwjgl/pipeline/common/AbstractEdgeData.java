@@ -7,7 +7,7 @@ import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphSelection;
-import static org.gephi.viz.engine.util.Constants.*;
+import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.lwjgl.models.EdgeLineModelDirected;
 import org.gephi.viz.engine.lwjgl.models.EdgeLineModelUndirected;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBuffer;

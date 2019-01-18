@@ -13,7 +13,7 @@ import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import static org.gephi.viz.engine.util.Constants.*;
+import static org.gephi.viz.engine.util.gl.Constants.*;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glVertexAttrib1f;
@@ -99,7 +99,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
             final float[] attrs = new float[ATTRIBS_STRIDE];
             int index = instancesOffset * ATTRIBS_STRIDE;
 
-            //We have to perform one draw call per intance because repeating the attributes without instancing per each vertex would use too much memory:
+            //We have to perform one draw call per instance because repeating the attributes without instancing per each vertex would use too much memory:
             currentAttributesBuffer.position(index);
             for (int i = 0; i < instanceCount; i++) {
                 currentAttributesBuffer.get(attrs);

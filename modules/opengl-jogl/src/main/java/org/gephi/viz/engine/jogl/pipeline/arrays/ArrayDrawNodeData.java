@@ -16,7 +16,7 @@ import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import static org.gephi.viz.engine.util.Constants.*;
+import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.jogl.util.ManagedDirectBuffer;
 import org.gephi.viz.engine.jogl.util.gl.BufferUtils;
 import org.gephi.viz.engine.jogl.util.gl.GLBufferMutable;

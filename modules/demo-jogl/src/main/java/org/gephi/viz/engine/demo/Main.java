@@ -16,8 +16,13 @@ import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
 import org.gephi.viz.engine.jogl.VizEngineJOGLConfigurator;
+import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 public class Main implements KeyListener {
+    
+    private static final boolean DISABLE_INDIRECT_RENDERING = true;
+    private static final boolean DISABLE_INSTANCED_RENDERING = true;
+    private static final boolean DISABLE_VAOS = false;
 
     private VizEngine<JOGLRenderingTarget, NEWTEvent> engine;
     private JFrame frame;
@@ -50,7 +55,12 @@ public class Main implements KeyListener {
                         new VizEngineJOGLConfigurator()
                 )
         );
-        //engine = VizEngineFactory.newEngine(glWindow, GraphLoader.load("samples/twitter_combined.csv"));
+        
+        final OpenGLOptions glOptions = engine.getLookup().lookup(OpenGLOptions.class);
+        glOptions.setDisableIndirectDrawing(DISABLE_INDIRECT_RENDERING);
+        glOptions.setDisableInstancedDrawing(DISABLE_INSTANCED_RENDERING);
+        glOptions.setDisableVAOS(DISABLE_VAOS);
+        
         engine.start();
 
         newtCanvas = new NewtCanvasAWT(glWindow);

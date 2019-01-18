@@ -17,7 +17,7 @@ import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
 import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  *
@@ -50,7 +50,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
     }
 
     public void drawArrays(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
-        GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
+        final GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
 
         final float[] backgroundColorFloats = engine.getBackgroundColor();
         final float edgeScale = renderingOptions.getEdgeScale();
@@ -114,7 +114,6 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 attributesGLBuffer.bind();
                 attributesGLBuffer.update(batchUpdateBuffer);
                 attributesGLBuffer.unbind();
-
                 lineModelUndirected.drawArraysMultipleInstance(drawBatchCount);
             }
 
@@ -196,30 +195,38 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
 
         glGenBuffers(bufferName);
 
-        try (MemoryStack stack = MemoryStack.stackPush()) {
+        {
             float[] singleElementData = EdgeLineModelUndirected.getVertexData();
             float[] undirectedVertexDataArray = new float[singleElementData.length * BATCH_EDGES_SIZE];
             System.arraycopy(singleElementData, 0, undirectedVertexDataArray, 0, singleElementData.length);
             ArrayUtils.repeat(undirectedVertexDataArray, 0, singleElementData.length, BATCH_EDGES_SIZE);
 
-            final FloatBuffer undirectedVertexData = stack.floats(undirectedVertexDataArray);
+            final FloatBuffer undirectedVertexData = MemoryUtil.memAllocFloat(undirectedVertexDataArray.length);
+            undirectedVertexData.put(undirectedVertexDataArray);
+
             vertexGLBufferUndirected = new GLBufferMutable(bufferName[VERT_BUFFER_UNDIRECTED], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
             vertexGLBufferUndirected.bind();
             vertexGLBufferUndirected.init(undirectedVertexData, GLBufferMutable.GL_BUFFER_USAGE_STATIC_DRAW);
             vertexGLBufferUndirected.unbind();
+
+            MemoryUtil.memFree(undirectedVertexData);
         }
 
-        try (MemoryStack stack = MemoryStack.stackPush()) {
+        {
             float[] singleElementData = EdgeLineModelDirected.getVertexData();
             float[] directedVertexDataArray = new float[singleElementData.length * BATCH_EDGES_SIZE];
             System.arraycopy(singleElementData, 0, directedVertexDataArray, 0, singleElementData.length);
             ArrayUtils.repeat(directedVertexDataArray, 0, singleElementData.length, BATCH_EDGES_SIZE);
 
-            final FloatBuffer directedVertexData = stack.floats(directedVertexDataArray);
+            final FloatBuffer directedVertexData = MemoryUtil.memAllocFloat(directedVertexDataArray.length);
+            directedVertexData.put(directedVertexDataArray);
+
             vertexGLBufferDirected = new GLBufferMutable(bufferName[VERT_BUFFER_DIRECTED], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
             vertexGLBufferDirected.bind();
             vertexGLBufferDirected.init(directedVertexData, GLBufferMutable.GL_BUFFER_USAGE_STATIC_DRAW);
             vertexGLBufferDirected.unbind();
+
+            MemoryUtil.memFree(directedVertexData);
         }
 
         //Initialize for batch edges size:

@@ -9,7 +9,7 @@ import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.jogl.pipeline.indirect.IndirectNodeData;
 import org.gephi.viz.engine.spi.Renderer;
-import org.gephi.viz.engine.util.Constants;
+import org.gephi.viz.engine.util.gl.Constants;
 
 /**
  *

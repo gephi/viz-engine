@@ -1,4 +1,4 @@
-package org.gephi.viz.engine.util;
+package org.gephi.viz.engine.util.gl;
 
 /**
  *

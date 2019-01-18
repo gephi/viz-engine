@@ -13,7 +13,7 @@ import org.gephi.viz.engine.jogl.models.EdgeLineModelDirected;
 import org.gephi.viz.engine.jogl.models.EdgeLineModelUndirected;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphSelection;
-import static org.gephi.viz.engine.util.Constants.*;
+import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.jogl.util.gl.GLBuffer;
 import org.gephi.viz.engine.jogl.util.gl.GLVertexArrayObject;
 import org.gephi.viz.engine.jogl.util.gl.capabilities.GLCapabilitiesSummary;

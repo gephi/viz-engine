@@ -3,7 +3,6 @@ package org.gephi.viz.engine.lwjgl.availability;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.opengl.GLCapabilities;
-import org.lwjgl.system.Checks;
 
 /**
  *
@@ -22,10 +21,7 @@ public class IndirectDraw {
 
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
-        return Checks.checkFunctions(
-                capabilities.glMultiDrawArraysIndirect,
-                capabilities.glBufferStorage
-        );
+        return capabilities.GL_ARB_multi_draw_indirect && capabilities.GL_ARB_buffer_storage;
     }
 
 }

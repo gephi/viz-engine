@@ -3,7 +3,6 @@ package org.gephi.viz.engine.lwjgl.availability;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.opengl.GLCapabilities;
-import org.lwjgl.system.Checks;
 
 /**
  *
@@ -22,7 +21,7 @@ public class ArrayDraw {
 
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
-        return Checks.checkFunctions(capabilities.glDrawArrays);
+        return capabilities.GL_ARB_shader_objects && capabilities.GL_ARB_vertex_shader && capabilities.GL_ARB_fragment_shader;
     }
 
 }

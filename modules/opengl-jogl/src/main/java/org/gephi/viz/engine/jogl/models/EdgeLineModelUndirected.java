@@ -3,8 +3,8 @@ package org.gephi.viz.engine.jogl.models;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
-import org.gephi.viz.engine.util.Constants;
-import static org.gephi.viz.engine.util.Constants.*;
+import org.gephi.viz.engine.util.gl.Constants;
+import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.util.NumberUtils;
 import org.gephi.viz.engine.jogl.util.gl.GLShaderProgram;
 
