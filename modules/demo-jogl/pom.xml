@@ -29,11 +29,6 @@
         
         <dependency>
             <groupId>org.gephi</groupId>
-            <artifactId>viz-engine</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.gephi</groupId>
             <artifactId>graph-api</artifactId>
             <version>${gephi.version}</version>
         </dependency>
