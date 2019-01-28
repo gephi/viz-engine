@@ -74,6 +74,10 @@
             <artifactId>lwjgl</artifactId>
         </dependency>
         <dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-jawt</artifactId>
+		</dependency>
+        <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-glfw</artifactId>
         </dependency>

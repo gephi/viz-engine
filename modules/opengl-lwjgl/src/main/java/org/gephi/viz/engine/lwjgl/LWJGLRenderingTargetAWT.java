@@ -42,7 +42,7 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
 
     @Override
     public void start() {
-        //NOOP
+        running = true;
     }
 
     @Override
@@ -56,11 +56,6 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
     }
 
     public void initializeContext() {
-        // This line is critical for LWJGL's interoperation with GLFW's
-        // OpenGL context, or any context that is managed externally.
-        // LWJGL detects the context that is current in the current thread,
-        // creates the GLCapabilities instance and makes the OpenGL
-        // bindings available for use.
         final GLCapabilities capabilities = GL.createCapabilities();
         engine.addToLookup(capabilities);
 

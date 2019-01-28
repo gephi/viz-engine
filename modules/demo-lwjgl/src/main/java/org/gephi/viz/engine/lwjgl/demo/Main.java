@@ -1,5 +1,7 @@
 package org.gephi.viz.engine.lwjgl.demo;
 
+import java.util.Arrays;
+
 /**
  *
  * @author Eduardo Ramos
@@ -14,10 +16,12 @@ public class Main {
             mode = "AWT";
         }
 
-        if (mode.equalsIgnoreCase("AWT")) {
-            MainAWT.main(args);
+        final String[] argsWithoutMode = args.length > 0 ? Arrays.copyOfRange(args, 1, args.length) : args;
+
+        if (mode.equalsIgnoreCase("GLFW")) {
+            MainGLFW.main(argsWithoutMode);
         } else {
-            MainGLFW.main(args);
+            MainAWT.main(argsWithoutMode);
         }
     }
 }

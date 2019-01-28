@@ -91,6 +91,12 @@
             
             <dependency>
                 <groupId>org.lwjgl</groupId>
+                <artifactId>lwjgl-jawt</artifactId>
+                <version>${lwjgl.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.lwjgl</groupId>
                 <artifactId>lwjgl-glfw</artifactId>
                 <version>${lwjgl.version}</version>
             </dependency>

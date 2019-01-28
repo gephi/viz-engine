@@ -33,6 +33,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.lwjglx</groupId>
+            <artifactId>lwjgl3-awt</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-opengl</artifactId>
             <scope>provided</scope>

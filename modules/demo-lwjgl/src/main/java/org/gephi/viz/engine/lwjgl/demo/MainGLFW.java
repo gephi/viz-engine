@@ -4,6 +4,7 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,20 +42,14 @@ public class MainGLFW {
     // The window handle
     private long windowHandle;
 
-    public void run() throws InterruptedException {
+    public void run(final String graphFilePath) throws InterruptedException {
         init();
 
         final LWJGLRenderingTargetGLFW renderingTarget = new LWJGLRenderingTargetGLFW(windowHandle);
 
-        //final String graphFile = "samples/Java.gexf";
-        //final String graphFile = "samples/mixed-sample.gexf";
-        //final String graphFile = "samples/Les Miserables.gexf";
-        final String graphFile = "samples/comic-hero-network.gexf";
-        //final String graphFile = "samples/Power Grid.gml";
-        //final String graphFile = "samples/twitter_combined.csv";
         final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine = VizEngineFactory.<LWJGLRenderingTarget, LWJGLInputEvent>newEngine(
                 renderingTarget,
-                GraphLoader.load(graphFile),
+                GraphLoader.load(graphFilePath),
                 Collections.singletonList(
                         new VizEngineLWJGLConfigurator()
                 )
@@ -150,10 +145,6 @@ public class MainGLFW {
         glfwSetErrorCallback(null).free();
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        new MainGLFW().run();
-    }
-
     private final ExecutorService LAYOUT_THREAD_POOL = Executors.newSingleThreadExecutor();
 
     private void setupTestEventListeners(final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
@@ -212,6 +203,9 @@ public class MainGLFW {
                         final ForceAtlas2 forceAtlas2 = forceAtlas2Builder.buildLayout();
 
                         forceAtlas2.setGraphModel(graphModel);
+                        forceAtlas2.setBarnesHutOptimize(true);
+                        forceAtlas2.setScalingRatio(1000.0);
+                        forceAtlas2.setAdjustSizes(true);
                         forceAtlas2.initAlgo();
                         while (layoutEnabled && forceAtlas2.canAlgo()) {
                             forceAtlas2.goAlgo();
@@ -225,5 +219,22 @@ public class MainGLFW {
 
     private void stopTestEventListeners() {
         LAYOUT_THREAD_POOL.shutdown();
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        final MainGLFW main = new MainGLFW();
+        
+        System.out.println(Arrays.toString(args));
+        
+        //final String graphFile = "samples/Java.gexf";
+        //final String graphFile = "samples/mixed-sample.gexf";
+        //final String graphFile = "samples/Les Miserables.gexf";
+        final String graphFile = "samples/comic-hero-network.gexf";
+        //final String graphFile = "samples/Power Grid.gml";
+        //final String graphFile = "samples/twitter_combined.csv";
+
+        main.run(
+                args.length > 0 ? args[0] : graphFile
+        );
     }
 }
