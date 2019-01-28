@@ -13,6 +13,8 @@ public interface GLBuffer {
     void init(Buffer buffer, int usageFlags);
 
     void update(Buffer buffer);
+    
+    void updateWithOrphaning(Buffer buffer);
 
     void bind();
 

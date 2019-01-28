@@ -155,7 +155,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
     public void updateBuffers(GL2ES3 gl) {
         attributesGLBuffer.bind(gl);
-        attributesGLBuffer.update(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
         attributesGLBuffer.unbind(gl);
 
         undirectedInstanceCounter.promoteCountToDraw();

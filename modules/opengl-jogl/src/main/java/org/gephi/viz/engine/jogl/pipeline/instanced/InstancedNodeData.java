@@ -164,7 +164,7 @@ public class InstancedNodeData extends AbstractNodeData {
 
     public void updateBuffers(GL2ES3 gl) {
         attributesGLBuffer.bind(gl);
-        attributesGLBuffer.update(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
         attributesGLBuffer.unbind(gl);
 
         instanceCounter.promoteCountToDraw();

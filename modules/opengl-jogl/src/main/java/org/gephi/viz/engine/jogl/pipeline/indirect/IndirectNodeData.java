@@ -169,11 +169,11 @@ public class IndirectNodeData extends AbstractNodeData {
 
     public void updateBuffers(GL4 gl) {
         attributesGLBuffer.bind(gl);
-        attributesGLBuffer.update(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
         attributesGLBuffer.unbind(gl);
 
         commandsGLBuffer.bind(gl);
-        commandsGLBuffer.update(gl, commandsBuffersList[currentBufferIndex].intBuffer());
+        commandsGLBuffer.updateWithOrphaning(gl, commandsBuffersList[currentBufferIndex].intBuffer());
         commandsGLBuffer.unbind(gl);
 
         instanceCounter.promoteCountToDraw();

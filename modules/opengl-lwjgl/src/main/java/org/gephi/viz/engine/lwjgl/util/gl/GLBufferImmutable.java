@@ -128,6 +128,11 @@ public class GLBufferImmutable implements GLBuffer {
     }
 
     @Override
+    public void updateWithOrphaning(Buffer buffer) {
+        throw new UnsupportedOperationException("This buffer is immutable and can't be reinitialized");
+    }
+
+    @Override
     public long size() {
         return sizeBytes;
     }

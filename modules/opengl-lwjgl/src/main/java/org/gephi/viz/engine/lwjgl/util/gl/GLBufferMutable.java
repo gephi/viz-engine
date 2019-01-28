@@ -132,6 +132,11 @@ public class GLBufferMutable implements GLBuffer {
     }
 
     @Override
+    public void updateWithOrphaning(Buffer buffer) {
+        init(buffer, usage);
+    }
+
+    @Override
     public void destroy() {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");

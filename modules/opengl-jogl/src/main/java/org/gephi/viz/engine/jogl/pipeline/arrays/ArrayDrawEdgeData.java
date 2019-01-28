@@ -116,7 +116,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 batchUpdateBuffer.flip();
 
                 attributesGLBuffer.bind(gl);
-                attributesGLBuffer.update(gl, batchUpdateBuffer);
+                attributesGLBuffer.updateWithOrphaning(gl, batchUpdateBuffer);
                 attributesGLBuffer.unbind(gl);
 
                 lineModelUndirected.drawArraysMultipleInstance(gl, drawBatchCount);
@@ -173,7 +173,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 batchUpdateBuffer.flip();
 
                 attributesGLBuffer.bind(gl);
-                attributesGLBuffer.update(gl, batchUpdateBuffer);
+                attributesGLBuffer.updateWithOrphaning(gl, batchUpdateBuffer);
                 attributesGLBuffer.unbind(gl);
 
                 lineModelDirected.drawArraysMultipleInstance(gl, drawBatchCount);

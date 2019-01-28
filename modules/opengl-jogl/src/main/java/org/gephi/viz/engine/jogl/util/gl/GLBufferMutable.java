@@ -93,6 +93,22 @@ public class GLBufferMutable implements GLBuffer {
     }
 
     @Override
+    public void updateWithOrphaning(GL gl, Buffer buffer) {
+        updateWithOrphaning(gl, buffer, buffer.remaining() * bufferElementBytes(buffer));
+    }
+
+    @Override
+    public void updateWithOrphaning(GL gl, Buffer buffer, long sizeBytes) {
+        if (!isBound(gl)) {
+            throw new IllegalStateException("You should bind the buffer first!");
+        }
+
+        this.sizeBytes = sizeBytes;
+
+        gl.glBufferData(type, sizeBytes, buffer, usage);
+    }
+
+    @Override
     public void destroy(GL gl) {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");
