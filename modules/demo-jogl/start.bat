@@ -1,1 +1,1 @@
-java -jar target\viz-engine-jogl-demo-1.0.0-SNAPSHOT.jar
+java -jar -Xmx2048m target\viz-engine-jogl-demo-1.0.0-SNAPSHOT.jar

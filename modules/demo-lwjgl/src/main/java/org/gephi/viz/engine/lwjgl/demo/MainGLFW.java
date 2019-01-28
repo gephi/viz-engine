@@ -26,7 +26,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class Main {
+public class MainGLFW {
 
     private static final boolean DISABLE_INDIRECT_RENDERING = false;
     private static final boolean DISABLE_INSTANCED_RENDERING = false;
@@ -151,7 +151,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        new Main().run();
+        new MainGLFW().run();
     }
 
     private final ExecutorService LAYOUT_THREAD_POOL = Executors.newSingleThreadExecutor();
