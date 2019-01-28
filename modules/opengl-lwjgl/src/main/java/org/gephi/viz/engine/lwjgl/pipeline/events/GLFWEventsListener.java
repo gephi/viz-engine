@@ -19,7 +19,7 @@ public class GLFWEventsListener {
 
     private static final Map<Integer, String> KEY_CODES = apiClassTokens((field, value) -> field.getName().startsWith("GLFW_KEY_"), null, GLFW.class);
     private static final int DEFAULT_CLICK_TIME_DURATION_MILLIS = 200;
-    private static final int DEFAULT_DOUBLE_CLICK_TIME_PERIOD_MILLIS = 500;
+    private static final int DEFAULT_DOUBLE_CLICK_TIME_PERIOD_MILLIS = 300;
 
     private final long windowHandle;
     private final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine;
@@ -40,6 +40,9 @@ public class GLFWEventsListener {
     private long lastLeftMouseButtonPressMillis = 0;
     private long lastMiddleMouseButtonPressMillis = 0;
     private long lastRightMouseButtonPressMillis = 0;
+
+    private int lastLeftMouseButtonClickCount = 0;
+    private int lastRightMouseButtonClickCount = 0;
 
     private AtomicBoolean isLeftMouseButtonPressed = new AtomicBoolean();
     private AtomicBoolean isLeftMouseButtonPressEventSent = new AtomicBoolean();
@@ -99,10 +102,43 @@ public class GLFWEventsListener {
                     }
 
                     if (isClick) {
-                        //TODO: implement double click
-                        engine.queueEvent(
-                                MouseEvent.click(button, mouseX, mouseY)
-                        );
+                        //Detect double clicks:
+                        if (button == MouseEvent.Button.LEFT || button == MouseEvent.Button.RIGHT) {
+                            final int clickCount;
+                            if (button == MouseEvent.Button.LEFT) {
+                                clickCount = ++lastLeftMouseButtonClickCount;
+                            } else {
+                                clickCount = ++lastRightMouseButtonClickCount;
+                            }
+
+                            if (clickCount == 1) {
+                                executorService.schedule(() -> {
+                                    final int newClickCount;
+                                    if (button == MouseEvent.Button.LEFT) {
+                                        newClickCount = lastLeftMouseButtonClickCount;
+                                        lastLeftMouseButtonClickCount = 0;
+                                    } else {
+                                        newClickCount = lastRightMouseButtonClickCount;
+                                        lastRightMouseButtonClickCount = 0;
+                                    }
+
+                                    if (newClickCount == 1) {
+                                        engine.queueEvent(
+                                                MouseEvent.click(button, mouseX, mouseY)
+                                        );
+                                    } else if (newClickCount > 1) {
+                                        engine.queueEvent(
+                                                MouseEvent.doubleClick(button, mouseX, mouseY)
+                                        );
+                                    }
+
+                                }, doubleClickTimePeriodMillis, TimeUnit.MILLISECONDS);
+                            }
+                        } else {
+                            engine.queueEvent(
+                                    MouseEvent.click(button, mouseX, mouseY)
+                            );
+                        }
                     } else {
                         engine.queueEvent(
                                 MouseEvent.release(button, mouseX, mouseY)
@@ -148,11 +184,8 @@ public class GLFWEventsListener {
                         }
                     }, clickTimeDurationMillis, TimeUnit.MILLISECONDS);
 
-                    //TODO: send press when timeout
                     break;
             }
-
-            //TODO: generate click, drag...
         });
         glfwSetCursorPosCallback(windowHandle, (windowHnd, xpos, ypos) -> {
             final boolean isDragging = isLeftMouseButtonPressed.get() || isRightMouseButtonPressed.get();
