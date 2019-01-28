@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
+import org.gephi.viz.engine.util.TimeUtils;
 import org.lwjgl.glfw.GLFW;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.APIUtil.apiClassTokens;
@@ -86,7 +87,7 @@ public class GLFWEventsListener {
         ));
         glfwSetMouseButtonCallback(windowHandle, (windowHnd, buttonCode, action, mods) -> {
             final MouseEvent.Button button = toButtonEnum(buttonCode);
-            final long now = System.currentTimeMillis();
+            final long now = TimeUtils.getTimeMillis();
             switch (action) {
                 case GLFW_RELEASE:
                     final boolean isClick

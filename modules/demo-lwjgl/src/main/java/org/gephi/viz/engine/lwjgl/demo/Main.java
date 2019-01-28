@@ -13,6 +13,7 @@ import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
+import org.gephi.viz.engine.lwjgl.LWJGLRenderingTargetGLFW;
 import org.gephi.viz.engine.lwjgl.VizEngineLWJGLConfigurator;
 import org.gephi.viz.engine.lwjgl.pipeline.events.GLFWEventsListener;
 import org.gephi.viz.engine.lwjgl.pipeline.events.KeyEvent;
@@ -43,7 +44,7 @@ public class Main {
     public void run() throws InterruptedException {
         init();
 
-        final LWJGLRenderingTarget renderingTarget = new LWJGLRenderingTarget(windowHandle);
+        final LWJGLRenderingTargetGLFW renderingTarget = new LWJGLRenderingTargetGLFW(windowHandle);
 
         //final String graphFile = "samples/Java.gexf";
         //final String graphFile = "samples/mixed-sample.gexf";
@@ -74,6 +75,7 @@ public class Main {
 
         setupTestEventListeners(engine);
 
+        renderingTarget.setWindowTitleFormat("VizEngine demo (LWJGL GLFW) FPS: $FPS");
         engine.start();//This starts the loop for GLFW in LWJGLRenderingTarget, which MUST be in main thread
 
         stopTestEventListeners();

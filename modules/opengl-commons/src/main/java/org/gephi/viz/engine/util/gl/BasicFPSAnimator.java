@@ -1,4 +1,6 @@
-package org.gephi.viz.engine.lwjgl;
+package org.gephi.viz.engine.util.gl;
+
+import org.gephi.viz.engine.util.TimeUtils;
 
 /**
  *
@@ -28,14 +30,14 @@ public class BasicFPSAnimator extends Thread {
     @Override
     public void run() {
         while (animating) {
-            startTime = System.currentTimeMillis();
+            startTime = TimeUtils.getTimeMillis();
             //Execute
             synchronized (worldLock) {
                 runnable.run();
             }
             //End
             long timeout;
-            while ((timeout = delay - System.currentTimeMillis() + startTime) > 0) {
+            while ((timeout = delay - TimeUtils.getTimeMillis() + startTime) > 0) {
                 //Wait only if the time spent in display is inferior than delay
                 //Otherwise the render loop acts as a 'as fast as you can' loop
                 synchronized (this.lock) {

@@ -22,6 +22,7 @@ import org.gephi.viz.engine.spi.PipelinedExecutor;
 import org.gephi.viz.engine.spi.Renderer;
 import org.gephi.viz.engine.spi.RenderingTarget;
 import org.gephi.viz.engine.spi.WorldUpdater;
+import org.gephi.viz.engine.util.TimeUtils;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector2f;
@@ -422,7 +423,7 @@ public class VizEngine<R extends RenderingTarget, I> {
         if (!updatersThreadPool.isShutdown() && allUpdatersCompletableFuture == null) {
             //Control max world updates per second
             if (maxWorldUpdatesPerSecond >= 1) {
-                if (System.currentTimeMillis() < lastWorldUpdateMillis + 1000 / maxWorldUpdatesPerSecond) {
+                if (TimeUtils.getTimeMillis() < lastWorldUpdateMillis + 1000 / maxWorldUpdatesPerSecond) {
                     //Skip world update
                     return;
                 }
@@ -436,7 +437,7 @@ public class VizEngine<R extends RenderingTarget, I> {
 
             allUpdatersCompletableFuture = CompletableFuture.allOf(futures);
 
-            lastWorldUpdateMillis = System.currentTimeMillis();
+            lastWorldUpdateMillis = TimeUtils.getTimeMillis();
         }
         renderingTarget.frameEnd();
     }

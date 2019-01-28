@@ -36,9 +36,9 @@ public class EdgesUpdaterInstancedRendering implements WorldUpdater<LWJGLRenderi
 
     @Override
     public void updateWorld() {
-        //final long start = System.currentTimeMillis();
+        //final long start = TimeUtils.getTimeMillis();
         edgeData.update(engine, spatialIndex);
-        //System.out.println("Edges update ms: " + (System.currentTimeMillis() - start));
+        //System.out.println("Edges update ms: " + (TimeUtils.getTimeMillis() - start));
     }
 
     @Override
