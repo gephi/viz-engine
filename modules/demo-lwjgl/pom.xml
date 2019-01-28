@@ -155,6 +155,22 @@
         </dependency>
         
         <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-jemalloc</artifactId>
+            <classifier>natives-linux</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-jemalloc</artifactId>
+            <classifier>natives-macos</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-jemalloc</artifactId>
+            <classifier>natives-windows</classifier>
+        </dependency>
+        
+        <dependency>
             <groupId>org.lwjglx</groupId>
             <artifactId>lwjgl3-awt</artifactId>
         </dependency>
@@ -188,7 +204,7 @@
                             <useUniqueVersions>false</useUniqueVersions>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <mainClass>org.gephi.viz.engine.lwjgl.demo.MainGLFW</mainClass>
+                            <mainClass>org.gephi.viz.engine.lwjgl.demo.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
