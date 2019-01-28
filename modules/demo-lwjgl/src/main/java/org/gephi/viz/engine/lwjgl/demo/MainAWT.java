@@ -111,7 +111,7 @@ public class MainAWT {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.transferFocus();
-
+        
         engine.start();
 
         final Runnable renderLoop = new Runnable() {
@@ -135,6 +135,11 @@ public class MainAWT {
 
             @Override
             public void windowActivated(WindowEvent e) {
+                renderingTarget.reshape(canvas.getWidth(), canvas.getHeight());
+            }
+
+            @Override
+            public void windowOpened(WindowEvent e) {
                 renderingTarget.reshape(canvas.getWidth(), canvas.getHeight());
             }
         });

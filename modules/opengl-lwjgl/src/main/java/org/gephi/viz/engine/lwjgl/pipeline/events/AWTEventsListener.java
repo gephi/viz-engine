@@ -77,7 +77,6 @@ public class AWTEventsListener {
 
             @Override
             public void mouseMoved(java.awt.event.MouseEvent e) {
-                System.out.println("Mouse: " + e.getX() + ":" + e.getY());
                 engine.queueEvent(
                         MouseEvent.move(e.getX(), e.getY())
                 );
