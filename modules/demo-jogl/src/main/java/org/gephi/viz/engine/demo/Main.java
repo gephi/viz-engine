@@ -36,7 +36,7 @@ public class Main implements KeyListener {
     private GLWindow glWindow;
     private NewtCanvasAWT newtCanvas;
 
-    public void start() {
+    public void start(final String graphFile) {
         final GLCapabilities caps = VizEngineJOGLConfigurator.createCapabilities();
 
         final Display display = NewtFactory.createDisplay(null);
@@ -51,13 +51,7 @@ public class Main implements KeyListener {
         glWindow.addKeyListener(this);
 
         final JOGLRenderingTarget renderingTarget = new JOGLRenderingTarget(glWindow);
-        
-        //final String graphFile = "samples/Java.gexf";
-        //final String graphFile = "samples/mixed-sample.gexf";
-        //final String graphFile = "samples/Les Miserables.gexf";
-        final String graphFile = "samples/comic-hero-network.gexf";
-        //final String graphFile = "samples/Power Grid.gml";
-        //final String graphFile = "samples/twitter_combined.csv";
+
         engine = VizEngineFactory.<JOGLRenderingTarget, NEWTEvent>newEngine(
                 renderingTarget,
                 GraphLoader.load(graphFile),
@@ -84,14 +78,24 @@ public class Main implements KeyListener {
         frame.setVisible(true);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
         renderingTarget.setFrame(frame);
         renderingTarget.setWindowTitleFormat("VizEngine demo (JOGL NEWT) FPS: $FPS");
     }
 
     public static void main(String[] args) {
-        Main main = new Main();
-        main.start();
+        final Main main = new Main();
+
+        //final String graphFile = "samples/Java.gexf";
+        //final String graphFile = "samples/mixed-sample.gexf";
+        //final String graphFile = "samples/Les Miserables.gexf";
+        final String graphFile = "samples/comic-hero-network.gexf";
+        //final String graphFile = "samples/Power Grid.gml";
+        //final String graphFile = "samples/twitter_combined.csv";
+
+        main.start(
+                args.length > 0 ? args[0] : graphFile
+        );
     }
 
     @Override
