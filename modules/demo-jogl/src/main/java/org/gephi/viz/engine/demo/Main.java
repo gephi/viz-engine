@@ -11,7 +11,12 @@ import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLContext;
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.swing.JFrame;
+import org.gephi.graph.api.GraphModel;
+import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
+import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
@@ -46,7 +51,7 @@ public class Main implements KeyListener {
         glWindow.addKeyListener(this);
 
         final JOGLRenderingTarget renderingTarget = new JOGLRenderingTarget(glWindow);
-
+        
         //final String graphFile = "samples/Java.gexf";
         //final String graphFile = "samples/mixed-sample.gexf";
         //final String graphFile = "samples/Les Miserables.gexf";
@@ -79,6 +84,9 @@ public class Main implements KeyListener {
         frame.setVisible(true);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        renderingTarget.setFrame(frame);
+        renderingTarget.setWindowTitleFormat("VizEngine demo (JOGL NEWT) FPS: $FPS");
     }
 
     public static void main(String[] args) {
@@ -94,10 +102,43 @@ public class Main implements KeyListener {
                 glWindow.destroy();
                 frame.dispose();
                 break;
+            case KeyEvent.VK_SPACE:
+                toggleLayout();
+                break;
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
+    }
+
+    private final ExecutorService LAYOUT_THREAD_POOL = Executors.newSingleThreadExecutor();
+
+    private volatile boolean layoutEnabled = false;
+
+    private void toggleLayout() {
+        if (layoutEnabled) {
+            System.out.println("Stopping layout");
+            layoutEnabled = false;
+        } else {
+            System.out.println("Starting layout");
+            LAYOUT_THREAD_POOL.submit(() -> {
+                layoutEnabled = true;
+                final GraphModel graphModel = engine.getGraphModel();
+
+                final ForceAtlas2Builder forceAtlas2Builder = new ForceAtlas2Builder();
+                final ForceAtlas2 forceAtlas2 = forceAtlas2Builder.buildLayout();
+
+                forceAtlas2.setGraphModel(graphModel);
+                forceAtlas2.setBarnesHutOptimize(true);
+                forceAtlas2.setScalingRatio(1000.0);
+                forceAtlas2.setAdjustSizes(true);
+                forceAtlas2.initAlgo();
+                while (layoutEnabled && forceAtlas2.canAlgo()) {
+                    forceAtlas2.goAlgo();
+                }
+                forceAtlas2.endAlgo();
+            });
+        }
     }
 }

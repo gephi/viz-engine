@@ -13,10 +13,13 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.Animator;
+import java.awt.Frame;
+import static java.awt.SystemColor.window;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.jogl.util.gl.capabilities.GLCapabilitiesSummary;
 import org.gephi.viz.engine.jogl.util.gl.capabilities.Profile;
 import org.gephi.viz.engine.spi.RenderingTarget;
+import org.gephi.viz.engine.util.TimeUtils;
 
 /**
  *
@@ -29,6 +32,10 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
     //Animators
     private Animator animator;
     private VizEngine<JOGLRenderingTarget, NEWTEvent> engine;
+
+    //For displaying FPS in window title
+    private String windowTitleFormat = null;
+    private Frame frame;
 
     public JOGLRenderingTarget(GLAutoDrawable drawable) {
         this.drawable = drawable;
@@ -97,7 +104,7 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
     @Override
     public void init(GLAutoDrawable drawable) {
         final GL gl = drawable.getGL();
-        
+
         final GLCapabilitiesSummary capabilities = new GLCapabilitiesSummary(gl, Profile.CORE);
         engine.addToLookup(capabilities);
 
@@ -107,8 +114,10 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
 
         //Disable blending for better performance
         gl.glDisable(GL.GL_BLEND);
-        
+
         engine.initPipeline();
+
+        lastFpsTime = TimeUtils.getTimeMillis();
     }
 
     @Override
@@ -126,6 +135,7 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
         gl.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
         gl.glClear(GL_COLOR_BUFFER_BIT);
 
+        updateFPS();
         engine.display();
     }
 
@@ -184,4 +194,35 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
         engine.queueEvent(e);
     }
 
+    public String getWindowTitleFormat() {
+        return windowTitleFormat;
+    }
+
+    public void setWindowTitleFormat(String windowTitleFormat) {
+        this.windowTitleFormat = windowTitleFormat;
+    }
+
+    public void setFrame(Frame frame) {
+        this.frame = frame;
+    }
+
+    public Frame getFrame() {
+        return frame;
+    }
+
+    private int fps = 0;
+    private long lastFpsTime = 0;
+
+    private void updateFPS() {
+        if (TimeUtils.getTimeMillis() - lastFpsTime > 1000) {
+            if (frame != null && windowTitleFormat != null && windowTitleFormat.contains("$FPS")) {
+                frame.setTitle(windowTitleFormat.replace("$FPS", String.valueOf(fps)));
+            } else {
+                System.out.println("FPS: " + fps);
+            }
+            fps = 0;
+            lastFpsTime += 1000;
+        }
+        fps++;
+    }
 }
