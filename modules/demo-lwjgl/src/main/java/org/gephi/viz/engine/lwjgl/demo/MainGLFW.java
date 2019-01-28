@@ -71,7 +71,7 @@ public class MainGLFW {
         setupTestEventListeners(engine);
 
         renderingTarget.setWindowTitleFormat("VizEngine demo (LWJGL GLFW) FPS: $FPS");
-        engine.start();//This starts the loop for GLFW in LWJGLRenderingTarget, which MUST be in main thread
+        engine.start();//This starts the loop for GLFW in LWJGLRenderingTargetGLFW, which MUST be in main thread
 
         stopTestEventListeners();
 
@@ -158,6 +158,10 @@ public class MainGLFW {
                     final KeyEvent keyEvent = (KeyEvent) event;
                     if (keyEvent.getKeyCode() == GLFW_KEY_SPACE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
                         toggleLayout(engine);
+                    }
+                    
+                    if (keyEvent.getKeyCode() == GLFW_KEY_ESCAPE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
+                        engine.stop();
                     }
                 }
 

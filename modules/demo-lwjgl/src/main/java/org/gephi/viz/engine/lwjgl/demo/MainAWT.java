@@ -45,8 +45,13 @@ public class MainAWT {
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 760;
 
+    private JFrame frame;
+    private LWJGLRenderingTargetAWT renderingTarget;
+    private VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine;
+    private AWTEventsListener eventsListener;
+
     public void run(final String graphFilePath) {
-        final JFrame frame = new JFrame("VizEngine demo (LWJGL AWT)");
+        frame = new JFrame("VizEngine demo (LWJGL AWT)");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -65,9 +70,9 @@ public class MainAWT {
         data.samples = 4;//4 samples anti-aliasing
         data.swapInterval = 0;
 
-        final LWJGLRenderingTargetAWT renderingTarget = new LWJGLRenderingTargetAWT(frame);
+        renderingTarget = new LWJGLRenderingTargetAWT(frame);
 
-        final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine = VizEngineFactory.<LWJGLRenderingTarget, LWJGLInputEvent>newEngine(
+        engine = VizEngineFactory.<LWJGLRenderingTarget, LWJGLInputEvent>newEngine(
                 renderingTarget,
                 GraphLoader.load(graphFilePath),
                 Collections.singletonList(
@@ -95,7 +100,7 @@ public class MainAWT {
             }
         };
 
-        final AWTEventsListener eventsListener = new AWTEventsListener(canvas, engine);
+        eventsListener = new AWTEventsListener(canvas, engine);
         eventsListener.register();
 
         setupTestEventListeners(engine);
@@ -113,8 +118,10 @@ public class MainAWT {
             @Override
             public void run() {
                 if (!canvas.isValid() || !renderingTarget.isRunning()) {
+                    stopAll();
                     return;
                 }
+
                 canvas.render();
                 SwingUtilities.invokeLater(this);
             }
@@ -123,9 +130,7 @@ public class MainAWT {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                engine.stop();
-                eventsListener.destroy();
-                stopTestEventListeners();
+                stopAll();
             }
 
             @Override
@@ -143,6 +148,13 @@ public class MainAWT {
         SwingUtilities.invokeLater(renderLoop);
     }
 
+    private void stopAll() {
+        engine.stop();
+        eventsListener.destroy();
+        stopTestEventListeners();
+        System.exit(0);
+    }
+
     private final ExecutorService LAYOUT_THREAD_POOL = Executors.newSingleThreadExecutor();
 
     private void setupTestEventListeners(final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
@@ -156,6 +168,12 @@ public class MainAWT {
                     final KeyEvent keyEvent = (KeyEvent) event;
                     if (keyEvent.getKeyCode() == java.awt.event.KeyEvent.VK_SPACE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
                         toggleLayout(engine);
+                    }
+
+                    if (keyEvent.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
+                        frame.setVisible(false);
+                        frame.dispose();
+                        stopAll();
                     }
                 }
 
