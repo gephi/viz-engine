@@ -20,6 +20,7 @@ import org.gephi.viz.engine.lwjgl.pipeline.events.GLFWEventsListener;
 import org.gephi.viz.engine.lwjgl.pipeline.events.KeyEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
 import org.gephi.viz.engine.spi.InputListener;
+import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 import static org.lwjgl.glfw.Callbacks.*;
@@ -39,6 +40,8 @@ public class MainGLFW {
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 760;
 
+    private static final WorldUpdaterExecutionMode UPDATE_DATA_MODE = WorldUpdaterExecutionMode.CONCURRENT_ASYNCHRONOUS;
+
     // The window handle
     private long windowHandle;
 
@@ -54,6 +57,7 @@ public class MainGLFW {
                         new VizEngineLWJGLConfigurator()
                 )
         );
+        engine.setWorldUpdatersExecutionMode(UPDATE_DATA_MODE);
 
         final OpenGLOptions glOptions = engine.getLookup().lookup(OpenGLOptions.class);
         glOptions.setDisableIndirectDrawing(DISABLE_INDIRECT_RENDERING);
@@ -159,7 +163,7 @@ public class MainGLFW {
                     if (keyEvent.getKeyCode() == GLFW_KEY_SPACE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
                         toggleLayout(engine);
                     }
-                    
+
                     if (keyEvent.getKeyCode() == GLFW_KEY_ESCAPE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
                         engine.stop();
                     }
@@ -227,9 +231,9 @@ public class MainGLFW {
 
     public static void main(String[] args) throws InterruptedException {
         final MainGLFW main = new MainGLFW();
-        
+
         System.out.println(Arrays.toString(args));
-        
+
         //final String graphFile = "samples/Java.gexf";
         //final String graphFile = "samples/mixed-sample.gexf";
         //final String graphFile = "samples/Les Miserables.gexf";

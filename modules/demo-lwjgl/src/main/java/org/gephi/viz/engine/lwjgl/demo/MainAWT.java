@@ -24,6 +24,7 @@ import org.gephi.viz.engine.lwjgl.pipeline.events.AWTEventsListener;
 import org.gephi.viz.engine.lwjgl.pipeline.events.KeyEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
 import org.gephi.viz.engine.spi.InputListener;
+import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.opengl.awt.GLData;
@@ -44,6 +45,8 @@ public class MainAWT {
 
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 760;
+
+    private static final WorldUpdaterExecutionMode UPDATE_DATA_MODE = WorldUpdaterExecutionMode.CONCURRENT_ASYNCHRONOUS;
 
     private JFrame frame;
     private LWJGLRenderingTargetAWT renderingTarget;
@@ -79,6 +82,7 @@ public class MainAWT {
                         new VizEngineLWJGLConfigurator()
                 )
         );
+        engine.setWorldUpdatersExecutionMode(UPDATE_DATA_MODE);
         renderingTarget.setWindowTitleFormat("VizEngine demo (LWJGL AWT) FPS: $FPS");
 
         final OpenGLOptions glOptions = engine.getLookup().lookup(OpenGLOptions.class);
@@ -111,7 +115,7 @@ public class MainAWT {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.transferFocus();
-        
+
         engine.start();
 
         final Runnable renderLoop = new Runnable() {

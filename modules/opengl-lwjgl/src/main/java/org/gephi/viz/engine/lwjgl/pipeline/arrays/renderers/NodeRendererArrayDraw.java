@@ -43,9 +43,11 @@ public class NodeRendererArrayDraw implements Renderer<LWJGLRenderingTarget> {
         nodeData.drawArrays(layer, engine, mvpFloats);
     }
 
+    private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(RenderingLayer.BACK, RenderingLayer.MIDDLE);
+
     @Override
     public EnumSet<RenderingLayer> getLayers() {
-        return EnumSet.of(RenderingLayer.BACK, RenderingLayer.MIDDLE);
+        return LAYERS;
     }
 
     @Override

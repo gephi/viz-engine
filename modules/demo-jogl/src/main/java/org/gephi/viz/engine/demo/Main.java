@@ -21,6 +21,7 @@ import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
 import org.gephi.viz.engine.jogl.VizEngineJOGLConfigurator;
+import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 public class Main implements KeyListener {
@@ -29,7 +30,9 @@ public class Main implements KeyListener {
     private static final boolean DISABLE_INSTANCED_RENDERING = false;
     private static final boolean DISABLE_VAOS = false;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
+
+    private static final WorldUpdaterExecutionMode UPDATE_DATA_MODE = WorldUpdaterExecutionMode.CONCURRENT_ASYNCHRONOUS;
 
     private VizEngine<JOGLRenderingTarget, NEWTEvent> engine;
     private JFrame frame;
@@ -59,6 +62,7 @@ public class Main implements KeyListener {
                         new VizEngineJOGLConfigurator()
                 )
         );
+        engine.setWorldUpdatersExecutionMode(UPDATE_DATA_MODE);
 
         final OpenGLOptions glOptions = engine.getLookup().lookup(OpenGLOptions.class);
         glOptions.setDisableIndirectDrawing(DISABLE_INDIRECT_RENDERING);

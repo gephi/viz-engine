@@ -22,6 +22,7 @@ import org.gephi.viz.engine.spi.PipelinedExecutor;
 import org.gephi.viz.engine.spi.Renderer;
 import org.gephi.viz.engine.spi.RenderingTarget;
 import org.gephi.viz.engine.spi.WorldUpdater;
+import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
 import org.gephi.viz.engine.util.TimeUtils;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -71,6 +72,7 @@ public class VizEngine<R extends RenderingTarget, I> {
     private final Set<WorldUpdater<R>> allUpdaters = new LinkedHashSet<>();
     private final List<WorldUpdater<R>> updatersPipeline = new ArrayList<>();
     private ExecutorService updatersThreadPool;
+    private WorldUpdaterExecutionMode worldUpdatersExecutionMode = WorldUpdaterExecutionMode.CONCURRENT_ASYNCHRONOUS;
 
     //Input listeners:
     private final List<I> eventsQueue = Collections.synchronizedList(new ArrayList<>());
@@ -102,18 +104,22 @@ public class VizEngine<R extends RenderingTarget, I> {
         }
 
         final int numThreads = Math.max(Math.min(updatersPipeline.size(), 4), 1);
-        updatersThreadPool = Executors.newFixedThreadPool(numThreads, new ThreadFactory() {
-            private int id = 1;
+        if (worldUpdatersExecutionMode.isConcurrent()) {
+            updatersThreadPool = Executors.newFixedThreadPool(numThreads, new ThreadFactory() {
+                private int id = 1;
 
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "World Updater " + id++);
-            }
-        });
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "World Updater " + id++);
+                }
+            });
+        }
 
         this.renderingTarget.setup(this);
 
         isSetUp = true;
+
+        System.out.println("World updaters execution mode: " + worldUpdatersExecutionMode);
     }
 
     public R getRenderingTarget() {
@@ -232,6 +238,14 @@ public class VizEngine<R extends RenderingTarget, I> {
     public List<WorldUpdater<R>> getWorldUpdatersPipeline() {
         //TODO: check initialized
         return Collections.unmodifiableList(updatersPipeline);
+    }
+
+    public WorldUpdaterExecutionMode getWorldUpdatersExecutionMode() {
+        return worldUpdatersExecutionMode;
+    }
+
+    public void setWorldUpdatersExecutionMode(WorldUpdaterExecutionMode worldUpdatersExecutionMode) {
+        this.worldUpdatersExecutionMode = worldUpdatersExecutionMode;
     }
 
     public boolean isWorldUpdaterInPipeline(WorldUpdater<R> renderer) {
@@ -359,15 +373,19 @@ public class VizEngine<R extends RenderingTarget, I> {
     }
 
     public synchronized void stop() {
-        try {
-            updatersThreadPool.shutdown();
-            boolean terminated = updatersThreadPool.awaitTermination(DEFAULT_MAX_WORLD_UPDATES_PER_SECOND, TimeUnit.SECONDS);
-            if (!terminated) {
-                updatersThreadPool.shutdownNow();
+        if (updatersThreadPool != null) {
+            try {
+                updatersThreadPool.shutdown();
+                final boolean terminated = updatersThreadPool.awaitTermination(10, TimeUnit.SECONDS);
+                if (!terminated) {
+                    updatersThreadPool.shutdownNow();
+                }
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+                //NOOP
+            } finally {
+                updatersThreadPool = null;
             }
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-            //NOOP
         }
 
         System.out.println("Dispose updaters");
@@ -396,22 +414,21 @@ public class VizEngine<R extends RenderingTarget, I> {
         }, updatersThreadPool);
     }
 
+    private static final RenderingLayer[] ALL_LAYERS = RenderingLayer.values();
+
     public void display() {
         renderingTarget.frameStart();
+
         processInputEvents();
 
-        //Notify renderers when next world data update is done:
-        final boolean worldUpdateDone = allUpdatersCompletableFuture != null && allUpdatersCompletableFuture.isDone();
-        if (worldUpdateDone) {
-            allUpdatersCompletableFuture = null;
-
-            for (Renderer renderer : renderersPipeline) {
-                renderer.worldUpdated(renderingTarget);
-            }
+        if (updatersThreadPool == null) {
+            runWorldUpdaters();
+        } else {
+            checkConcurrentWorldUpdateIsDone();
         }
 
         //Call renderers for the current frame:
-        for (RenderingLayer layer : RenderingLayer.values()) {
+        for (RenderingLayer layer : ALL_LAYERS) {
             for (Renderer renderer : renderersPipeline) {
                 if (renderer.getLayers().contains(layer)) {
                     renderer.render(renderingTarget, layer);
@@ -419,7 +436,66 @@ public class VizEngine<R extends RenderingTarget, I> {
             }
         }
 
-        //Schedule next world update:
+        //Schedule next concurrent world update:
+        if (updatersThreadPool != null) {
+            scheduleNextConcurrentWorldUpdateIfDone();
+        }
+
+        renderingTarget.frameEnd();
+    }
+
+    private long lastWorldUpdateMillis = 0;
+
+    private void runWorldUpdaters() {
+        //Control max world updates per second
+        if (maxWorldUpdatesPerSecond >= 1) {
+            if (TimeUtils.getTimeMillis() < lastWorldUpdateMillis + 1000 / maxWorldUpdatesPerSecond) {
+                //Skip world update
+                return;
+            }
+        }
+
+        for (WorldUpdater<R> worldUpdater : updatersPipeline) {
+            worldUpdater.updateWorld();
+        }
+        lastWorldUpdateMillis = TimeUtils.getTimeMillis();
+
+        for (Renderer renderer : renderersPipeline) {
+            renderer.worldUpdated(renderingTarget);
+        }
+    }
+
+    private void checkConcurrentWorldUpdateIsDone() {
+        if (allUpdatersCompletableFuture != null) {
+            if (worldUpdatersExecutionMode.isSynchronous()) {
+                try {
+                    allUpdatersCompletableFuture.get();
+
+                    allUpdatersCompletableFuture = null;
+
+                    //Notify renderers when next concurrent synchronous world data update is done:
+                    for (Renderer renderer : renderersPipeline) {
+                        renderer.worldUpdated(renderingTarget);
+                    }
+                } catch (Throwable ex) {
+                    ex.printStackTrace();//TODO Logger
+                }
+            } else {
+                //Notify renderers if next concurrent asynchronous world data update is done:
+                final boolean worldUpdateDone = allUpdatersCompletableFuture != null && allUpdatersCompletableFuture.isDone();
+                if (worldUpdateDone) {
+                    allUpdatersCompletableFuture = null;
+
+                    for (Renderer renderer : renderersPipeline) {
+                        renderer.worldUpdated(renderingTarget);
+                    }
+                }
+            }
+        }
+
+    }
+
+    private void scheduleNextConcurrentWorldUpdateIfDone() {
         if (!updatersThreadPool.isShutdown() && allUpdatersCompletableFuture == null) {
             //Control max world updates per second
             if (maxWorldUpdatesPerSecond >= 1) {
@@ -439,10 +515,7 @@ public class VizEngine<R extends RenderingTarget, I> {
 
             lastWorldUpdateMillis = TimeUtils.getTimeMillis();
         }
-        renderingTarget.frameEnd();
     }
-
-    private long lastWorldUpdateMillis = 0;
 
     public Lookup getLookup() {
         return lookup;
