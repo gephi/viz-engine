@@ -255,10 +255,11 @@ public class MainAWT {
 
         System.out.println(Arrays.toString(args));
 
-        //final String graphFile = "samples/Java.gexf";
+        final String graphFile = "samples/test.gexf";
+        // final String graphFile = "samples/Java.gexf";
         //final String graphFile = "samples/mixed-sample.gexf";
         //final String graphFile = "samples/Les Miserables.gexf";
-        final String graphFile = "samples/comic-hero-network.gexf";
+        // final String graphFile = "samples/comic-hero-network.gexf";
         //final String graphFile = "samples/Power Grid.gml";
         //final String graphFile = "samples/twitter_combined.csv";
 
