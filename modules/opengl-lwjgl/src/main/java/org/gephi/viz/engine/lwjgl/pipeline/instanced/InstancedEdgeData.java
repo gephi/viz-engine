@@ -108,10 +108,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
         }
     }
 
-    //Triple buffering to ensure CPU and GPU don't access the same buffer at the same time:
-    private static final int NUM_BUFFERS = 3;
-    private int currentBufferIndex = 0;
-    private final ManagedDirectBuffer[] attributesBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
+    private ManagedDirectBuffer attributesBuffer;
 
     private float[] attributesBufferBatch;
     private static final int BATCH_EDGES_SIZE = 32768;
@@ -143,14 +140,12 @@ public class InstancedEdgeData extends AbstractEdgeData {
         attributesGLBuffer.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_EDGES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBuffer.unbind();
 
-        for (int i = 0; i < NUM_BUFFERS; i++) {
-            attributesBuffersList[i] = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_EDGES_SIZE);
-        }
+        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_EDGES_SIZE);
     }
 
     public void updateBuffers() {
         attributesGLBuffer.bind();
-        attributesGLBuffer.updateWithOrphaning(attributesBuffersList[currentBufferIndex].floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(attributesBuffer.floatBuffer());
         attributesGLBuffer.unbind();
 
         undirectedInstanceCounter.promoteCountToDraw();
@@ -179,9 +174,6 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
         final int totalEdges = graphIndex.getEdgeCount();
 
-        final byte nextBufferIndex = (byte) ((currentBufferIndex + 1) % 3);
-        final ManagedDirectBuffer attributesBuffer = attributesBuffersList[nextBufferIndex];
-
         attributesBuffer.ensureCapacity(totalEdges * ATTRIBS_STRIDE);
 
         final FloatBuffer attribsDirectBuffer = attributesBuffer.floatBuffer();
@@ -203,8 +195,6 @@ public class InstancedEdgeData extends AbstractEdgeData {
                 someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
                 attributesBufferBatch, 0, attribsDirectBuffer
         );
-
-        currentBufferIndex = nextBufferIndex;
     }
 
     @Override
@@ -212,10 +202,9 @@ public class InstancedEdgeData extends AbstractEdgeData {
         super.dispose();
         attributesBufferBatch = null;
 
-        for (ManagedDirectBuffer buffer : attributesBuffersList) {
-            if (buffer != null) {
-                buffer.destroy();
-            }
+        if (attributesBuffer != null) {
+            attributesBuffer.destroy();
+            attributesBuffer = null;
         }
     }
 }

@@ -118,10 +118,7 @@ public class InstancedNodeData extends AbstractNodeData {
         }
     }
 
-    //Triple buffering to ensure CPU and GPU don't access the same buffer at the same time:
-    private static final int NUM_BUFFERS = 3;
-    private int currentBufferIndex = 0;
-    private final ManagedDirectBuffer[] attributesBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
+    private ManagedDirectBuffer attributesBuffer;
 
     private float[] attributesBufferBatch;
     private static final int BATCH_NODES_SIZE = 32768;
@@ -157,14 +154,12 @@ public class InstancedNodeData extends AbstractNodeData {
         attributesGLBuffer.init(gl, ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBuffer.unbind(gl);
 
-        for (int i = 0; i < NUM_BUFFERS; i++) {
-            attributesBuffersList[i] = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
-        }
+        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
     }
 
     public void updateBuffers(GL2ES3 gl) {
         attributesGLBuffer.bind(gl);
-        attributesGLBuffer.updateWithOrphaning(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(gl, attributesBuffer.floatBuffer());
         attributesGLBuffer.unbind(gl);
 
         instanceCounter.promoteCountToDraw();
@@ -188,9 +183,6 @@ public class InstancedNodeData extends AbstractNodeData {
         final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
 
         final int totalNodes = spatialIndex.getNodeCount();
-
-        final byte nextBufferIndex = (byte) ((currentBufferIndex + 1) % 3);
-        final ManagedDirectBuffer attributesBuffer = attributesBuffersList[nextBufferIndex];
 
         attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE * 2);
 
@@ -290,7 +282,6 @@ public class InstancedNodeData extends AbstractNodeData {
             attribs.put(attributesBufferBatch, 0, index);
         }
 
-        currentBufferIndex = nextBufferIndex;
         instanceCounter.unselectedCount = newNodesCountUnselected;
         instanceCounter.selectedCount = newNodesCountSelected;
         maxNodeSize = newMaxNodeSize;
@@ -300,10 +291,9 @@ public class InstancedNodeData extends AbstractNodeData {
     public void dispose(GL gl) {
         super.dispose(gl);
         attributesBufferBatch = null;
-        for (ManagedDirectBuffer buffer : attributesBuffersList) {
-            if (buffer != null) {
-                buffer.destroy();
-            }
+        if (attributesBuffer != null) {
+            attributesBuffer.destroy();
+            attributesBuffer = null;
         }
     }
 }

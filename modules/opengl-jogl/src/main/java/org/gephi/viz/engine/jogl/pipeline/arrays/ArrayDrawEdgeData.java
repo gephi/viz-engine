@@ -68,8 +68,6 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
         drawDirected(engine, layer, gl, mvpFloats, backgroundColorFloats, lightenNonSelectedFactor, edgeScale, minWeight, maxWeight);
     }
 
-    private float[] currentAttributesBuffer;
-
     private void drawUndirected(VizEngine engine, RenderingLayer layer, GL2ES2 gl, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
         final int instanceCount;
         final int instancesOffset;
@@ -98,7 +96,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 //Need to copy attributes as many times as vertex per model:
                 for (int edgeIndex = 0; edgeIndex < drawBatchCount; edgeIndex++) {
                     System.arraycopy(
-                            currentAttributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
+                            attributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
                             attributesDrawBufferBatchOneCopyPerVertex, edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED,
                             ATTRIBS_STRIDE
                     );
@@ -155,7 +153,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 //Need to copy attributes as many times as vertex per model:
                 for (int edgeIndex = 0; edgeIndex < drawBatchCount; edgeIndex++) {
                     System.arraycopy(
-                            currentAttributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
+                            attributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
                             attributesDrawBufferBatchOneCopyPerVertex, edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED,
                             ATTRIBS_STRIDE
                     );
@@ -184,10 +182,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
         }
     }
 
-    //Triple buffering to ensure CPU and GPU don't access the same buffer at the same time:
-    private static final int NUM_BUFFERS = 3;
-    private int currentBufferIndex = 0;
-    private final float[][] attributesBuffersList = new float[NUM_BUFFERS][];
+    private float[] attributesBuffer;
 
     private static final int BATCH_EDGES_SIZE = 65536;
 
@@ -236,16 +231,12 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
         attributesGLBuffer.init(gl, VERTEX_COUNT_MAX * ATTRIBS_STRIDE * Float.BYTES * BATCH_EDGES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBuffer.unbind(gl);
 
-        for (int i = 0; i < NUM_BUFFERS; i++) {
-            attributesBuffersList[i] = new float[ATTRIBS_STRIDE * BATCH_EDGES_SIZE];
-        }
+        attributesBuffer = new float[ATTRIBS_STRIDE * BATCH_EDGES_SIZE];
     }
 
     public void updateBuffers() {
-        currentAttributesBuffer = attributesBuffersList[currentBufferIndex];
         undirectedInstanceCounter.promoteCountToDraw();
         directedInstanceCounter.promoteCountToDraw();
-        //TODO: Persistent buffer if available?
     }
 
     private void updateData(final GraphIndexImpl graphIndex, final GraphRenderingOptions renderingOptions, final GraphSelection graphSelection) {
@@ -269,11 +260,10 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
 
         final int totalEdges = graphIndex.getEdgeCount();
 
-        final byte nextBufferIndex = (byte) ((currentBufferIndex + 1) % 3);
 
         final float[] attribs
-                = attributesBuffersList[nextBufferIndex]
-                = ArrayUtils.ensureCapacityNoCopy(attributesBuffersList[nextBufferIndex], totalEdges * ATTRIBS_STRIDE);
+                = attributesBuffer
+                = ArrayUtils.ensureCapacityNoCopy(attributesBuffer, totalEdges * ATTRIBS_STRIDE);
 
         graphIndex.getVisibleEdges(edgesCallback);
 
@@ -294,8 +284,6 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
                 attribs, attribsIndex
         );
-
-        currentBufferIndex = nextBufferIndex;
     }
 
     @Override
@@ -304,8 +292,6 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
         attributesDrawBufferBatchOneCopyPerVertex = null;
         attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer.destroy();
 
-        for (int i = 0; i < attributesBuffersList.length; i++) {
-            attributesBuffersList[i] = null;
-        }
+        attributesBuffer = null;
     }
 }

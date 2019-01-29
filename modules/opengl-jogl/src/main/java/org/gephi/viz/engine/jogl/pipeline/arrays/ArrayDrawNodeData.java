@@ -100,9 +100,12 @@ public class ArrayDrawNodeData extends AbstractNodeData {
             int index = instancesOffset * ATTRIBS_STRIDE;
 
             //We have to perform one draw call per intance because repeating the attributes without instancing per each vertex would use too much memory:
-            currentAttributesBuffer.position(index);
+            //TODO: Maybe we can batch a few nodes at once though
+            final FloatBuffer attribs = attributesBuffer.floatBuffer();
+
+            attribs.position(index);
             for (int i = 0; i < instanceCount; i++) {
-                currentAttributesBuffer.get(attrs);
+                attribs.get(attrs);
 
                 //Choose LOD:
                 final float size = attrs[5];
@@ -150,17 +153,11 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         }
     }
 
-    private FloatBuffer currentAttributesBuffer;
-
     public void updateBuffers() {
-        currentAttributesBuffer = attributesBuffersList[currentBufferIndex].floatBuffer();
         instanceCounter.promoteCountToDraw();
     }
 
-    //Triple buffering to ensure CPU and GPU don't access the same buffer at the same time:
-    private static final int NUM_BUFFERS = 3;
-    private int currentBufferIndex = 0;
-    private final ManagedDirectBuffer[] attributesBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
+    private ManagedDirectBuffer attributesBuffer;
 
     private float[] attributesBufferBatch;
     private static final int BATCH_NODES_SIZE = 32768;
@@ -190,9 +187,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
         BufferUtils.destroyDirectBuffer(circleVertexBuffer);
 
-        for (int i = 0; i < NUM_BUFFERS; i++) {
-            attributesBuffersList[i] = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
-        }
+        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
     }
 
     private void updateData(final GraphIndexImpl spatialIndex, final GraphRenderingOptions renderingOptions, final GraphSelection selection, final GraphSelectionNeighbours neighboursSelection, final float zoom) {
@@ -209,9 +204,6 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
 
         final int totalNodes = spatialIndex.getNodeCount();
-
-        final byte nextBufferIndex = (byte) ((currentBufferIndex + 1) % 3);
-        final ManagedDirectBuffer attributesBuffer = attributesBuffersList[nextBufferIndex];
 
         attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE * 2);
 
@@ -311,7 +303,6 @@ public class ArrayDrawNodeData extends AbstractNodeData {
             attribs.put(attributesBufferBatch, 0, index);
         }
 
-        currentBufferIndex = nextBufferIndex;
         instanceCounter.unselectedCount = newNodesCountUnselected;
         instanceCounter.selectedCount = newNodesCountSelected;
     }
@@ -320,10 +311,9 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     public void dispose(GL gl) {
         super.dispose(gl);
         attributesBufferBatch = null;
-        for (ManagedDirectBuffer buffer : attributesBuffersList) {
-            if (buffer != null) {
-                buffer.destroy();
-            }
+        if (attributesBuffer != null) {
+            attributesBuffer.destroy();
+            attributesBuffer = null;
         }
     }
 }

@@ -111,11 +111,8 @@ public class IndirectNodeData extends AbstractNodeData {
         }
     }
 
-    //Triple buffering to ensure CPU and GPU don't access the same buffer at the same time:
-    private static final int NUM_BUFFERS = 3;
-    private int currentBufferIndex = 0;
-    private final ManagedDirectBuffer[] attributesBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
-    private final ManagedDirectBuffer[] commandsBuffersList = new ManagedDirectBuffer[NUM_BUFFERS];
+    private ManagedDirectBuffer attributesBuffer;
+    private ManagedDirectBuffer commandsBuffer;
 
     private GLBuffer commandsGLBuffer;
 
@@ -161,19 +158,17 @@ public class IndirectNodeData extends AbstractNodeData {
         commandsGLBuffer.init(gl, INDIRECT_DRAW_COMMAND_BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         commandsGLBuffer.unbind(gl);
 
-        for (int i = 0; i < NUM_BUFFERS; i++) {
-            attributesBuffersList[i] = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
-            commandsBuffersList[i] = new ManagedDirectBuffer(GL_UNSIGNED_INT, INDIRECT_DRAW_COMMAND_INTS_COUNT * BATCH_NODES_SIZE * 2);
-        }
+        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
+        commandsBuffer = new ManagedDirectBuffer(GL_UNSIGNED_INT, INDIRECT_DRAW_COMMAND_INTS_COUNT * BATCH_NODES_SIZE * 2);
     }
 
     public void updateBuffers(GL4 gl) {
         attributesGLBuffer.bind(gl);
-        attributesGLBuffer.updateWithOrphaning(gl, attributesBuffersList[currentBufferIndex].floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(gl, attributesBuffer.floatBuffer());
         attributesGLBuffer.unbind(gl);
 
         commandsGLBuffer.bind(gl);
-        commandsGLBuffer.updateWithOrphaning(gl, commandsBuffersList[currentBufferIndex].intBuffer());
+        commandsGLBuffer.updateWithOrphaning(gl, commandsBuffer.intBuffer());
         commandsGLBuffer.unbind(gl);
 
         instanceCounter.promoteCountToDraw();
@@ -195,10 +190,6 @@ public class IndirectNodeData extends AbstractNodeData {
         final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
 
         final int totalNodes = spatialIndex.getNodeCount();
-
-        final byte nextBufferIndex = (byte) ((currentBufferIndex + 1) % 3);
-        final ManagedDirectBuffer attributesBuffer = attributesBuffersList[nextBufferIndex];
-        final ManagedDirectBuffer commandsBuffer = commandsBuffersList[nextBufferIndex];
 
         attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE * 2);
         commandsBuffer.ensureCapacity(totalNodes * INDIRECT_DRAW_COMMAND_INTS_COUNT * 2);
@@ -347,7 +338,6 @@ public class IndirectNodeData extends AbstractNodeData {
             commands.put(commandsBufferBatch, 0, commandIndex);
         }
 
-        currentBufferIndex = nextBufferIndex;
         instanceCounter.unselectedCount = newNodesCountUnselected;
         instanceCounter.selectedCount = newNodesCountSelected;
     }
@@ -392,15 +382,13 @@ public class IndirectNodeData extends AbstractNodeData {
         attributesBufferBatch = null;
         commandsBufferBatch = null;
 
-        for (ManagedDirectBuffer buffer : attributesBuffersList) {
-            if (buffer != null) {
-                buffer.destroy();
-            }
+        if (attributesBuffer != null) {
+            attributesBuffer.destroy();
+            attributesBuffer = null;
         }
-        for (ManagedDirectBuffer buffer : commandsBuffersList) {
-            if (buffer != null) {
-                buffer.destroy();
-            }
+        if (commandsBuffer != null) {
+            commandsBuffer.destroy();
+            commandsBuffer = null;
         }
     }
 }
