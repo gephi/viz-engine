@@ -10,7 +10,7 @@ It aims to be:
 * High performance using most modern OpenGL when available, specially due to instancing, manual buffer management, using simple shaders and avoiding memory allocation when possible
 * Extensible with plugins (rendering and input)
 * JOGL and LWJGL3 version
-* Usable in AWT/Swing/NEWT/SWT (only possible with JOGL at the moment). For LWJGL3 GLFW is used.
+* Usable in AWT/Swing/NEWT/SWT with JOGL. For LWJGL3 GLFW/AWT is available, but AWT only for Linux and Windows at the moment.
 * Nicely interactive with mouse, directional zooming, etc with default input handler
 * Only a 2D engine for the moment
 * The only gephi-related dependency is graphstore
