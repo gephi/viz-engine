@@ -19,7 +19,7 @@
         <lwjgl.version>3.2.1</lwjgl.version>
         <lwjgl3-awt.version>0.1.1</lwjgl3-awt.version>
         
-        <joml.version>1.9.13</joml.version>
+        <joml.version>1.9.14</joml.version>
         <netbeans.version>RELEASE82</netbeans.version>
     </properties>
     
