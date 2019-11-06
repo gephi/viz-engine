@@ -17,10 +17,10 @@
         <gephi.version>0.9.2</gephi.version>
         <jogl.version>2.3.2</jogl.version>
         <lwjgl.version>3.2.3</lwjgl.version>
-        <lwjgl3-awt.version>0.1.6</lwjgl3-awt.version>
+        <lwjgl3-awt.version>0.1.7</lwjgl3-awt.version>
         
         <joml.version>1.9.19</joml.version>
-        <netbeans.version>RELEASE111</netbeans.version>
+        <netbeans.version>RELEASE112</netbeans.version>
     </properties>
     
     <modules>
