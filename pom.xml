@@ -20,7 +20,7 @@
         <lwjgl3-awt.version>0.1.7</lwjgl3-awt.version>
         
         <joml.version>1.9.25</joml.version>
-        <netbeans.version>RELEASE120-1</netbeans.version>
+        <netbeans.version>RELEASE121</netbeans.version>
     </properties>
     
     <modules>
