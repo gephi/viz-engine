@@ -64,7 +64,8 @@ public class EdgeLineModelUndirected {
                 .addUniformName(UNIFORM_NAME_EDGE_SCALE_MAX)
                 .addUniformName(UNIFORM_NAME_MIN_WEIGHT)
                 .addUniformName(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR)
-                .addUniformName(UNIFORM_NAME_GLOBAL_TIME_SIZE)
+                .addUniformName(UNIFORM_NAME_GLOBAL_TIME)
+                .addUniformName(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION_TARGET, SHADER_POSITION_TARGET_LOCATION)
@@ -114,7 +115,8 @@ public class EdgeLineModelUndirected {
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MIN), EDGE_SCALE_MIN * scale);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
-        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME_SIZE), globalTime);
+        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME), globalTime);
+        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), TimeUtils.getAnimartedStardTime());
 
         if (NumberUtils.equalsEpsilon(minWeight, maxWeight, 1e-3f)) {
             GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);

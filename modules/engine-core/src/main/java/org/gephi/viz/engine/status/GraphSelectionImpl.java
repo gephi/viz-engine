@@ -7,6 +7,7 @@ import java.util.Set;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
+import org.gephi.viz.engine.util.TimeUtils;
 
 public class GraphSelectionImpl implements GraphSelection {
 
@@ -149,4 +150,5 @@ public class GraphSelectionImpl implements GraphSelection {
     public void clearSelectedEdges() {
         this.edges.clear();
     }
+
 }

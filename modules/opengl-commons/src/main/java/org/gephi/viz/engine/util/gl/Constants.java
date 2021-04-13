@@ -43,7 +43,8 @@ public class Constants {
     public static final String UNIFORM_NAME_BACKGROUND_COLOR = "backgroundColor";
     public static final String UNIFORM_NAME_COLOR_LIGHTEN_FACTOR = "colorLightenFactor";
 
-    public static final String UNIFORM_NAME_GLOBAL_TIME_SIZE = "fGlobalTime";
+    public static final String UNIFORM_NAME_GLOBAL_TIME = "fGlobalTime";
+    public static final String UNIFORM_NAME_GLOBAL_SELECTED_START_TIME = "fSelectedStartGlobalTime";
     //Rendering order:
     public static final int RENDERING_ORDER_NODES = 100;
     public static final int RENDERING_ORDER_EDGES = 50;

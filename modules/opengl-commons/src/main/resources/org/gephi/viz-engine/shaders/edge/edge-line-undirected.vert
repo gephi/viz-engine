@@ -8,6 +8,7 @@ uniform float weightDifferenceDivisor;
 uniform float edgeScaleMin;
 uniform float edgeScaleMax;
 uniform float fGlobalTime;
+uniform float fSelectedStartGlobalTime;
 
 attribute vec2 vert;
 attribute vec2 position;
@@ -43,8 +44,11 @@ void main() {
     }
     color = color / 255.0;
 
+    float smoothTransition = smoothstep(0.001,.005,pow(fGlobalTime - fSelectedStartGlobalTime,.5));
+
     color.rgb = colorBias + color.rgb * colorMultiplier;
-    color.rgb = mix(color.rgb, backgroundColor.rgb, colorLightenFactor);
+
+    color.rgb = mix(color.rgb, backgroundColor.rgb, colorLightenFactor*smoothTransition);
 
     fragColor = color;
 }

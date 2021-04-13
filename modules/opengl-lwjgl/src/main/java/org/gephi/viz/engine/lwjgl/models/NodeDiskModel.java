@@ -1,6 +1,6 @@
 package org.gephi.viz.engine.lwjgl.models;
 
-import java.nio.IntBuffer;
+import org.gephi.viz.engine.util.TimeUtils;
 import org.gephi.viz.engine.util.gl.Constants;
 import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
@@ -67,7 +67,8 @@ public class NodeDiskModel {
                 .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
                 .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
                 .addUniformName(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR)
-                .addUniformName(UNIFORM_NAME_GLOBAL_TIME_SIZE)
+                .addUniformName(UNIFORM_NAME_GLOBAL_TIME)
+                .addUniformName(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
@@ -108,7 +109,8 @@ public class NodeDiskModel {
         GL20.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
         GL20.glUniform4fv(program.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
-        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME_SIZE),globalTime);
+        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME),globalTime);
+        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), TimeUtils.getAnimartedStardTime());
     }
 
     public void stopUsingProgram() {
