@@ -67,6 +67,7 @@ public class NodeDiskModel {
                 .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
                 .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
                 .addUniformName(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR)
+                .addUniformName(UNIFORM_NAME_GLOBAL_TIME_SIZE)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
@@ -80,8 +81,8 @@ public class NodeDiskModel {
         GL20.glDrawArrays(GL20.GL_TRIANGLES, firstVertexIndex, vertexCount);
     }
 
-    public void drawInstanced(int vertexOffset, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
-        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
+    public void drawInstanced(int vertexOffset, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float globalTime) {
+        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, globalTime);
         if (instancesOffset > 0) {
             GL42.glDrawArraysInstancedBaseInstance(GL20.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount, instancesOffset);
         } else {
@@ -90,23 +91,24 @@ public class NodeDiskModel {
         stopUsingProgram();
     }
 
-    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
-        drawInstanced(0, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
+    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float globalTime) {
+        drawInstanced(0, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, globalTime);
     }
 
-    public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
-        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
+    public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float globalTime) {
+        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, globalTime);
         GL43.glMultiDrawArraysIndirect(GL20.GL_TRIANGLES, instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_BYTES, instanceCount, GLConstants.INDIRECT_DRAW_COMMAND_BYTES);
         stopUsingProgram();
     }
 
-    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor) {
+    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float globalTime) {
         //Circle:
         program.use();
 
         GL20.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
         GL20.glUniform4fv(program.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
+        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME_SIZE),globalTime);
     }
 
     public void stopUsingProgram() {

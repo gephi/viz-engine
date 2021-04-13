@@ -18,6 +18,7 @@ public class Constants {
     public static final String ATTRIB_NAME_SOURCE_SIZE = "sourceSize";
     public static final String ATTRIB_NAME_TARGET_SIZE = "targetSize";
 
+
     public static final int SHADER_VERT_LOCATION = 0;
     public static final int SHADER_POSITION_LOCATION = 1;
     public static final int SHADER_COLOR_LOCATION = 2;
@@ -42,6 +43,7 @@ public class Constants {
     public static final String UNIFORM_NAME_BACKGROUND_COLOR = "backgroundColor";
     public static final String UNIFORM_NAME_COLOR_LIGHTEN_FACTOR = "colorLightenFactor";
 
+    public static final String UNIFORM_NAME_GLOBAL_TIME_SIZE = "fGlobalTime";
     //Rendering order:
     public static final int RENDERING_ORDER_NODES = 100;
     public static final int RENDERING_ORDER_EDGES = 50;

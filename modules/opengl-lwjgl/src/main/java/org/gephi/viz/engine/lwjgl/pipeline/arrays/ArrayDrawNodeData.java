@@ -1,6 +1,8 @@
 package org.gephi.viz.engine.lwjgl.pipeline.arrays;
 
 import java.nio.FloatBuffer;
+import java.time.ZonedDateTime;
+
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
@@ -19,6 +21,8 @@ import static org.lwjgl.opengl.GL20.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glVertexAttrib1f;
 import static org.lwjgl.opengl.GL20.glVertexAttrib4f;
 import static org.lwjgl.opengl.GL20.glVertexAttrib2fv;
+
+import org.gephi.viz.engine.util.TimeUtils;
 import org.lwjgl.system.MemoryStack;
 
 /**
@@ -75,6 +79,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     }
 
     public void drawArrays(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        final float globalTime = TimeUtils.getFloatSecondGlobalTime();
         final float[] backgroundColorFloats = engine.getBackgroundColor();
         final float zoom = engine.getZoom();
 
@@ -94,7 +99,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
         if (instanceCount > 0) {
             setupVertexArrayAttributes(engine);
-            diskModel64.useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
+            diskModel64.useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, globalTime);
 
             final float[] attrs = new float[ATTRIBS_STRIDE];
             int index = instancesOffset * ATTRIBS_STRIDE;

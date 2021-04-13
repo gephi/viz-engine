@@ -3,6 +3,7 @@
 uniform mat4 mvp;
 uniform vec4 backgroundColor;
 uniform float colorLightenFactor;
+uniform float fGlobalTime;
 
 attribute vec2 vert;
 attribute vec2 position;

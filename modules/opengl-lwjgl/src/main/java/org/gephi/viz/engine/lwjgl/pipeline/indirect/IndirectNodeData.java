@@ -2,6 +2,8 @@ package org.gephi.viz.engine.lwjgl.pipeline.indirect;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.time.ZonedDateTime;
+
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
@@ -21,6 +23,8 @@ import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_BYT
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
+
+import org.gephi.viz.engine.util.TimeUtils;
 import org.lwjgl.system.MemoryStack;
 
 /**
@@ -85,6 +89,7 @@ public class IndirectNodeData extends AbstractNodeData {
     }
 
     public void drawIndirect(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        final float globalTime = TimeUtils.getFloatSecondGlobalTime();
         final float[] backgroundColorFloats = engine.getBackgroundColor();
 
         final int instanceCount;
@@ -105,7 +110,7 @@ public class IndirectNodeData extends AbstractNodeData {
             setupVertexArrayAttributes(engine);
 
             commandsGLBuffer.bind();
-            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
+            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, globalTime);
             commandsGLBuffer.unbind();
 
             unsetupVertexArrayAttributes();
