@@ -34,7 +34,7 @@ public class MainGLFW {
     private static final boolean DISABLE_INSTANCED_RENDERING = false;
     private static final boolean DISABLE_VAOS = false;
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final boolean USE_OPENGL_ES = false;
 
     private static final int WIDTH = 1024;

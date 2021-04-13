@@ -8,6 +8,7 @@ uniform float minWeight;
 uniform float weightDifferenceDivisor;
 uniform float edgeScaleMin;
 uniform float edgeScaleMax;
+uniform float fGlobalTime;
 
 attribute vec3 vert;
 attribute vec2 position;

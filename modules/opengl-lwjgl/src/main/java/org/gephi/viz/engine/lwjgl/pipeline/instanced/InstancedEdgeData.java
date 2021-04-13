@@ -16,6 +16,8 @@ import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
 import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
+
+import org.gephi.viz.engine.util.TimeUtils;
 import org.lwjgl.system.MemoryStack;
 
 /**
@@ -50,7 +52,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
     public void drawInstanced(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
         GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
-
+        float globalTime = TimeUtils.getFloatSecondGlobalTime();
         final float[] backgroundColorFloats = engine.getBackgroundColor();
         final float edgeScale = renderingOptions.getEdgeScale();
         float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
@@ -60,11 +62,11 @@ public class InstancedEdgeData extends AbstractEdgeData {
         final float minWeight = graphIndex.getEdgesMinWeight();
         final float maxWeight = graphIndex.getEdgesMaxWeight();
 
-        drawUndirected(engine, layer, mvpFloats, backgroundColorFloats, lightenNonSelectedFactor, edgeScale, minWeight, maxWeight);
-        drawDirected(engine, layer, mvpFloats, backgroundColorFloats, lightenNonSelectedFactor, edgeScale, minWeight, maxWeight);
+        drawUndirected(engine, layer, mvpFloats, backgroundColorFloats, lightenNonSelectedFactor, edgeScale, minWeight, maxWeight, globalTime);
+        drawDirected(engine, layer, mvpFloats, backgroundColorFloats, lightenNonSelectedFactor, edgeScale, minWeight, maxWeight, globalTime);
     }
 
-    private void drawUndirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
+    private void drawUndirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight, float globalTime) {
         final int instanceCount;
         final int instancesOffset;
         final float colorLightenFactor;
@@ -81,12 +83,12 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
         if (instanceCount > 0) {
             setupUndirectedVertexArrayAttributes(engine);
-            lineModelUndirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, edgeScale, minWeight, maxWeight);
+            lineModelUndirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, edgeScale, minWeight, maxWeight, globalTime);
             unsetupUndirectedVertexArrayAttributes();
         }
     }
 
-    private void drawDirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
+    private void drawDirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight, float globalTime) {
         final int instanceCount;
         final int instancesOffset;
         final float colorLightenFactor;
@@ -103,7 +105,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
         if (instanceCount > 0) {
             setupDirectedVertexArrayAttributes(engine);
-            lineModelDirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, edgeScale, minWeight, maxWeight);
+            lineModelDirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, edgeScale, minWeight, maxWeight, globalTime);
             unsetupDirectedVertexArrayAttributes();
         }
     }

@@ -4,8 +4,13 @@
 precision lowp float;
 #endif
 
+uniform float fGlobalTime;
+
 varying vec4 fragColor;
 
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
 void main() {
-    gl_FragColor = fragColor;
+    vec4 c = fragColor;
+    c.rg *=rot(fGlobalTime);
+    gl_FragColor = c;
 }
