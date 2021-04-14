@@ -45,6 +45,7 @@ public class Constants {
 
     public static final String UNIFORM_NAME_GLOBAL_TIME = "fGlobalTime";
     public static final String UNIFORM_NAME_GLOBAL_SELECTED_START_TIME = "fSelectedStartGlobalTime";
+    public static final String UNIFORM_NAME_IS_SELECTION_ON = "bIsSelectionOn";
     //Rendering order:
     public static final int RENDERING_ORDER_NODES = 100;
     public static final int RENDERING_ORDER_EDGES = 50;

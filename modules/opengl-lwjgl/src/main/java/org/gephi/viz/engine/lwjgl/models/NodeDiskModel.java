@@ -71,6 +71,7 @@ public class NodeDiskModel {
                 .addUniformName(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR)
                 .addUniformName(UNIFORM_NAME_GLOBAL_TIME)
                 .addUniformName(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME)
+                .addUniformName(UNIFORM_NAME_IS_SELECTION_ON)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
@@ -114,8 +115,10 @@ public class NodeDiskModel {
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME),globalTime);
         if(selectedTime.isPresent()){
             GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), selectedTime.get());
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), selectedTime.get());
         } else {
-            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), -1);
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), 0);
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), 0);
         }
 
 

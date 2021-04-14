@@ -5,6 +5,7 @@ uniform vec4 backgroundColor;
 uniform float colorLightenFactor;
 uniform float fGlobalTime;
 uniform float fSelectedStartGlobalTime;
+uniform bool bIsSelectionOn;
 
 attribute vec2 vert;
 attribute vec2 position;
@@ -15,7 +16,7 @@ attribute float size;
 
 varying vec4 fragColor;
 
-void main() {	
+void main() {
     vec2 instancePosition = size * vert + position;
     gl_Position = mvp * vec4(instancePosition, 0.0, 1.0);
 

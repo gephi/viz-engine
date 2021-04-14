@@ -9,6 +9,7 @@ uniform float edgeScaleMin;
 uniform float edgeScaleMax;
 uniform float fGlobalTime;
 uniform float fSelectedStartGlobalTime;
+uniform bool bIsSelectionOn;
 
 attribute vec2 vert;
 attribute vec2 position;

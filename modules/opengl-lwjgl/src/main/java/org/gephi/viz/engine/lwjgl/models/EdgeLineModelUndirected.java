@@ -68,6 +68,7 @@ public class EdgeLineModelUndirected {
                 .addUniformName(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR)
                 .addUniformName(UNIFORM_NAME_GLOBAL_TIME)
                 .addUniformName(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME)
+                .addUniformName(UNIFORM_NAME_IS_SELECTION_ON)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION_TARGET, SHADER_POSITION_TARGET_LOCATION)
@@ -120,8 +121,10 @@ public class EdgeLineModelUndirected {
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME), globalTime);
         if(selectedTime.isPresent()){
             GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), selectedTime.get());
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), selectedTime.get());
         } else {
-            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), -1);
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), 0);
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), 0);
         }
 
         if (NumberUtils.equalsEpsilon(minWeight, maxWeight, 1e-3f)) {
