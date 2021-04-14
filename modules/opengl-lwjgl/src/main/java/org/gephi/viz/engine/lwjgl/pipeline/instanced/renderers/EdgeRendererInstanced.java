@@ -1,14 +1,15 @@
 package org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers;
 
-import java.util.EnumSet;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
-import org.gephi.viz.engine.pipeline.PipelineCategory;
-import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.lwjgl.availability.InstancedDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedEdgeData;
+import org.gephi.viz.engine.pipeline.PipelineCategory;
+import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.spi.Renderer;
 import org.gephi.viz.engine.util.gl.Constants;
+
+import java.util.EnumSet;
 
 /**
  * TODO: self loops
@@ -40,6 +41,7 @@ public class EdgeRendererInstanced implements Renderer<LWJGLRenderingTarget> {
     @Override
     public void render(LWJGLRenderingTarget target, RenderingLayer layer) {
         engine.getModelViewProjectionMatrixFloats(mvpFloats);
+
         edgeData.drawInstanced(
                 layer,
                 engine, mvpFloats

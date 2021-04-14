@@ -1,13 +1,15 @@
 package org.gephi.viz.engine.lwjgl.models;
 
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
-import org.gephi.viz.engine.util.TimeUtils;
-import org.gephi.viz.engine.util.gl.Constants;
-import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.util.NumberUtils;
+import org.gephi.viz.engine.util.gl.Constants;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL42;
+
+import java.util.Optional;
+
+import static org.gephi.viz.engine.util.gl.Constants.*;
 
 /**
  *
@@ -88,8 +90,8 @@ public class EdgeLineModelUndirected {
         GL20.glDrawArrays(GL20.GL_TRIANGLES, 0, VERTEX_COUNT * drawBatchCount);
     }
 
-    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float scale, float minWeight, float maxWeight, float globalTime) {
-        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight, globalTime);
+    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float scale, float minWeight, float maxWeight, float globalTime, Optional<Float> selectedTime) {
+        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight, globalTime, selectedTime);
         if (instancesOffset > 0) {
             GL42.glDrawArraysInstancedBaseInstance(GL20.GL_TRIANGLES, 0, VERTEX_COUNT, instanceCount, instancesOffset);
         } else {
@@ -98,17 +100,17 @@ public class EdgeLineModelUndirected {
         stopUsingProgram();
     }
 
-    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight, float globalTime) {
+    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight, float globalTime, Optional<Float> selectedTime) {
         //Line:
         program.use();
-        prepareProgramData(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight, globalTime);
+        prepareProgramData(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight, globalTime, selectedTime);
     }
 
     public void stopUsingProgram() {
         program.stopUsing();
     }
 
-    private void prepareProgramData(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight, float globalTime) {
+    private void prepareProgramData(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight, float globalTime, Optional<Float> selectedTime) {
         GL20.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
         GL20.glUniform4fv(program.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
@@ -116,7 +118,11 @@ public class EdgeLineModelUndirected {
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME), globalTime);
-        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), TimeUtils.getAnimartedStardTime());
+        if(selectedTime.isPresent()){
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), selectedTime.get());
+        } else {
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), -1);
+        }
 
         if (NumberUtils.equalsEpsilon(minWeight, maxWeight, 1e-3f)) {
             GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);

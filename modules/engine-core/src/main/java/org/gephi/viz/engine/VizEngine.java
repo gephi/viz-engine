@@ -1,19 +1,14 @@
 package org.gephi.viz.engine;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import jdk.nashorn.internal.runtime.options.Option;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Rect2D;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
@@ -89,6 +84,36 @@ public class VizEngine<R extends RenderingTarget, I> {
     //Lookup for communication between components:
     private final InstanceContent instanceContent;
     private final AbstractLookup lookup;
+
+    //Timer
+    private float globalTime;
+    private Optional<Float> selectedTime = Optional.empty();
+
+    public float getGlobalTime() {
+        return globalTime;
+    }
+
+    public void setGlobalTime(float globalTime) {
+        this.globalTime = globalTime;
+    }
+
+    public Optional<Float >getSelectedTime() {
+        return selectedTime;
+    }
+
+    // Update only if empty
+    // Dev comments : I don't know if it make sense to take what's currently in globalTime ?
+    public void setSelectedTime() {
+        if(!this.selectedTime.isPresent()) {
+            this.selectedTime = Optional.of(globalTime);
+        }
+    }
+
+    // Reset selected time
+    public void unsetSelectedTime() {
+        this.selectedTime = Optional.empty();
+    }
+
 
     public VizEngine(GraphModel graphModel, R renderingTarget) {
         this.graphModel = Objects.requireNonNull(graphModel, "graphModel mandatory");

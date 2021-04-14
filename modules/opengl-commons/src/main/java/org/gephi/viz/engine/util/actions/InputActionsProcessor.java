@@ -57,14 +57,10 @@ public class InputActionsProcessor {
                 selection.setSelectedNode(frontNode);
                 selection.setSelectedEdges(selectedEdges);
                 neighboursSelection.setSelectedNodes(selectedNeighbours);
-
-                TimeUtils.setAnimatedStartTime();
             } else {
                 selection.clearSelectedNodes();
                 selection.clearSelectedEdges();
                 neighboursSelection.clearSelectedNodes();
-
-                TimeUtils.unsetAnimatedStartTime();
             }
         } finally {
             if (iterator.hasNext()) {
