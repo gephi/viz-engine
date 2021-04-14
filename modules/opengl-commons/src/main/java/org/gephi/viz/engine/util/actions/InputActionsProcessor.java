@@ -12,7 +12,6 @@ import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndex;
-import org.gephi.viz.engine.util.TimeUtils;
 import org.joml.Vector2f;
 
 /**

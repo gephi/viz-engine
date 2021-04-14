@@ -41,7 +41,6 @@ public class EdgeRendererInstanced implements Renderer<LWJGLRenderingTarget> {
     @Override
     public void render(LWJGLRenderingTarget target, RenderingLayer layer) {
         engine.getModelViewProjectionMatrixFloats(mvpFloats);
-
         edgeData.drawInstanced(
                 layer,
                 engine, mvpFloats
