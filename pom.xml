@@ -20,7 +20,7 @@
         <lwjgl3-awt.version>0.1.8</lwjgl3-awt.version>
         
         <joml.version>1.10.1</joml.version>
-        <netbeans.version>RELEASE123</netbeans.version>
+        <netbeans.version>RELEASE124</netbeans.version>
     </properties>
     
     <modules>
@@ -238,6 +238,11 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>netbeans-old</id>
+            <name>NetBeans old</name>
+            <url>https://netbeans.apidesign.org/maven2/</url><!-- https://netbeans.apache.org/about/oracle-transition.html -->
         </repository>
     </repositories>
 </project>
