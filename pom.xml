@@ -14,13 +14,13 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         
         <gephi.graphstore.version>0.6.1-SNAPSHOT</gephi.graphstore.version>
-        <gephi.version>0.9.2</gephi.version>
+        <gephi.version>0.9.3-SNAPSHOT</gephi.version>
         <jogl.version>2.3.2</jogl.version>
         <lwjgl.version>3.2.3</lwjgl.version>
         <lwjgl3-awt.version>0.1.8</lwjgl3-awt.version>
         
         <joml.version>1.10.2</joml.version>
-        <netbeans.version>RELEASE124</netbeans.version>
+        <netbeans.version>RELEASE125</netbeans.version>
     </properties>
     
     <modules>
