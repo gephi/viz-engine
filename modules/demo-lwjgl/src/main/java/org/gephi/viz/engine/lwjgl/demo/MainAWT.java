@@ -66,7 +66,7 @@ public class MainAWT {
         } else {
             data.majorVersion = 3;
             data.minorVersion = 2;
-            data.forwardCompatible = true;
+            data.forwardCompatible = true;//Forward compatible seems to not work and stay at 3.2 after udpate of lwjgl to 3.3.0
             data.profile = GLData.Profile.CORE;
         }
 
