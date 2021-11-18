@@ -21,6 +21,6 @@ public class InstancedDraw {
 
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
-        return capabilities.GL_ARB_draw_instanced && capabilities.GL_ARB_base_instance;
+        return capabilities.OpenGL33 && capabilities.GL_ARB_draw_instanced && capabilities.GL_ARB_base_instance;
     }
 }

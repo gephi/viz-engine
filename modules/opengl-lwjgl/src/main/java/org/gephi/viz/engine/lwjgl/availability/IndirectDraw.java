@@ -21,7 +21,7 @@ public class IndirectDraw {
 
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
-        return capabilities.GL_ARB_draw_indirect && capabilities.GL_ARB_multi_draw_indirect && capabilities.GL_ARB_buffer_storage;
+        return capabilities.OpenGL33 && capabilities.GL_ARB_draw_indirect && capabilities.GL_ARB_multi_draw_indirect && capabilities.GL_ARB_buffer_storage;
     }
 
 }
