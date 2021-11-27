@@ -17,7 +17,7 @@
         <gephi.version>0.9.3-SNAPSHOT</gephi.version>
         <jogl.version>2.3.2</jogl.version>
         <lwjgl.version>3.3.0</lwjgl.version>
-        <lwjgl3-awt.version>0.1.8</lwjgl3-awt.version>
+        <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
         
         <joml.version>1.10.2</joml.version>
         <netbeans.version>RELEASE125</netbeans.version>

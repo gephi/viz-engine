@@ -31,7 +31,7 @@ import org.lwjgl.opengl.awt.GLData;
 import org.lwjgl.system.Platform;
 
 /**
- *
+ * Demo with lwjgl-awt
  * @author Eduardo Ramos
  */
 public class MainAWT {
@@ -63,8 +63,6 @@ public class MainAWT {
 
         if (USE_OPENGL_ES) {
             data.api = GLData.API.GLES;
-        } else {
-            data.profile = GLData.Profile.CORE;
         }
 
         data.samples = 4;//4 samples anti-aliasing
