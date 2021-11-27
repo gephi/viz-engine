@@ -239,10 +239,5 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>netbeans-old</id>
-            <name>NetBeans old</name>
-            <url>https://netbeans.apidesign.org/maven2/</url><!-- https://netbeans.apache.org/about/oracle-transition.html -->
-        </repository>
     </repositories>
 </project>

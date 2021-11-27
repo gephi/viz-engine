@@ -65,8 +65,9 @@ public class MainAWT {
             data.api = GLData.API.GLES;
         } else {
             data.majorVersion = 3;
-            data.minorVersion = 2;
+            data.minorVersion = 3;
             data.forwardCompatible = true;//Forward compatible seems to not work and stay at 3.2 after udpate of lwjgl to 3.3.0
+            //TODO: Maybe use some trick to detect the best available version before creating it
             data.profile = GLData.Profile.CORE;
         }
 

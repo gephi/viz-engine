@@ -129,7 +129,7 @@ public class GraphIndexImpl implements GraphIndex {
     public NodeIterable getVisibleNodes() {
         ensureInitialized();
 
-        return graph.getSpatialContext().getNodesInArea(engine.getViewBoundaries());
+        return graphModel.getSpatialIndex().getNodesInArea(engine.getViewBoundaries());
     }
 
     @Override
@@ -137,7 +137,7 @@ public class GraphIndexImpl implements GraphIndex {
         ensureInitialized();
 
         callback.start(graph);
-        graph.getSpatialContext().getNodesInArea(engine.getViewBoundaries(), callback);
+        graphModel.getSpatialIndex().getNodesInArea(engine.getViewBoundaries(), callback);
         callback.end(graph);
     }
 
@@ -145,7 +145,7 @@ public class GraphIndexImpl implements GraphIndex {
     public EdgeIterable getVisibleEdges() {
         ensureInitialized();
 
-        return graph.getSpatialContext().getEdgesInArea(engine.getViewBoundaries());
+        return graphModel.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries());
     }
 
     @Override
@@ -153,7 +153,7 @@ public class GraphIndexImpl implements GraphIndex {
         ensureInitialized();
 
         callback.start(graph);
-        graph.getSpatialContext().getEdgesInArea(engine.getViewBoundaries(), callback);
+        graphModel.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries(), callback);
         callback.end(graph);
     }
 
@@ -161,7 +161,7 @@ public class GraphIndexImpl implements GraphIndex {
     public NodeIterable getNodesUnderPosition(float x, float y) {
         ensureInitialized();
 
-        return filterNodeIterable(graph.getSpatialContext().getNodesInArea(getCircleRect2D(x, y, 0)), node -> {
+        return filterNodeIterable(graphModel.getSpatialIndex().getNodesInArea(getCircleRect2D(x, y, 0)), node -> {
             final float size = node.size();
 
             return Intersectionf.testPointCircle(x, y, node.x(), node.y(), size * size);
@@ -172,7 +172,7 @@ public class GraphIndexImpl implements GraphIndex {
     public NodeIterable getNodesInsideCircle(float centerX, float centerY, float radius) {
         ensureInitialized();
 
-        return filterNodeIterable(graph.getSpatialContext().getNodesInArea(getCircleRect2D(centerX, centerY, radius)), node -> {
+        return filterNodeIterable(graphModel.getSpatialIndex().getNodesInArea(getCircleRect2D(centerX, centerY, radius)), node -> {
             return Intersectionf.testCircleCircle(centerX, centerY, radius, node.x(), node.y(), node.size());
         });
     }
@@ -181,7 +181,7 @@ public class GraphIndexImpl implements GraphIndex {
     public NodeIterable getNodesInsideRectangle(Rect2D rect) {
         ensureInitialized();
 
-        return filterNodeIterable(graph.getSpatialContext().getNodesInArea(rect), node -> {
+        return filterNodeIterable(graphModel.getSpatialIndex().getNodesInArea(rect), node -> {
             final float size = node.size();
 
             return Intersectionf.testAarCircle(rect.minX, rect.minY, rect.maxX, rect.maxY, node.x(), node.y(), size * size);
@@ -192,7 +192,7 @@ public class GraphIndexImpl implements GraphIndex {
     public EdgeIterable getEdgesInsideRectangle(Rect2D rect) {
         ensureInitialized();
 
-        return filterEdgeIterable(graph.getSpatialContext().getEdgesInArea(rect), edge -> {
+        return filterEdgeIterable(graphModel.getSpatialIndex().getEdgesInArea(rect), edge -> {
             final Node source = edge.getSource();
             final Node target = edge.getTarget();
 
@@ -205,7 +205,7 @@ public class GraphIndexImpl implements GraphIndex {
     public EdgeIterable getEdgesInsideCircle(float centerX, float centerY, float radius) {
         ensureInitialized();
 
-        return filterEdgeIterable(graph.getSpatialContext().getEdgesInArea(getCircleRect2D(centerX, centerY, radius)), edge -> {
+        return filterEdgeIterable(graphModel.getSpatialIndex().getEdgesInArea(getCircleRect2D(centerX, centerY, radius)), edge -> {
             final Node source = edge.getSource();
             final Node target = edge.getTarget();
 
