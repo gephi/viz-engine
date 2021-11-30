@@ -1,21 +1,24 @@
 package org.gephi.viz.engine.lwjgl.pipeline.instanced;
 
-import java.nio.FloatBuffer;
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
+import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
+import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
+import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
+import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
-import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
-import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
-import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.FloatBuffer;
+import java.util.Optional;
+
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
-import org.lwjgl.system.MemoryStack;
 
 /**
  *
@@ -73,6 +76,8 @@ public class InstancedNodeData extends AbstractNodeData {
     }
 
     public void drawInstanced(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        float globalTime = engine.getGlobalTime();
+        Optional<Float> selectedTime = engine.getSelectedTime();
         final float[] backgroundColorFloats = engine.getBackgroundColor();
         final float zoom = engine.getZoom();
 
@@ -110,7 +115,7 @@ public class InstancedNodeData extends AbstractNodeData {
             }
 
             setupVertexArrayAttributes(engine);
-            diskModelToRender.drawInstanced(firstVertex, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
+            diskModelToRender.drawInstanced(firstVertex, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, globalTime, selectedTime);
             unsetupVertexArrayAttributes();
         }
     }

@@ -1,27 +1,30 @@
 package org.gephi.viz.engine.lwjgl.pipeline.indirect;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
-import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBuffer;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBufferImmutable;
+import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
+import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
-import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;
-import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.Optional;
+
 import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_BYTES;
+import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
-import org.lwjgl.system.MemoryStack;
 
 /**
  *
@@ -85,6 +88,8 @@ public class IndirectNodeData extends AbstractNodeData {
     }
 
     public void drawIndirect(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        float globalTime = engine.getGlobalTime();
+        Optional<Float> selectedTime = engine.getSelectedTime();
         final float[] backgroundColorFloats = engine.getBackgroundColor();
 
         final int instanceCount;
@@ -105,7 +110,7 @@ public class IndirectNodeData extends AbstractNodeData {
             setupVertexArrayAttributes(engine);
 
             commandsGLBuffer.bind();
-            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
+            diskModel64.drawIndirect(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, globalTime, selectedTime);
             commandsGLBuffer.unbind();
 
             unsetupVertexArrayAttributes();

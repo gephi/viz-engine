@@ -1,12 +1,15 @@
 package org.gephi.viz.engine.lwjgl.models;
 
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
-import org.gephi.viz.engine.util.gl.Constants;
-import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.util.NumberUtils;
+import org.gephi.viz.engine.util.gl.Constants;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL42;
+
+import java.util.Optional;
+
+import static org.gephi.viz.engine.util.gl.Constants.*;
 
 /**
  *
@@ -63,6 +66,9 @@ public class EdgeLineModelUndirected {
                 .addUniformName(UNIFORM_NAME_EDGE_SCALE_MAX)
                 .addUniformName(UNIFORM_NAME_MIN_WEIGHT)
                 .addUniformName(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR)
+                .addUniformName(UNIFORM_NAME_GLOBAL_TIME)
+                .addUniformName(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME)
+                .addUniformName(UNIFORM_NAME_IS_SELECTION_ON)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION_TARGET, SHADER_POSITION_TARGET_LOCATION)
@@ -85,8 +91,8 @@ public class EdgeLineModelUndirected {
         GL20.glDrawArrays(GL20.GL_TRIANGLES, 0, VERTEX_COUNT * drawBatchCount);
     }
 
-    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float scale, float minWeight, float maxWeight) {
-        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight);
+    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float scale, float minWeight, float maxWeight, float globalTime, Optional<Float> selectedTime) {
+        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight, globalTime, selectedTime);
         if (instancesOffset > 0) {
             GL42.glDrawArraysInstancedBaseInstance(GL20.GL_TRIANGLES, 0, VERTEX_COUNT, instanceCount, instancesOffset);
         } else {
@@ -95,23 +101,31 @@ public class EdgeLineModelUndirected {
         stopUsingProgram();
     }
 
-    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight) {
+    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight, float globalTime, Optional<Float> selectedTime) {
         //Line:
         program.use();
-        prepareProgramData(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight);
+        prepareProgramData(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight, globalTime, selectedTime);
     }
 
     public void stopUsingProgram() {
         program.stopUsing();
     }
 
-    private void prepareProgramData(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight) {
+    private void prepareProgramData(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight, float globalTime, Optional<Float> selectedTime) {
         GL20.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
         GL20.glUniform4fv(program.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MIN), EDGE_SCALE_MIN * scale);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
+        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME), globalTime);
+        if(selectedTime.isPresent()){
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), selectedTime.get());
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), selectedTime.get());
+        } else {
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), 0);
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), 0);
+        }
 
         if (NumberUtils.equalsEpsilon(minWeight, maxWeight, 1e-3f)) {
             GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);

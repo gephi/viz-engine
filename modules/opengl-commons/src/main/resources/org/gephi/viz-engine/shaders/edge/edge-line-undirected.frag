@@ -4,6 +4,8 @@
 precision lowp float;
 #endif
 
+uniform float fGlobalTime;
+
 varying lowp vec4 fragColor;
 
 void main() {

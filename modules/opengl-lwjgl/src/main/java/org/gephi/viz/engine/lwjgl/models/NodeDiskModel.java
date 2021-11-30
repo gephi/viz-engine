@@ -1,14 +1,16 @@
 package org.gephi.viz.engine.lwjgl.models;
 
-import java.nio.IntBuffer;
-import org.gephi.viz.engine.util.gl.Constants;
-import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
+import org.gephi.viz.engine.util.gl.Constants;
 import org.gephi.viz.engine.util.gl.GLConstants;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
+
+import java.util.Optional;
+
+import static org.gephi.viz.engine.util.gl.Constants.*;
 
 /**
  * @author Eduardo Ramos
@@ -67,6 +69,9 @@ public class NodeDiskModel {
                 .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
                 .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
                 .addUniformName(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR)
+                .addUniformName(UNIFORM_NAME_GLOBAL_TIME)
+                .addUniformName(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME)
+                .addUniformName(UNIFORM_NAME_IS_SELECTION_ON)
                 .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
                 .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
@@ -80,8 +85,8 @@ public class NodeDiskModel {
         GL20.glDrawArrays(GL20.GL_TRIANGLES, firstVertexIndex, vertexCount);
     }
 
-    public void drawInstanced(int vertexOffset, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
-        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
+    public void drawInstanced(int vertexOffset, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float globalTime, Optional<Float> selectedTime) {
+        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, globalTime, selectedTime);
         if (instancesOffset > 0) {
             GL42.glDrawArraysInstancedBaseInstance(GL20.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount, instancesOffset);
         } else {
@@ -90,23 +95,33 @@ public class NodeDiskModel {
         stopUsingProgram();
     }
 
-    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
-        drawInstanced(0, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
+    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float globalTime, Optional<Float> selectedTime) {
+        drawInstanced(0, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset, globalTime, selectedTime);
     }
 
-    public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
-        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
+    public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float globalTime, Optional<Float> selectedTime) {
+        useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, globalTime, selectedTime);
         GL43.glMultiDrawArraysIndirect(GL20.GL_TRIANGLES, instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_BYTES, instanceCount, GLConstants.INDIRECT_DRAW_COMMAND_BYTES);
         stopUsingProgram();
     }
 
-    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor) {
+    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float globalTime, Optional<Float> selectedTime) {
         //Circle:
         program.use();
 
         GL20.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
         GL20.glUniform4fv(program.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
+        GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_TIME),globalTime);
+        if(selectedTime.isPresent()){
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), selectedTime.get());
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), selectedTime.get());
+        } else {
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_GLOBAL_SELECTED_START_TIME), 0);
+            GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_IS_SELECTION_ON), 0);
+        }
+
+
     }
 
     public void stopUsingProgram() {
