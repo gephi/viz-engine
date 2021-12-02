@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
 import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Rect2D;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
@@ -34,10 +35,9 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
 /**
- *
- * @author Eduardo Ramos
  * @param <R> Rendering target
  * @param <I> Events type
+ * @author Eduardo Ramos
  */
 public class VizEngine<R extends RenderingTarget, I> {
 
@@ -46,6 +46,8 @@ public class VizEngine<R extends RenderingTarget, I> {
     //Rendering target
     private final R renderingTarget;
     private boolean isSetUp = false;
+    private boolean isPaused = false;
+    private boolean isDestroyed = false;
 
     //State
     private int width = 0;
@@ -76,7 +78,7 @@ public class VizEngine<R extends RenderingTarget, I> {
 
     //Input listeners:
     private final List<I> eventsQueue = Collections.synchronizedList(new ArrayList<>());
-    private final Set<InputListener<R, I>> allInuptListeners = new LinkedHashSet<>();
+    private final Set<InputListener<R, I>> allInputListeners = new LinkedHashSet<>();
     private final List<InputListener<R, I>> inputListenersPipeline = new ArrayList<>();
 
     //Graph:
@@ -99,8 +101,10 @@ public class VizEngine<R extends RenderingTarget, I> {
     }
 
     public void setup() {
+        this.renderingTarget.setup(this);
+
         if (isSetUp) {
-            throw new IllegalStateException("Setup already called");
+            return;
         }
 
         final int numThreads = Math.max(Math.min(updatersPipeline.size(), 4), 1);
@@ -109,13 +113,11 @@ public class VizEngine<R extends RenderingTarget, I> {
                 private int id = 1;
 
                 @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "World Updater " + id++);
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "World Updater " + id++);
                 }
             });
         }
-
-        this.renderingTarget.setup(this);
 
         isSetUp = true;
 
@@ -167,23 +169,23 @@ public class VizEngine<R extends RenderingTarget, I> {
     }
 
     private void setupInputListenersPipeline() {
-        setupPipelineOfElements(allInuptListeners, inputListenersPipeline, "InputListener");
+        setupPipelineOfElements(allInputListeners, inputListenersPipeline, "InputListener");
     }
 
     public void addInputListener(InputListener<R, I> listener) {
-        allInuptListeners.add(listener);
+        allInputListeners.add(listener);
     }
 
     public boolean hasInputListener(InputListener<R, I> listener) {
-        return allInuptListeners.contains(listener);
+        return allInputListeners.contains(listener);
     }
 
     public boolean removeInputListener(InputListener<R, I> listener) {
-        return allInuptListeners.remove(listener);
+        return allInputListeners.remove(listener);
     }
 
     public Set<InputListener<R, I>> getAllInputListeners() {
-        return Collections.unmodifiableSet(allInuptListeners);
+        return Collections.unmodifiableSet(allInputListeners);
     }
 
     public List<InputListener<R, I>> getInputListenersPipeline() {
@@ -350,9 +352,12 @@ public class VizEngine<R extends RenderingTarget, I> {
     }
 
     public synchronized void start() {
-        if (!isSetUp) {
-            setup();
+        isPaused = false;
+        if (isDestroyed) {
+            throw new IllegalStateException("VizEngine already destroyed, cannot start again. Use pause instead");
         }
+
+        setup();
         renderingTarget.start();
     }
 
@@ -372,7 +377,11 @@ public class VizEngine<R extends RenderingTarget, I> {
         loadModelViewProjection();
     }
 
-    public synchronized void stop() {
+    public synchronized void pause() {
+        isPaused = true;
+    }
+
+    public synchronized void destroy() {
         if (updatersThreadPool != null) {
             try {
                 updatersThreadPool.shutdown();
@@ -398,6 +407,7 @@ public class VizEngine<R extends RenderingTarget, I> {
             renderer.dispose(renderingTarget);
         });
 
+        this.isDestroyed = true;
         this.renderingTarget.stop();
     }
 
@@ -417,6 +427,10 @@ public class VizEngine<R extends RenderingTarget, I> {
     private static final RenderingLayer[] ALL_LAYERS = RenderingLayer.values();
 
     public void display() {
+        if (isPaused) {
+            return;
+        }
+
         renderingTarget.frameStart();
 
         processInputEvents();

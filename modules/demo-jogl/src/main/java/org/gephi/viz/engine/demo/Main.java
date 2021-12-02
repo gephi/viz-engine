@@ -107,7 +107,7 @@ public class Main implements KeyListener {
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
-                engine.stop();
+                engine.destroy();
                 glWindow.destroy();
                 frame.dispose();
                 break;
