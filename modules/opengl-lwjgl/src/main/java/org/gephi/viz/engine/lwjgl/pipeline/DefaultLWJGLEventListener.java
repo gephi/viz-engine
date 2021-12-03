@@ -40,9 +40,10 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
     public void frameEnd() {
         if (lastMovedPosition != null) {
             //TODO: move to independent selection input listener
-            final Vector2f worldCoords = engine.screenCoordinatesToWorldCoordinates(lastMovedPosition.x, lastMovedPosition.y);
-
-            inputActionsProcessor.selectNodesUnderPosition(worldCoords);
+            if(graphSelection.getMode() == GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION) {
+                final Vector2f worldCoords = engine.screenCoordinatesToWorldCoordinates(lastMovedPosition.x, lastMovedPosition.y);
+                inputActionsProcessor.selectNodesUnderPosition(worldCoords);
+            }
         }
     }
 
@@ -105,7 +106,9 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
             System.out.println(String.format(
                     "Click on %s %s = %s, %s", x, y, worldCoords.x, worldCoords.y
             ));
-
+            return true;
+        } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
+            inputActionsProcessor.cleanupSelection();
             return true;
         }
 
@@ -117,6 +120,7 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
             mouseLeftButtonPresed = true;
 
             if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION ) {
+                inputActionsProcessor.cleanupSelection();
                 graphSelection.startRectangleSelection(engine.screenCoordinatesToWorldCoordinates(e.x, e.y));
                 return true;
             }
@@ -163,13 +167,17 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
 
                 inputActionsProcessor.processZoomEvent(zoomQuantity, engine.getWidth() / 2, engine.getHeight() / 2);
                 return true;
-            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION && mouseLeftButtonPresed) {
+            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION && (mouseLeftButtonPresed || mouseRightButtonPresed)) {
                 inputActionsProcessor.processCameraMoveEvent(e.x - lastX, e.y - lastY);
                 return true;
 
-            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && (mouseLeftButtonPresed || mouseRightButtonPresed)) {
+            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && mouseLeftButtonPresed   ) {
                 graphSelection.updateRectangleSelection(engine.screenCoordinatesToWorldCoordinates(e.x, e.y));
+
                 inputActionsProcessor.selectNodesOnRectangle(graphSelection);
+                return true;
+            }else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION  &&  mouseRightButtonPresed) {
+                inputActionsProcessor.processCameraMoveEvent(e.x - lastX, e.y - lastY);
                 return true;
             }
 

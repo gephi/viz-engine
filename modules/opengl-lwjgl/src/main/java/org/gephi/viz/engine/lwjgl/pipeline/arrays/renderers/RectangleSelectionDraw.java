@@ -10,13 +10,16 @@ import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.util.gl.Constants;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import static org.gephi.viz.engine.util.gl.Constants.*;
+import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_VERTEX_ARRAY;
 import static org.lwjgl.opengl.GL11.glEnableClientState;
@@ -28,6 +31,7 @@ public class RectangleSelectionDraw implements Renderer<LWJGLRenderingTarget> {
 
     private final float[] mvpFloats = new float[16];
     private GraphSelection graphSelection ;
+
     public RectangleSelectionDraw(VizEngine engine) {
         this.engine = engine;
 
@@ -67,31 +71,35 @@ public class RectangleSelectionDraw implements Renderer<LWJGLRenderingTarget> {
     public void render(LWJGLRenderingTarget target, RenderingLayer layer) {
         this.graphSelection  = engine.getLookup().lookup(GraphSelection.class);
         if(graphSelection!= null && graphSelection.getCurrentPosition() != null && graphSelection.getInitialPosition()!=null) {
-            GLShaderProgram program = new GLShaderProgram(SHADERS_ROOT, "rectangleSelection", "rectangleSelection")
+             program = new GLShaderProgram(SHADERS_ROOT, "rectangleSelection", "rectangleSelection")
                     .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
                     .init();
             program.use();
-
+            engine.getModelViewProjectionMatrixFloats(mvpFloats);
+            glfwSetErrorCallback( GLFWErrorCallback.createPrint(System.err));
             GL20.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
-            System.out.println("in");
+
             Vector2f topLeft = graphSelection.getInitialPosition();
             Vector2f topRight = new Vector2f(graphSelection.getCurrentPosition().x, graphSelection.getInitialPosition().y);
             Vector2f bottomRight = graphSelection.getCurrentPosition();
             Vector2f bottomLeft = new Vector2f(graphSelection.getInitialPosition().x, graphSelection.getCurrentPosition().y);
 
             float[] rectangleVertexData = {
-                    topLeft.x,
-                    topRight.x,
-                    topLeft.y,
                     bottomLeft.x,
                     bottomLeft.y,
+                    topLeft.x,
+                    topLeft.y,
+                    topRight.x,
+                    topRight.y,
                     bottomRight.x,
                     bottomRight.y
             };
+            System.out.println(Arrays.toString(mvpFloats));
+
             int vbo = glGenBuffers();
             int ibo = glGenBuffers();
 
-            int[] indices = {0, 1, 2, 2, 3};
+            int[] indices = {0, 1, 2, 2 ,0 ,3};
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, (FloatBuffer) BufferUtils.createFloatBuffer(rectangleVertexData.length).put(rectangleVertexData).flip(), GL_STATIC_DRAW);
             glEnableClientState(GL_VERTEX_ARRAY);
@@ -100,8 +108,9 @@ public class RectangleSelectionDraw implements Renderer<LWJGLRenderingTarget> {
             glVertexPointer(2, GL_FLOAT, 0, 0L);
             glColor3f(.5f,.7f,.9f);
 
-            glDrawElements(GL_TRIANGLES, 5, GL_UNSIGNED_INT, 0L);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0L);
             program.stopUsing();
+
         }
 
     }

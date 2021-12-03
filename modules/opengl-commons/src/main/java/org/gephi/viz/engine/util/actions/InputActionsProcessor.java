@@ -29,7 +29,6 @@ public class InputActionsProcessor {
 
     public void selectNodesOnRectangle(RectangleSelection selection) {
         final GraphIndex index = engine.getLookup().lookup(GraphIndex.class);
-
         final NodeIterable iterable = index.getNodesInsideRectangle(new Rect2D(
                 Math.min(selection.getCurrentPosition().x,selection.getInitialPosition().x),
                 Math.min(selection.getCurrentPosition().y,selection.getInitialPosition().y),
@@ -47,6 +46,13 @@ public class InputActionsProcessor {
         selectNodes(iterable);
     }
 
+    public void cleanupSelection() {
+        final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
+        final GraphSelectionNeighbours neighboursSelection = engine.getLookup().lookup(GraphSelectionNeighbours.class);
+        selection.clearSelectedNodes();
+        selection.clearSelectedEdges();
+        neighboursSelection.clearSelectedNodes();
+    }
     public void selectNodes(NodeIterable iterable) {
         final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
         final GraphSelectionNeighbours neighboursSelection = engine.getLookup().lookup(GraphSelectionNeighbours.class);
@@ -56,7 +62,8 @@ public class InputActionsProcessor {
         final Iterator<Node> iterator = iterable.iterator();
 
         try {
-            if (iterator.hasNext()) {
+
+            while (iterator.hasNext()) {
                 //Select the node:
                 final Node frontNode = iterator.next();
 
@@ -72,13 +79,9 @@ public class InputActionsProcessor {
                 }
 
                 //Select everything as atomically as possible:
-                selection.setSelectedNode(frontNode);
-                selection.setSelectedEdges(selectedEdges);
-                neighboursSelection.setSelectedNodes(selectedNeighbours);
-            } else {
-                selection.clearSelectedNodes();
-                selection.clearSelectedEdges();
-                neighboursSelection.clearSelectedNodes();
+                selection.addSelectedNode(frontNode);
+                selection.addSelectedEdges(selectedEdges);
+                neighboursSelection.addSelectedNodes(selectedNeighbours);
             }
         } finally {
             if (iterator.hasNext()) {
