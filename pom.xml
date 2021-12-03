@@ -19,7 +19,7 @@
         <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
         
         <joml.version>1.10.2</joml.version>
-        <netbeans.version>RELEASE125</netbeans.version>
+        <netbeans.version>RELEASE126</netbeans.version>
     </properties>
     
     <modules>

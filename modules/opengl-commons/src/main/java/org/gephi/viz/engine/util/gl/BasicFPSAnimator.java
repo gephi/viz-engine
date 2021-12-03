@@ -6,7 +6,7 @@ import org.gephi.viz.engine.util.TimeUtils;
  *
  * @author mbastian
  */
-public class BasicFPSAnimator extends Thread {
+public class BasicFPSAnimator implements Runnable {
 
     //Runnable
     protected final Runnable runnable;
@@ -16,14 +16,10 @@ public class BasicFPSAnimator extends Thread {
     //Flag
     protected boolean animating = true;
     //Lock
-    protected final Object worldLock;
     protected final Object lock = new Object();
 
-    public BasicFPSAnimator(Runnable runnable, Object worldLock, String name, float fps) {
-        super(name);
-        this.worldLock = worldLock;
+    public BasicFPSAnimator(Runnable runnable, float fps) {
         this.runnable = runnable;
-        setDaemon(true);
         setFps(fps);
     }
 
@@ -31,11 +27,12 @@ public class BasicFPSAnimator extends Thread {
     public void run() {
         while (animating) {
             startTime = TimeUtils.getTimeMillis();
-            //Execute
-            synchronized (worldLock) {
+            try {
                 runnable.run();
+            } catch (Throwable ex) {
+                ex.printStackTrace();//TODO log if enabled
             }
-            //End
+
             long timeout;
             while ((timeout = delay - TimeUtils.getTimeMillis() + startTime) > 0) {
                 //Wait only if the time spent in display is inferior than delay

@@ -1,36 +1,31 @@
 package org.gephi.viz.engine.lwjgl;
 
-import java.awt.Frame;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.util.TimeUtils;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_RENDERER;
-import static org.lwjgl.opengl.GL11.GL_VENDOR;
-import static org.lwjgl.opengl.GL11.GL_VERSION;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glGetString;
-import static org.lwjgl.opengl.GL11.glViewport;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLUtil;
 
+import java.util.function.Consumer;
+
+import static org.lwjgl.opengl.GL11.*;
+
 /**
- *
  * @author Eduardo Ramos
  */
 public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
 
-    private final Frame frame;
+    private final Consumer<Integer> fpsCallback;
     private VizEngine engine;
 
-    private String windowTitleFormat = null;
+    public LWJGLRenderingTargetAWT(Consumer<Integer> fpsCallback) {
+        this.fpsCallback = fpsCallback;
+    }
 
-    public LWJGLRenderingTargetAWT(Frame frame) {
-        this.frame = frame;
+    public LWJGLRenderingTargetAWT() {
+        this.fpsCallback = null;
     }
 
     @Override
@@ -51,7 +46,6 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
     }
 
     public void reshape(final int width, final int height) {
-        System.out.println("Reshape: " + width + "x" + height);
         engine.reshape(width, height);
     }
 
@@ -63,6 +57,7 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
             GLUtil.setupDebugMessageCallback();
         }
 
+        //TODO: Use logger instead
         System.err.println("GL_VENDOR: " + glGetString(GL_VENDOR));
         System.err.println("GL_RENDERER: " + glGetString(GL_RENDERER));
         System.err.println("GL_VERSION: " + glGetString(GL_VERSION));
@@ -106,24 +101,17 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
         return running;
     }
 
-    public String getWindowTitleFormat() {
-        return windowTitleFormat;
-    }
-
-    public void setWindowTitleFormat(String windowTitleFormat) {
-        this.windowTitleFormat = windowTitleFormat;
-    }
-
     private int fps = 0;
     private long lastFpsTime = 0;
 
     private void updateFPS() {
+        if (fpsCallback == null) {
+            return;
+        }
+
         if (TimeUtils.getTimeMillis() - lastFpsTime > 1000) {
-            if (frame != null && windowTitleFormat != null && windowTitleFormat.contains("$FPS")) {
-                this.frame.setTitle(windowTitleFormat.replace("$FPS", String.valueOf(fps)));
-            } else {
-                System.out.println("FPS: " + fps);
-            }
+            fpsCallback.accept(fps);
+
             fps = 0;
             lastFpsTime += 1000;
         }

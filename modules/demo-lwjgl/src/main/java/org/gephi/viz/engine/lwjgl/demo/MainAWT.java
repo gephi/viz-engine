@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+
 import org.gephi.graph.api.GraphModel;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
@@ -32,6 +33,7 @@ import org.lwjgl.system.Platform;
 
 /**
  * Demo with lwjgl-awt
+ *
  * @author Eduardo Ramos
  */
 public class MainAWT {
@@ -68,7 +70,9 @@ public class MainAWT {
         data.samples = 4;//4 samples anti-aliasing
         data.swapInterval = 0;
 
-        renderingTarget = new LWJGLRenderingTargetAWT(frame);
+        renderingTarget = new LWJGLRenderingTargetAWT(fps -> {
+            frame.setTitle("VizEngine demo (LWJGL AWT) FPS: " + fps);
+        });
 
         engine = VizEngineFactory.<LWJGLRenderingTarget, LWJGLInputEvent>newEngine(
                 renderingTarget,
@@ -78,7 +82,6 @@ public class MainAWT {
                 )
         );
         engine.setWorldUpdatersExecutionMode(UPDATE_DATA_MODE);
-        renderingTarget.setWindowTitleFormat("VizEngine demo (LWJGL AWT) FPS: $FPS");
 
         final OpenGLOptions glOptions = engine.getLookup().lookup(OpenGLOptions.class);
         glOptions.setDisableIndirectDrawing(DISABLE_INDIRECT_RENDERING);
