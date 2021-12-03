@@ -4,6 +4,7 @@ import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.util.TimeUtils;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.glfw.GLFW;
+
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
@@ -11,8 +12,10 @@ import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_RENDERER;
 import static org.lwjgl.opengl.GL11.GL_VENDOR;
@@ -22,11 +25,11 @@ import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glGetString;
 import static org.lwjgl.opengl.GL11.glViewport;
+
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLUtil;
 
 /**
- *
  * @author Eduardo Ramos
  */
 public class LWJGLRenderingTargetGLFW implements LWJGLRenderingTarget {
@@ -165,8 +168,6 @@ public class LWJGLRenderingTargetGLFW implements LWJGLRenderingTarget {
         if (TimeUtils.getTimeMillis() - lastFpsTime > 1000) {
             if (windowTitleFormat != null && windowTitleFormat.contains("$FPS")) {
                 GLFW.glfwSetWindowTitle(windowHandle, windowTitleFormat.replace("$FPS", String.valueOf(fps)));
-            } else {
-                System.out.println("FPS: " + fps);
             }
             fps = 0;
             lastFpsTime += 1000;
