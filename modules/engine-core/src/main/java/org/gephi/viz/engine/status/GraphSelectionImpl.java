@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
@@ -148,5 +149,11 @@ public class GraphSelectionImpl implements GraphSelection {
     @Override
     public void clearSelectedEdges() {
         this.edges.clear();
+    }
+
+    @Override
+    public void clearSelection() {
+        clearSelectedEdges();
+        clearSelectedNodes();
     }
 }

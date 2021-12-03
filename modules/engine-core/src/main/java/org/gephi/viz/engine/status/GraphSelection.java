@@ -2,11 +2,11 @@ package org.gephi.viz.engine.status;
 
 import java.util.Collection;
 import java.util.Set;
+
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Node;
 
 /**
- *
  * @author Eduardo Ramos
  */
 public interface GraphSelection {
@@ -30,7 +30,7 @@ public interface GraphSelection {
     void removeSelectedNode(Node node);
 
     void clearSelectedNodes();
-    
+
     boolean isEdgeSelected(Edge edge);
 
     int getSelectedEdgesCount();
@@ -50,5 +50,7 @@ public interface GraphSelection {
     void removeSelectedEdge(Edge edge);
 
     void clearSelectedEdges();
+
+    void clearSelection();
 
 }
