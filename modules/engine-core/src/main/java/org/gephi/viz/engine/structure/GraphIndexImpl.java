@@ -135,7 +135,7 @@ public class GraphIndexImpl implements GraphIndex {
             for (Node node : nodeIterable) {
                 callback.accept(node);
             }
-        } finally {
+        } catch (Exception ex) {
             nodeIterable.doBreak();
         }
 
@@ -155,12 +155,11 @@ public class GraphIndexImpl implements GraphIndex {
 
         callback.start(graph);
         final EdgeIterable edgeIterable = graphModel.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries());
-
         try {
             for (Edge edge : edgeIterable) {
                 callback.accept(edge);
             }
-        } finally {
+        } catch (Exception ex) {
             edgeIterable.doBreak();
         }
 
