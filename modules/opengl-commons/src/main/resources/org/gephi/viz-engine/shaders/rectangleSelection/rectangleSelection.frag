@@ -6,5 +6,6 @@ precision lowp float;
 
 
 void main() {
-    gl_FragColor = vec4(1.,0.,0.,1.);
+    float q = clamp(asin(sin( (gl_FragCoord.x+gl_FragCoord.y)*.5)),.0,1.);
+    gl_FragColor = vec4(0.,q, q ,1.);
 }

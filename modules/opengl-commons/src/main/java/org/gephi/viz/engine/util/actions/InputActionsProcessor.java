@@ -1,7 +1,11 @@
 package org.gephi.viz.engine.util.actions;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.graph.api.Node;
@@ -13,6 +17,7 @@ import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.status.RectangleSelection;
 import org.gephi.viz.engine.structure.GraphIndex;
+import org.graalvm.compiler.graph.Edges;
 import org.joml.Vector2f;
 
 /**
@@ -55,13 +60,14 @@ public class InputActionsProcessor {
     }
     public void selectNodes(NodeIterable iterable) {
         final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
-        final GraphSelectionNeighbours neighboursSelection = engine.getLookup().lookup(GraphSelectionNeighbours.class);
         final GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
         final Graph graph = engine.getGraphModel().getGraphVisible();
 
         final Iterator<Node> iterator = iterable.iterator();
-
+        final Set<Node>  selectionNode = new HashSet<>();
+        final Set<Edge> selectionEdges = new HashSet<>();
         try {
+
 
             while (iterator.hasNext()) {
                 //Select the node:
@@ -79,10 +85,16 @@ public class InputActionsProcessor {
                 }
 
                 //Select everything as atomically as possible:
-                selection.addSelectedNode(frontNode);
-                selection.addSelectedEdges(selectedEdges);
-                neighboursSelection.addSelectedNodes(selectedNeighbours);
+                selectionNode.add(frontNode);
+                selectionEdges.addAll(selectedEdges);
+                if(selectedNeighbours!=null) {
+                    selectionNode.addAll(selectedNeighbours);
+                }
+
             }
+            selection.setSelectedNodes(selectionNode);
+            selection.setSelectedEdges(selectionEdges);
+
         } finally {
             if (iterator.hasNext()) {
                 iterable.doBreak();

@@ -94,7 +94,6 @@ public class RectangleSelectionDraw implements Renderer<LWJGLRenderingTarget> {
                     bottomRight.x,
                     bottomRight.y
             };
-            System.out.println(Arrays.toString(mvpFloats));
 
             int vbo = glGenBuffers();
             int ibo = glGenBuffers();
