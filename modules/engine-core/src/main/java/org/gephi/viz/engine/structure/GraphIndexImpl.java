@@ -1,21 +1,13 @@
 package org.gephi.viz.engine.structure;
 
-import java.util.function.Predicate;
-import org.gephi.graph.api.AttributeUtils;
-import org.gephi.graph.api.Column;
-import org.gephi.graph.api.Edge;
-import org.gephi.graph.api.EdgeIterable;
-import org.gephi.graph.api.Graph;
-import org.gephi.graph.api.GraphModel;
-import org.gephi.graph.api.GraphView;
-import org.gephi.graph.api.Node;
-import org.gephi.graph.api.NodeIterable;
-import org.gephi.graph.api.Rect2D;
+import org.gephi.graph.api.*;
 import org.gephi.graph.impl.GraphStoreConfiguration;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.util.EdgeIterableFilteredWrapper;
 import org.gephi.viz.engine.util.NodeIterableFilteredWrapper;
 import org.joml.Intersectionf;
+
+import java.util.function.Predicate;
 
 /**
  * <p>
@@ -137,7 +129,16 @@ public class GraphIndexImpl implements GraphIndex {
         ensureInitialized();
 
         callback.start(graph);
-        graphModel.getSpatialIndex().getNodesInArea(engine.getViewBoundaries(), callback);
+
+        final NodeIterable nodeIterable = graphModel.getSpatialIndex().getNodesInArea(engine.getViewBoundaries());
+        try {
+            for (Node node : nodeIterable) {
+                callback.accept(node);
+            }
+        } finally {
+            nodeIterable.doBreak();
+        }
+
         callback.end(graph);
     }
 
@@ -153,7 +154,16 @@ public class GraphIndexImpl implements GraphIndex {
         ensureInitialized();
 
         callback.start(graph);
-        graphModel.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries(), callback);
+        final EdgeIterable edgeIterable = graphModel.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries());
+
+        try {
+            for (Edge edge : edgeIterable) {
+                callback.accept(edge);
+            }
+        } finally {
+            edgeIterable.doBreak();
+        }
+
         callback.end(graph);
     }
 
