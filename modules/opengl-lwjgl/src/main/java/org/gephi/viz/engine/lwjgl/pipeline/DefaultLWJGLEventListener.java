@@ -7,21 +7,23 @@ import org.gephi.viz.engine.lwjgl.pipeline.events.MouseEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.events.MouseEvent.Action;
 import org.gephi.viz.engine.lwjgl.pipeline.events.MouseEvent.Button;
 import org.gephi.viz.engine.spi.InputListener;
+import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.util.actions.InputActionsProcessor;
 import org.joml.Vector2f;
 
 /**
- *
  * @author Eduardo Ramos
  */
 public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTarget, LWJGLInputEvent> {
 
     private final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine;
     private final InputActionsProcessor inputActionsProcessor;
+    private final GraphSelection graphSelection;
 
     public DefaultLWJGLEventListener(VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
         this.engine = engine;
         this.inputActionsProcessor = new InputActionsProcessor(engine);
+        this.graphSelection = engine.getLookup().lookup(GraphSelection.class);
     }
 
     private boolean mouseRightButtonPresed = false;
@@ -97,7 +99,7 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
             //Zoom out:
             inputActionsProcessor.processZoomEvent(-10, x, y);
             return true;
-        } else if (leftClick) {
+        } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION && leftClick) {
             //TODO: move to independent selection input listener
             final Vector2f worldCoords = engine.screenCoordinatesToWorldCoordinates(x, y);
             System.out.println(String.format(
@@ -113,6 +115,11 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
     public boolean mousePressed(MouseEvent e) {
         if (e.button == Button.LEFT) {
             mouseLeftButtonPresed = true;
+
+            if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION ) {
+                graphSelection.startRectangleSelection(engine.screenCoordinatesToWorldCoordinates(e.x, e.y));
+                return true;
+            }
         }
 
         if (e.button == Button.RIGHT) {
@@ -134,6 +141,10 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
             mouseRightButtonPresed = false;
         }
 
+        if(graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
+            graphSelection.stopRectangleSelection(engine.screenCoordinatesToWorldCoordinates(e.x, e.y));
+        }
+
         return false;
     }
 
@@ -145,16 +156,23 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
 
     public boolean mouseDragged(MouseEvent e) {
         try {
+
             if (mouseLeftButtonPresed && mouseRightButtonPresed) {
                 //Zoom in/on the screen center with both buttons pressed and vertical movement:
                 final double zoomQuantity = (lastY - e.y) / 7f;//Divide by some number so zoom is not too fast
 
                 inputActionsProcessor.processZoomEvent(zoomQuantity, engine.getWidth() / 2, engine.getHeight() / 2);
                 return true;
-            } else if (mouseLeftButtonPresed || mouseRightButtonPresed) {
+            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION && mouseLeftButtonPresed) {
                 inputActionsProcessor.processCameraMoveEvent(e.x - lastX, e.y - lastY);
                 return true;
+
+            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && (mouseLeftButtonPresed || mouseRightButtonPresed)) {
+                graphSelection.updateRectangleSelection(engine.screenCoordinatesToWorldCoordinates(e.x, e.y));
+                inputActionsProcessor.selectNodesOnRectangle(graphSelection);
+                return true;
             }
+
         } finally {
             lastX = e.x;
             lastY = e.y;

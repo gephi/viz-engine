@@ -11,6 +11,7 @@ import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
+import org.gephi.viz.engine.status.RectangleSelection;
 import org.gephi.viz.engine.structure.GraphIndex;
 import org.joml.Vector2f;
 
@@ -26,14 +27,32 @@ public class InputActionsProcessor {
         this.engine = engine;
     }
 
+    public void selectNodesOnRectangle(RectangleSelection selection) {
+        final GraphIndex index = engine.getLookup().lookup(GraphIndex.class);
+
+        final NodeIterable iterable = index.getNodesInsideRectangle(new Rect2D(
+                Math.min(selection.getCurrentPosition().x,selection.getInitialPosition().x),
+                Math.min(selection.getCurrentPosition().y,selection.getInitialPosition().y),
+                Math.max(selection.getCurrentPosition().x,selection.getInitialPosition().x),
+                Math.max(selection.getCurrentPosition().y,selection.getInitialPosition().y)
+        ));
+
+        selectNodes(iterable);
+    }
+
     public void selectNodesUnderPosition(Vector2f worldCoords) {
         final GraphIndex index = engine.getLookup().lookup(GraphIndex.class);
+        final NodeIterable iterable = index.getNodesUnderPosition(worldCoords.x, worldCoords.y);
+
+        selectNodes(iterable);
+    }
+
+    public void selectNodes(NodeIterable iterable) {
         final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
         final GraphSelectionNeighbours neighboursSelection = engine.getLookup().lookup(GraphSelectionNeighbours.class);
         final GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
         final Graph graph = engine.getGraphModel().getGraphVisible();
 
-        final NodeIterable iterable = index.getNodesUnderPosition(worldCoords.x, worldCoords.y);
         final Iterator<Node> iterator = iterable.iterator();
 
         try {

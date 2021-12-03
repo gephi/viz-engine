@@ -7,15 +7,18 @@ import java.util.Set;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
+import org.joml.Vector2f;
 
 public class GraphSelectionImpl implements GraphSelection {
 
     private final VizEngine engine;
     private final Set<Node> nodes = new HashSet<>();
     private final Set<Edge> edges = new HashSet<>();
+    private GraphSelection.GraphSelectionMode selectionMode;
 
     public GraphSelectionImpl(VizEngine engine) {
         this.engine = engine;
+        selectionMode = GraphSelectionMode.RECTANGLE_SELECTION;
     }
 
     @Override
@@ -148,5 +151,51 @@ public class GraphSelectionImpl implements GraphSelection {
     @Override
     public void clearSelectedEdges() {
         this.edges.clear();
+    }
+
+    @Override
+    public GraphSelectionMode getMode() {
+        return selectionMode;
+    }
+
+    @Override
+    public void setMode(GraphSelectionMode mode) {
+        if(mode != null) {
+            selectionMode = mode;
+        }
+    }
+
+    private Vector2f rectangleSelectionInitialPosition;
+    private Vector2f rectangleSelectionCurrentPosition;
+
+    @Override
+    public void startRectangleSelection(Vector2f initialPosition) {
+        this.rectangleSelectionInitialPosition = initialPosition;
+        this.rectangleSelectionCurrentPosition = initialPosition;
+    }
+
+    @Override
+    public void stopRectangleSelection(Vector2f endPosition) {
+        this.rectangleSelectionInitialPosition = null;
+        this.rectangleSelectionCurrentPosition = null;
+
+    }
+
+    @Override
+    public void updateRectangleSelection(Vector2f updatedPosition) {
+        this.rectangleSelectionCurrentPosition = updatedPosition;
+
+
+
+    }
+
+    @Override
+    public Vector2f getInitialPosition() {
+        return this.rectangleSelectionInitialPosition;
+    }
+
+    @Override
+    public Vector2f getCurrentPosition() {
+        return this.rectangleSelectionCurrentPosition;
     }
 }

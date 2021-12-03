@@ -6,6 +6,7 @@ import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawEdgeData;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawNodeData;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.EdgeRendererArrayDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.NodeRendererArrayDraw;
+import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.RectangleSelectionDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.EdgesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.NodesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
@@ -85,7 +86,10 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         final ArrayDrawEdgeData edgeData = new ArrayDrawEdgeData();
         engine.addRenderer(new EdgeRendererArrayDraw(engine, edgeData));
         engine.addWorldUpdater(new EdgesUpdaterArrayDrawRendering(engine, edgeData, graphIndex));
+
+        engine.addRenderer(new RectangleSelectionDraw(engine));
     }
+
 
     private void setupInputListeners(VizEngine engine) {
         engine.addInputListener(new DefaultLWJGLEventListener(engine));

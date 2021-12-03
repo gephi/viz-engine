@@ -4,13 +4,18 @@ import java.util.Collection;
 import java.util.Set;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Node;
+import org.joml.Vector2f;
 
 /**
  *
  * @author Eduardo Ramos
  */
-public interface GraphSelection {
+public interface GraphSelection extends RectangleSelection {
 
+     enum GraphSelectionMode {
+        SIMPLE_MOUSE_SELECTION,
+        RECTANGLE_SELECTION
+    }
     boolean isNodeSelected(Node node);
 
     int getSelectedNodesCount();
@@ -50,5 +55,9 @@ public interface GraphSelection {
     void removeSelectedEdge(Edge edge);
 
     void clearSelectedEdges();
+
+    GraphSelectionMode getMode();
+
+    void setMode(GraphSelectionMode mode);
 
 }
