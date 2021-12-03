@@ -137,18 +137,18 @@ public class MainAWT {
 
             @Override
             public void windowActivated(WindowEvent e) {
-                renderingTarget.reshape(canvas.getWidth(), canvas.getHeight());
+                renderingTarget.reshape(canvas.getFramebufferWidth(), canvas.getFramebufferHeight());
             }
 
             @Override
             public void windowOpened(WindowEvent e) {
-                renderingTarget.reshape(canvas.getWidth(), canvas.getHeight());
+                renderingTarget.reshape(canvas.getFramebufferWidth(), canvas.getFramebufferHeight());
             }
         });
         canvas.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent event) {
-                renderingTarget.reshape(event.getComponent().getWidth(), event.getComponent().getHeight());
+                renderingTarget.reshape(canvas.getFramebufferWidth(), canvas.getFramebufferHeight());
             }
         });
 
