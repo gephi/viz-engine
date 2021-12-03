@@ -153,7 +153,7 @@ public class MainAWT {
     }
 
     private void stopAll() {
-        engine.stop();
+        engine.destroy();
         eventsListener.destroy();
         stopTestEventListeners();
         System.exit(0);

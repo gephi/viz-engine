@@ -165,7 +165,7 @@ public class MainGLFW {
                     }
 
                     if (keyEvent.getKeyCode() == GLFW_KEY_ESCAPE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
-                        engine.stop();
+                        engine.destroy();
                     }
                 }
 

@@ -15,7 +15,6 @@
         
         <gephi.graphstore.version>0.6.1-SNAPSHOT</gephi.graphstore.version>
         <gephi.version>0.9.3-SNAPSHOT</gephi.version>
-        <jogl.version>2.3.2</jogl.version>
         <lwjgl.version>3.3.0</lwjgl.version>
         <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
         
@@ -26,9 +25,7 @@
     <modules>
         <module>modules/engine-core</module>
         <module>modules/opengl-commons</module>
-        <module>modules/opengl-jogl</module>
         <module>modules/opengl-lwjgl</module>
-        <module>modules/demo-jogl</module>
         <module>modules/demo-lwjgl</module>
     </modules>
     
@@ -50,18 +47,6 @@
                 <groupId>org.joml</groupId>
                 <artifactId>joml</artifactId>
                 <version>${joml.version}</version>
-            </dependency>
-            
-            <!-- JOGL -->
-            <dependency>
-                <groupId>org.jogamp.jogl</groupId>
-                <artifactId>jogl-all</artifactId>
-                <version>${jogl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jogamp.gluegen</groupId>
-                <artifactId>gluegen-rt</artifactId>
-                <version>${jogl.version}</version>
             </dependency>
             
             <!-- LWJGL -->
@@ -206,11 +191,6 @@
             <dependency>
                 <groupId>org.gephi</groupId>
                 <artifactId>viz-engine-opengl-commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.gephi</groupId>
-                <artifactId>viz-engine-jogl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

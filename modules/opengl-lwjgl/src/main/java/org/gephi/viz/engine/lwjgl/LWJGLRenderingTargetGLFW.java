@@ -78,7 +78,7 @@ public class LWJGLRenderingTargetGLFW implements LWJGLRenderingTarget {
         glfwSwapInterval(0);
 
         glfwSetWindowCloseCallback(windowHandle, window -> {
-            engine.stop();
+            engine.destroy();
         });
 
         // This line is critical for LWJGL's interoperation with GLFW's
