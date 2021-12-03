@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLUtil;
 
-import java.awt.*;
 import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -47,7 +46,6 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
     }
 
     public void reshape(final int width, final int height) {
-        System.out.println("Reshape: " + width + "x" + height);
         engine.reshape(width, height);
     }
 
