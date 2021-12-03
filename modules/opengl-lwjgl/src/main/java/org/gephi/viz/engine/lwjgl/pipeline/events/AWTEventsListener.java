@@ -1,15 +1,15 @@
 package org.gephi.viz.engine.lwjgl.pipeline.events;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+
 /**
- *
  * @author Eduardo Ramos
  */
 public class AWTEventsListener {
@@ -32,11 +32,11 @@ public class AWTEventsListener {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() > 1) {
                     engine.queueEvent(
-                            MouseEvent.doubleClick(getButton(e), e.getX(), e.getY())
+                            MouseEvent.doubleClick(getButton(e), getX(e), getY(e))
                     );
                 } else {
                     engine.queueEvent(
-                            MouseEvent.click(getButton(e), e.getX(), e.getY())
+                            MouseEvent.click(getButton(e), getX(e), getY(e))
                     );
                 }
             }
@@ -44,14 +44,14 @@ public class AWTEventsListener {
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
                 engine.queueEvent(
-                        MouseEvent.press(getButton(e), e.getX(), e.getY())
+                        MouseEvent.press(getButton(e), getX(e), getY(e))
                 );
             }
 
             @Override
             public void mouseReleased(java.awt.event.MouseEvent e) {
                 engine.queueEvent(
-                        MouseEvent.release(getButton(e), e.getX(), e.getY())
+                        MouseEvent.release(getButton(e), getX(e), getY(e))
                 );
             }
 
@@ -71,21 +71,21 @@ public class AWTEventsListener {
             @Override
             public void mouseDragged(java.awt.event.MouseEvent e) {
                 engine.queueEvent(
-                        MouseEvent.drag(e.getX(), e.getY())
+                        MouseEvent.drag(getX(e), getY(e))
                 );
             }
 
             @Override
             public void mouseMoved(java.awt.event.MouseEvent e) {
                 engine.queueEvent(
-                        MouseEvent.move(e.getX(), e.getY())
+                        MouseEvent.move(getX(e), getY(e))
                 );
             }
         });
 
         canvas.addMouseWheelListener((MouseWheelEvent e) -> {
             engine.queueEvent(
-                    MouseEvent.scroll(e.getX(), e.getY(), 0, -e.getPreciseWheelRotation())
+                    MouseEvent.scroll(getX(e), getY(e), 0, -e.getPreciseWheelRotation())
             );
         });
 
@@ -105,5 +105,15 @@ public class AWTEventsListener {
                 );
             }
         });
+    }
+
+    private int getX(java.awt.event.MouseEvent e) {
+        final float xScale = canvas.getFramebufferWidth() / (float) canvas.getWidth();
+        return (int) (e.getX() * xScale);
+    }
+
+    private int getY(java.awt.event.MouseEvent e) {
+        final float yScale = canvas.getFramebufferHeight() / (float) canvas.getHeight();
+        return (int) (e.getY() * yScale);
     }
 }
