@@ -67,6 +67,14 @@ public class MainAWT {
             data.api = GLData.API.GLES;
         }
 
+        if (Platform.get() == Platform.MACOSX) {
+            //In mac we have to set the version or it won't give the latest automatically
+
+            data.majorVersion = 3;
+            data.minorVersion = 2;
+            data.forwardCompatible = true;
+        }
+
         data.samples = 4;//4 samples anti-aliasing
         data.swapInterval = 0;
 
@@ -245,10 +253,6 @@ public class MainAWT {
     }
 
     public static void main(String[] args) {
-        if (Platform.get() == Platform.MACOSX) {
-            throw new UnsupportedOperationException("OSX not supported yet for AWT and LWJGL");
-        }
-
         final MainAWT main = new MainAWT();
 
         System.out.println(Arrays.toString(args));
