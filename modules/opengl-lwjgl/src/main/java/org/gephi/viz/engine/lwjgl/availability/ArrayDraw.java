@@ -21,7 +21,13 @@ public class ArrayDraw {
 
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
-        return capabilities.GL_ARB_shader_objects && capabilities.GL_ARB_vertex_shader && capabilities.GL_ARB_fragment_shader;
+        if (capabilities.OpenGL21) {
+            return true;
+        }
+
+        return capabilities.GL_ARB_shader_objects
+            && capabilities.GL_ARB_vertex_shader
+            && capabilities.GL_ARB_fragment_shader;
     }
 
 }

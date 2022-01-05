@@ -5,7 +5,6 @@ import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.opengl.GLCapabilities;
 
 /**
- *
  * @author Eduardo Ramos
  */
 public class IndirectDraw {
@@ -21,7 +20,13 @@ public class IndirectDraw {
 
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
-        return capabilities.OpenGL33 && capabilities.GL_ARB_draw_indirect && capabilities.GL_ARB_multi_draw_indirect && capabilities.GL_ARB_buffer_storage;
+        if (capabilities.OpenGL43) {
+            return true;
+        }
+
+        return capabilities.GL_ARB_draw_indirect
+            && capabilities.GL_ARB_multi_draw_indirect
+            && capabilities.GL_ARB_buffer_storage;
     }
 
 }
