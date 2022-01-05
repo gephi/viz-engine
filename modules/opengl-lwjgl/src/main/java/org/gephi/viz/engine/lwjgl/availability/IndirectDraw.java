@@ -21,12 +21,14 @@ public class IndirectDraw {
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
         if (capabilities.OpenGL43) {
+            System.out.println("43");
             return true;
         }
 
-        return capabilities.GL_ARB_draw_indirect
-            && capabilities.GL_ARB_multi_draw_indirect
-            && capabilities.GL_ARB_buffer_storage;
+        return capabilities.OpenGL40
+                && capabilities.GL_ARB_draw_indirect
+                && capabilities.GL_ARB_multi_draw_indirect
+                && capabilities.GL_ARB_buffer_storage;
     }
 
 }

@@ -26,7 +26,7 @@ public class InstancedDraw {
         }
 
         return capabilities.OpenGL31
-            && capabilities.GL_ARB_draw_instanced
-            && capabilities.GL_ARB_base_instance;
+                && capabilities.GL_ARB_draw_instanced
+                && capabilities.GL_ARB_base_instance;
     }
 }

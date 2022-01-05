@@ -26,8 +26,8 @@ public class ArrayDraw {
         }
 
         return capabilities.GL_ARB_shader_objects
-            && capabilities.GL_ARB_vertex_shader
-            && capabilities.GL_ARB_fragment_shader;
+                && capabilities.GL_ARB_vertex_shader
+                && capabilities.GL_ARB_fragment_shader;
     }
 
 }
