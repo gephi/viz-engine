@@ -20,7 +20,10 @@ public abstract class GLVertexArrayObject {
     private int arrayId = -1;
 
     public GLVertexArrayObject(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
-        vaoSupported = capabilities.GL_ARB_vertex_array_object && !openGLOptions.isDisableVAOS();
+        vaoSupported = (
+            (capabilities.GL_ARB_vertex_array_object || capabilities.OpenGL30)
+                && !openGLOptions.isDisableVAOS()
+        );
     }
 
     private void init() {
