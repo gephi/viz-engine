@@ -1,6 +1,7 @@
 package org.gephi.viz.engine.lwjgl.pipeline.arrays;
 
 import java.nio.FloatBuffer;
+
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
@@ -13,13 +14,14 @@ import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
+import org.lwjgl.system.MemoryStack;
+
 import static org.gephi.viz.engine.util.gl.Constants.*;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glVertexAttrib1f;
-import static org.lwjgl.opengl.GL20.glVertexAttrib4f;
 import static org.lwjgl.opengl.GL20.glVertexAttrib2fv;
-import org.lwjgl.system.MemoryStack;
+import static org.lwjgl.opengl.GL20.glVertexAttrib4f;
 
 /**
  *

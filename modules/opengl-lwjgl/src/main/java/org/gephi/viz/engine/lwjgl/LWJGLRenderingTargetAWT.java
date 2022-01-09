@@ -1,5 +1,7 @@
 package org.gephi.viz.engine.lwjgl;
 
+import java.util.function.Consumer;
+
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.util.TimeUtils;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
@@ -7,10 +9,8 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLUtil;
-
-import java.util.function.Consumer;
-
-import static org.lwjgl.opengl.GL11.*;
+import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.system.Platform;
 
 /**
  * @author Eduardo Ramos
@@ -18,14 +18,16 @@ import static org.lwjgl.opengl.GL11.*;
 public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
 
     private final Consumer<Integer> fpsCallback;
+    private final boolean isWindows;
     private VizEngine engine;
 
     public LWJGLRenderingTargetAWT(Consumer<Integer> fpsCallback) {
         this.fpsCallback = fpsCallback;
+        this.isWindows = Platform.get() == Platform.WINDOWS;
     }
 
     public LWJGLRenderingTargetAWT() {
-        this.fpsCallback = null;
+        this(null);
     }
 
     @Override
@@ -49,6 +51,14 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
         engine.reshape(width, height);
     }
 
+    public void reshape(final AWTGLCanvas canvas) {
+        if (isWindows) {
+            reshape(canvas.getFramebufferWidth(), canvas.getFramebufferHeight());
+        } else {
+            reshape(canvas.getWidth(), canvas.getHeight());
+        }
+    }
+
     public void initializeContext() {
         final GLCapabilities capabilities = GL.createCapabilities();
         engine.addToLookup(capabilities);
@@ -58,14 +68,14 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
         }
 
         //TODO: Use logger instead
-        System.err.println("GL_VENDOR: " + glGetString(GL_VENDOR));
-        System.err.println("GL_RENDERER: " + glGetString(GL_RENDERER));
-        System.err.println("GL_VERSION: " + glGetString(GL_VERSION));
+        System.err.println("GL_VENDOR: " + GL11.glGetString(GL11.GL_VENDOR));
+        System.err.println("GL_RENDERER: " + GL11.glGetString(GL11.GL_RENDERER));
+        System.err.println("GL_VERSION: " + GL11.glGetString(GL11.GL_VERSION));
 
-        glDisable(GL11.GL_DEPTH_TEST);//Z-order is set by the order of drawing
+        GL11.glDisable(GL11.GL_DEPTH_TEST);//Z-order is set by the order of drawing
 
         //Disable blending for better performance
-        glDisable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_BLEND);
 
         System.out.println("OpenGL options: " + engine.getLookup().lookup(OpenGLOptions.class));
         engine.initPipeline();
@@ -80,14 +90,14 @@ public class LWJGLRenderingTargetAWT implements LWJGLRenderingTarget {
             return;
         }
 
-        glViewport(0, 0, engine.getWidth(), engine.getHeight());
+        GL11.glViewport(0, 0, engine.getWidth(), engine.getHeight());
 
         // Set the clear color
         engine.getBackgroundColor(backgroundColor);
 
-        glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
+        GL11.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
 
-        glClear(GL_COLOR_BUFFER_BIT); // clear the framebuffer
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT); // clear the framebuffer
 
         updateFPS();
         engine.display();

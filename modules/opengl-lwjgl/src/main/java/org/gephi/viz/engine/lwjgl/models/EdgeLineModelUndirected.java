@@ -1,12 +1,14 @@
 package org.gephi.viz.engine.lwjgl.models;
 
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
-import org.gephi.viz.engine.util.gl.Constants;
-import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.util.NumberUtils;
+import org.gephi.viz.engine.util.gl.Constants;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL42;
+
+import static org.gephi.viz.engine.util.gl.Constants.*;
 
 /**
  *
@@ -77,20 +79,20 @@ public class EdgeLineModelUndirected {
 
     public void drawArraysSingleInstance() {
         //Line:
-        GL20.glDrawArrays(GL20.GL_TRIANGLES, 0, VERTEX_COUNT);
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, VERTEX_COUNT);
     }
 
     public void drawArraysMultipleInstance(int drawBatchCount) {
         //Multiple lines, attributes must be in the buffer once per vertex count:
-        GL20.glDrawArrays(GL20.GL_TRIANGLES, 0, VERTEX_COUNT * drawBatchCount);
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, VERTEX_COUNT * drawBatchCount);
     }
 
     public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset, float scale, float minWeight, float maxWeight) {
         useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight);
         if (instancesOffset > 0) {
-            GL42.glDrawArraysInstancedBaseInstance(GL20.GL_TRIANGLES, 0, VERTEX_COUNT, instanceCount, instancesOffset);
+            GL42.glDrawArraysInstancedBaseInstance(GL11.GL_TRIANGLES, 0, VERTEX_COUNT, instanceCount, instancesOffset);
         } else {
-            GL31.glDrawArraysInstanced(GL20.GL_TRIANGLES, 0, VERTEX_COUNT, instanceCount);
+            GL31.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, VERTEX_COUNT, instanceCount);
         }
         stopUsingProgram();
     }

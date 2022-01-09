@@ -1,14 +1,15 @@
 package org.gephi.viz.engine.lwjgl.models;
 
-import java.nio.IntBuffer;
-import org.gephi.viz.engine.util.gl.Constants;
-import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
+import org.gephi.viz.engine.util.gl.Constants;
 import org.gephi.viz.engine.util.gl.GLConstants;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
+
+import static org.gephi.viz.engine.util.gl.Constants.*;
 
 /**
  * @author Eduardo Ramos
@@ -77,15 +78,15 @@ public class NodeDiskModel {
     }
 
     public void drawArraysSingleInstance(int firstVertexIndex, int vertexCount) {
-        GL20.glDrawArrays(GL20.GL_TRIANGLES, firstVertexIndex, vertexCount);
+        GL11.glDrawArrays(GL11.GL_TRIANGLES, firstVertexIndex, vertexCount);
     }
 
     public void drawInstanced(int vertexOffset, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
         useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
         if (instancesOffset > 0) {
-            GL42.glDrawArraysInstancedBaseInstance(GL20.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount, instancesOffset);
+            GL42.glDrawArraysInstancedBaseInstance(GL11.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount, instancesOffset);
         } else {
-            GL31.glDrawArraysInstanced(GL20.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount);
+            GL31.glDrawArraysInstanced(GL11.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount);
         }
         stopUsingProgram();
     }
@@ -96,7 +97,7 @@ public class NodeDiskModel {
 
     public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
         useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
-        GL43.glMultiDrawArraysIndirect(GL20.GL_TRIANGLES, instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_BYTES, instanceCount, GLConstants.INDIRECT_DRAW_COMMAND_BYTES);
+        GL43.glMultiDrawArraysIndirect(GL11.GL_TRIANGLES, instancesOffset * GLConstants.INDIRECT_DRAW_COMMAND_BYTES, instanceCount, GLConstants.INDIRECT_DRAW_COMMAND_BYTES);
         stopUsingProgram();
     }
 

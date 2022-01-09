@@ -145,18 +145,18 @@ public class MainAWT {
 
             @Override
             public void windowActivated(WindowEvent e) {
-                renderingTarget.reshape(canvas.getFramebufferWidth(), canvas.getFramebufferHeight());
+                renderingTarget.reshape(canvas);
             }
 
             @Override
             public void windowOpened(WindowEvent e) {
-                renderingTarget.reshape(canvas.getFramebufferWidth(), canvas.getFramebufferHeight());
+                renderingTarget.reshape(canvas);
             }
         });
         canvas.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent event) {
-                renderingTarget.reshape(canvas.getFramebufferWidth(), canvas.getFramebufferHeight());
+                renderingTarget.reshape(canvas);
             }
         });
 
@@ -170,7 +170,7 @@ public class MainAWT {
         System.exit(0);
     }
 
-    private final ExecutorService LAYOUT_THREAD_POOL = Executors.newSingleThreadExecutor();
+    private static final ExecutorService LAYOUT_THREAD_POOL = Executors.newSingleThreadExecutor();
 
     private void setupTestEventListeners(final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
 

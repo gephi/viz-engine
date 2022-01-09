@@ -1,13 +1,14 @@
 package org.gephi.viz.engine.lwjgl.pipeline.events;
 
-import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
-import org.lwjgl.opengl.awt.AWTGLCanvas;
-
 import java.awt.event.KeyAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
+
+import org.gephi.viz.engine.VizEngine;
+import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
+import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.system.Platform;
 
 /**
  * @author Eduardo Ramos
@@ -16,10 +17,12 @@ public class AWTEventsListener {
 
     private final AWTGLCanvas canvas;
     private final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine;
+    private final boolean isWindows;
 
     public AWTEventsListener(AWTGLCanvas canvas, VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
         this.canvas = canvas;
         this.engine = engine;
+        this.isWindows = Platform.get() == Platform.WINDOWS;
     }
 
     public void destroy() {
@@ -108,11 +111,19 @@ public class AWTEventsListener {
     }
 
     private int getX(java.awt.event.MouseEvent e) {
+        if (!isWindows) {
+            return e.getX();
+        }
+
         final float xScale = canvas.getFramebufferWidth() / (float) canvas.getWidth();
         return (int) (e.getX() * xScale);
     }
 
     private int getY(java.awt.event.MouseEvent e) {
+        if (!isWindows) {
+            return e.getY();
+        }
+
         final float yScale = canvas.getFramebufferHeight() / (float) canvas.getHeight();
         return (int) (e.getY() * yScale);
     }
