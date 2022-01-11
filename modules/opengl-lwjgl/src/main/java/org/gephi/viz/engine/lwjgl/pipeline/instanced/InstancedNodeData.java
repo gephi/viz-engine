@@ -1,21 +1,23 @@
 package org.gephi.viz.engine.lwjgl.pipeline.instanced;
 
 import java.nio.FloatBuffer;
+
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
+import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
+import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
+import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
+import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
-import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
-import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
-import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.lwjgl.system.MemoryStack;
+
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
-import org.lwjgl.system.MemoryStack;
 
 /**
  *
@@ -208,7 +210,7 @@ public class InstancedNodeData extends AbstractNodeData {
                     newNodesCountSelected++;
                     newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
 
-                    index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, true);
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
@@ -228,7 +230,7 @@ public class InstancedNodeData extends AbstractNodeData {
                     newNodesCountUnselected++;
                     newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
 
-                    index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, false);
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, false);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
@@ -248,7 +250,7 @@ public class InstancedNodeData extends AbstractNodeData {
                     newNodesCountSelected++;
                     newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
 
-                    index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, true);
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
@@ -264,7 +266,7 @@ public class InstancedNodeData extends AbstractNodeData {
                 newNodesCountSelected++;
                 newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
 
-                index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, true);
+                index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                 if (index == attributesBufferBatch.length) {
                     attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);

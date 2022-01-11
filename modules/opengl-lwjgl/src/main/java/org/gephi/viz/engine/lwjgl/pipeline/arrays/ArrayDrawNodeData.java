@@ -237,7 +237,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                     newNodesCountSelected++;
 
-                    index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, true);
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
@@ -256,7 +256,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                     newNodesCountUnselected++;
 
-                    index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, false);
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, false);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
@@ -275,7 +275,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                     newNodesCountSelected++;
 
-                    index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, true);
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
@@ -290,7 +290,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                 newNodesCountSelected++;
 
-                index = fillNodeAttributesData(attributesBufferBatch, node, index, someSelection, true);
+                index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                 if (index == attributesBufferBatch.length) {
                     attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
