@@ -15,10 +15,10 @@
         
         <gephi.graphstore.version>0.6.1-SNAPSHOT</gephi.graphstore.version>
         <gephi.version>0.9.3-SNAPSHOT</gephi.version>
-        <lwjgl.version>3.3.0</lwjgl.version>
+        <lwjgl.version>3.3.1</lwjgl.version>
         <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
         
-        <joml.version>1.10.3</joml.version>
+        <joml.version>1.10.4</joml.version>
         <netbeans.version>RELEASE126</netbeans.version>
     </properties>
     
