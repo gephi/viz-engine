@@ -21,12 +21,7 @@ public class InstancedDraw {
 
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
-        if (capabilities.OpenGL42) {
-            return true;
-        }
-
-        return capabilities.OpenGL31
-                && capabilities.GL_ARB_draw_instanced
-                && capabilities.GL_ARB_base_instance;
+        // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDrawArraysInstanced.xhtml
+        return capabilities.OpenGL31;
     }
 }

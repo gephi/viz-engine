@@ -7,14 +7,16 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL40;
+
 import static org.gephi.viz.engine.util.ArrayUtils.getNextPowerOf2;
 import static org.gephi.viz.engine.util.gl.Buffers.bufferElementBytes;
 import static org.lwjgl.opengl.GL20.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glBufferData;
 import static org.lwjgl.opengl.GL20.glBufferSubData;
 import static org.lwjgl.opengl.GL20.glDeleteBuffers;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL40;
 
 /**
  *
@@ -110,13 +112,13 @@ public class GLBufferMutable implements GLBuffer {
 
         this.usage = usage;
         final int elementBytes = bufferElementBytes(buffer);
-        sizeBytes = buffer.capacity() * elementBytes;
+        sizeBytes = (long) buffer.capacity() * elementBytes;
 
         bufferData(buffer);
     }
 
     @Override
-    public void update(Buffer buffer) {
+    public void update(Buffer buffer, long offsetBytes) {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");
         }
@@ -125,20 +127,20 @@ public class GLBufferMutable implements GLBuffer {
         }
 
         final int elementBytes = bufferElementBytes(buffer);
-        final long neededBytesCapacity = buffer.remaining() * elementBytes;
+        final long neededBytesCapacity = (long) buffer.remaining() * elementBytes;
         ensureCapacity(neededBytesCapacity);
 
-        bufferSubData(buffer, 0);
+        bufferSubData(buffer, offsetBytes);
     }
 
     @Override
-    public void updateWithOrphaning(Buffer buffer) {
+    public void updateWithOrphaning(Buffer buffer, long offsetBytes) {
         if (!isBound()) {
             throw new IllegalStateException("You should bind the buffer first!");
         }
         
         glBufferData(type, sizeBytes, usage);
-        update(buffer);
+        update(buffer, offsetBytes);
     }
 
     @Override

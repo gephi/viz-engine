@@ -171,14 +171,14 @@ public class IndirectNodeData extends AbstractNodeData {
         attributesBufferData.limit(instanceCounter.totalToDraw() * ATTRIBS_STRIDE * 2);
 
         attributesGLBuffer.bind();
-        attributesGLBuffer.updateWithOrphaning(attributesBufferData);
+        attributesGLBuffer.updateWithOrphaning(attributesBufferData, 0);
         attributesGLBuffer.unbind();
 
         final IntBuffer commandsBufferData = commandsBuffer.intBuffer();
         commandsBufferData.limit(instanceCounter.totalToDraw() * INDIRECT_DRAW_COMMAND_INTS_COUNT * 2);
 
         commandsGLBuffer.bind();
-        commandsGLBuffer.updateWithOrphaning(commandsBufferData);
+        commandsGLBuffer.updateWithOrphaning(commandsBufferData, 0);
         commandsGLBuffer.unbind();
         //TODO: Persistent buffer if available?
     }

@@ -1,23 +1,25 @@
 package org.gephi.viz.engine.lwjgl.pipeline.arrays;
 
 import java.nio.FloatBuffer;
+
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.viz.engine.VizEngine;
+import org.gephi.viz.engine.lwjgl.models.EdgeLineModelDirected;
+import org.gephi.viz.engine.lwjgl.models.EdgeLineModelUndirected;
+import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeData;
+import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
+import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.structure.GraphIndex;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.util.ArrayUtils;
-import org.gephi.viz.engine.lwjgl.models.EdgeLineModelDirected;
-import org.gephi.viz.engine.lwjgl.models.EdgeLineModelUndirected;
-import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeData;
-import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
-import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.lwjgl.system.MemoryUtil;
+
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
-import org.lwjgl.system.MemoryUtil;
 
 /**
  *
@@ -111,7 +113,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 batchUpdateBuffer.flip();
 
                 attributesGLBuffer.bind();
-                attributesGLBuffer.updateWithOrphaning(batchUpdateBuffer);
+                attributesGLBuffer.updateWithOrphaning(batchUpdateBuffer, 0);
                 attributesGLBuffer.unbind();
                 lineModelUndirected.drawArraysMultipleInstance(drawBatchCount);
             }
@@ -167,7 +169,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 batchUpdateBuffer.flip();
 
                 attributesGLBuffer.bind();
-                attributesGLBuffer.updateWithOrphaning(batchUpdateBuffer);
+                attributesGLBuffer.updateWithOrphaning(batchUpdateBuffer, 0);
                 attributesGLBuffer.unbind();
 
                 lineModelDirected.drawArraysMultipleInstance(drawBatchCount);

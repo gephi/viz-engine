@@ -2,8 +2,10 @@ package org.gephi.viz.engine.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.EdgeIterable;
@@ -40,6 +42,16 @@ public class EdgeIterableFilteredWrapper implements EdgeIterable {
             list.add(iterator.next());
         }
         return list;
+    }
+
+    @Override
+    public Set<Edge> toSet() {
+        Iterator<Edge> iterator = iterator();
+        Set<Edge> set = new HashSet<>();
+        while (iterator.hasNext()) {
+            set.add(iterator.next());
+        }
+        return set;
     }
 
     @Override

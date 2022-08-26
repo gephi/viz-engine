@@ -1,22 +1,24 @@
 package org.gephi.viz.engine.lwjgl.pipeline.instanced;
 
 import java.nio.FloatBuffer;
+
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.pipeline.RenderingLayer;
-import org.gephi.viz.engine.status.GraphRenderingOptions;
-import org.gephi.viz.engine.status.GraphSelection;
-import org.gephi.viz.engine.structure.GraphIndex;
-import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.lwjgl.models.EdgeLineModelDirected;
 import org.gephi.viz.engine.lwjgl.models.EdgeLineModelUndirected;
 import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeData;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
 import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.gephi.viz.engine.pipeline.RenderingLayer;
+import org.gephi.viz.engine.status.GraphRenderingOptions;
+import org.gephi.viz.engine.status.GraphSelection;
+import org.gephi.viz.engine.structure.GraphIndex;
+import org.gephi.viz.engine.structure.GraphIndexImpl;
+import org.lwjgl.system.MemoryStack;
+
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
-import org.lwjgl.system.MemoryStack;
 
 /**
  *
@@ -145,7 +147,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
     public void updateBuffers() {
         attributesGLBuffer.bind();
-        attributesGLBuffer.updateWithOrphaning(attributesBuffer.floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(attributesBuffer.floatBuffer(), 0);
         attributesGLBuffer.unbind();
 
         undirectedInstanceCounter.promoteCountToDraw();

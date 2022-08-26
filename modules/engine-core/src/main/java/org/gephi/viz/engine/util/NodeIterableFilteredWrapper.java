@@ -2,8 +2,10 @@ package org.gephi.viz.engine.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import org.gephi.graph.api.Node;
 import org.gephi.graph.api.NodeIterable;
@@ -40,6 +42,16 @@ public class NodeIterableFilteredWrapper implements NodeIterable {
             list.add(iterator.next());
         }
         return list;
+    }
+
+    @Override
+    public Set<Node> toSet() {
+        Iterator<Node> iterator = iterator();
+        Set<Node> set = new HashSet<>();
+        while (iterator.hasNext()) {
+            set.add(iterator.next());
+        }
+        return set;
     }
 
     @Override

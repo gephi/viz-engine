@@ -1,10 +1,18 @@
 package org.gephi.viz.engine.lwjgl.pipeline.common;
 
+import java.nio.FloatBuffer;
+
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBuffer;
 import org.gephi.viz.engine.lwjgl.util.gl.GLVertexArrayObject;
+import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.gephi.viz.engine.pipeline.common.InstanceCounter;
+import org.gephi.viz.engine.status.GraphRenderingOptions;
+import org.gephi.viz.engine.status.GraphSelection;
+import org.gephi.viz.engine.status.GraphSelectionNeighbours;
+import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.util.gl.Constants;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.gephi.viz.engine.util.structure.NodesCallback;
@@ -16,7 +24,6 @@ import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 /**
- *
  * @author Eduardo Ramos
  */
 public abstract class AbstractNodeData {
@@ -30,14 +37,160 @@ public abstract class AbstractNodeData {
 
     protected GLBuffer vertexGLBuffer;
     protected GLBuffer attributesGLBuffer;
+    protected GLBuffer attributesGLBufferSecondary;
     protected final NodesCallback nodesCallback = new NodesCallback();
 
     protected static final int ATTRIBS_STRIDE = NodeDiskModel.TOTAL_ATTRIBUTES_FLOATS;
+    protected static final int ATTRIBS_STRIDE_BYTES = ATTRIBS_STRIDE * 4;
 
     protected final boolean instanced;
 
     public AbstractNodeData(boolean instanced) {
         this.instanced = instanced;
+    }
+
+    protected final InstanceCounter instanceCounter = new InstanceCounter();
+    protected float maxNodeSize = 0;
+    protected float maxNodeSizeToDraw = 0;
+
+    private static final int BATCH_NODES_SIZE = 32768;
+    private final float[] attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2];
+
+    protected void updateBuffers(
+        final GraphIndexImpl spatialIndex, final GraphRenderingOptions renderingOptions,
+        final GraphSelection selection, final GraphSelectionNeighbours neighboursSelection,
+        final ManagedDirectBuffer attributesBuffer,
+        final ManagedDirectBuffer attributesBufferUnselected
+    ) {
+
+        //Selection:
+        final boolean someSelection = selection.getSelectedNodesCount() > 0;
+        final float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
+        final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
+
+        final int totalNodes = spatialIndex.getNodeCount();
+
+        attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE * 2);
+        attributesBufferUnselected.ensureCapacity(totalNodes * ATTRIBS_STRIDE * 2);
+
+        final FloatBuffer attribs = attributesBuffer.floatBuffer();
+        final FloatBuffer attribsUnselected = attributesBuffer == attributesBufferUnselected
+            ? attribs
+            : attributesBufferUnselected.floatBuffer();
+
+        spatialIndex.getVisibleNodes(nodesCallback);
+
+        final Node[] visibleNodesArray = nodesCallback.getNodesArray();
+        final int visibleNodesCount = nodesCallback.getCount();
+
+        int newNodesCountUnselected = 0;
+        int newNodesCountSelected = 0;
+
+        float newMaxNodeSize = 0;
+
+        int index = 0;
+        if (someSelection) {
+            if (hideNonSelected) {
+                for (int j = 0; j < visibleNodesCount; j++) {
+                    final Node node = visibleNodesArray[j];
+
+                    final boolean selected = selection.isNodeSelected(node) || neighboursSelection.isNodeSelected(node);
+                    if (!selected) {
+                        continue;
+                    }
+
+                    newNodesCountSelected++;
+                    newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
+
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
+
+                    if (index == attributesBufferBatch.length) {
+                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        index = 0;
+                    }
+                }
+
+                //Remaining:
+                if (index > 0) {
+                    attribs.put(attributesBufferBatch, 0, index);
+                }
+            } else {
+                //First non-selected (bottom):
+                for (int j = 0; j < visibleNodesCount; j++) {
+                    final Node node = visibleNodesArray[j];
+
+                    final boolean selected = selection.isNodeSelected(node) || neighboursSelection.isNodeSelected(node);
+                    if (selected) {
+                        continue;
+                    }
+
+                    newNodesCountUnselected++;
+                    newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
+
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, false);
+
+                    if (index == attributesBufferBatch.length) {
+                        attribsUnselected.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        index = 0;
+                    }
+                }
+
+                //Remaining:
+                if (index > 0) {
+                    attribsUnselected.put(attributesBufferBatch, 0, index);
+                }
+
+                //Then selected ones (up):
+                index = 0;
+                for (int j = 0; j < visibleNodesCount; j++) {
+                    final Node node = visibleNodesArray[j];
+
+                    final boolean selected = selection.isNodeSelected(node) || neighboursSelection.isNodeSelected(node);
+                    if (!selected) {
+                        continue;
+                    }
+
+                    newNodesCountSelected++;
+                    newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
+
+                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
+
+                    if (index == attributesBufferBatch.length) {
+                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        index = 0;
+                    }
+                }
+
+                //Remaining:
+                if (index > 0) {
+                    attribs.put(attributesBufferBatch, 0, index);
+                }
+            }
+        } else {
+            //Just all nodes, no selection active:
+            for (int j = 0; j < visibleNodesCount; j++) {
+                final Node node = visibleNodesArray[j];
+
+                newNodesCountSelected++;
+                newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
+
+                index = fillNodeAttributesData(attributesBufferBatch, node, index);
+
+                if (index == attributesBufferBatch.length) {
+                    attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                    index = 0;
+                }
+            }
+
+            //Remaining:
+            if (index > 0) {
+                attribs.put(attributesBufferBatch, 0, index);
+            }
+        }
+
+        instanceCounter.unselectedCount = newNodesCountUnselected;
+        instanceCounter.selectedCount = newNodesCountSelected;
+        maxNodeSize = newMaxNodeSize;
     }
 
     protected int fillNodeAttributesData(final float[] buffer, final Node node, final int index) {
@@ -136,29 +289,56 @@ public abstract class AbstractNodeData {
     }
 
     private NodesVAO nodesVAO;
+    private NodesVAO nodesVAOSecondary;
 
     public void setupVertexArrayAttributes(VizEngine engine) {
         if (nodesVAO == null) {
             nodesVAO = new NodesVAO(
-                    engine.getLookup().lookup(GLCapabilities.class),
-                    engine.getLookup().lookup(OpenGLOptions.class)
+                engine.getLookup().lookup(GLCapabilities.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                vertexGLBuffer, attributesGLBuffer
             );
         }
 
         nodesVAO.use();
     }
 
+    public void setupSecondaryVertexArrayAttributes(VizEngine engine) {
+        if (nodesVAOSecondary == null) {
+            nodesVAOSecondary = new NodesVAO(
+                engine.getLookup().lookup(GLCapabilities.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                vertexGLBuffer, attributesGLBufferSecondary
+            );
+        }
+
+        nodesVAOSecondary.use();
+    }
+
     public void unsetupVertexArrayAttributes() {
-        nodesVAO.stopUsing();
+        if (nodesVAO != null) {
+            nodesVAO.stopUsing();
+        }
+
+        if (nodesVAOSecondary != null) {
+            nodesVAOSecondary.stopUsing();
+        }
     }
 
     public void dispose() {
         if (vertexGLBuffer != null) {
             vertexGLBuffer.destroy();
+            vertexGLBuffer = null;
         }
 
         if (attributesGLBuffer != null) {
             attributesGLBuffer.destroy();
+            attributesGLBuffer = null;
+        }
+
+        if (attributesGLBufferSecondary != null) {
+            attributesGLBufferSecondary.destroy();
+            attributesGLBufferSecondary = null;
         }
 
         nodesCallback.reset();
@@ -166,20 +346,25 @@ public abstract class AbstractNodeData {
 
     private class NodesVAO extends GLVertexArrayObject {
 
-        public NodesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
+        private final GLBuffer vertexBuffer;
+        private final GLBuffer attributesBuffer;
+
+        public NodesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions, final GLBuffer vertexBuffer, final GLBuffer attributesBuffer) {
             super(capabilities, openGLOptions);
+            this.vertexBuffer = vertexBuffer;
+            this.attributesBuffer = attributesBuffer;
         }
 
         @Override
         protected void configure() {
-            vertexGLBuffer.bind();
+            vertexBuffer.bind();
             {
                 glVertexAttribPointer(SHADER_VERT_LOCATION, NodeDiskModel.VERTEX_FLOATS, GL_FLOAT, false, 0, 0);
             }
-            vertexGLBuffer.unbind();
+            vertexBuffer.unbind();
 
             if (instanced) {
-                attributesGLBuffer.bind();
+                attributesBuffer.bind();
                 {
                     final int stride = ATTRIBS_STRIDE * Float.BYTES;
                     int offset = 0;
@@ -198,7 +383,7 @@ public abstract class AbstractNodeData {
 
                     glVertexAttribPointer(SHADER_SIZE_LOCATION, NodeDiskModel.SIZE_FLOATS, GL_FLOAT, false, stride, offset);
                 }
-                attributesGLBuffer.unbind();
+                attributesBuffer.unbind();
             }
         }
 

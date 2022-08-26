@@ -6,10 +6,23 @@ import org.gephi.viz.engine.util.gl.GLConstants;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
-import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 
-import static org.gephi.viz.engine.util.gl.Constants.*;
+import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_COLOR;
+import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_COLOR_BIAS;
+import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_COLOR_MULTIPLIER;
+import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_POSITION;
+import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_SIZE;
+import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_VERT;
+import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_BIAS_LOCATION;
+import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_LOCATION;
+import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_MULTIPLIER_LOCATION;
+import static org.gephi.viz.engine.util.gl.Constants.SHADER_POSITION_LOCATION;
+import static org.gephi.viz.engine.util.gl.Constants.SHADER_SIZE_LOCATION;
+import static org.gephi.viz.engine.util.gl.Constants.SHADER_VERT_LOCATION;
+import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_BACKGROUND_COLOR;
+import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_LIGHTEN_FACTOR;
+import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_MODEL_VIEW_PROJECTION;
 
 /**
  * @author Eduardo Ramos
@@ -81,18 +94,10 @@ public class NodeDiskModel {
         GL11.glDrawArrays(GL11.GL_TRIANGLES, firstVertexIndex, vertexCount);
     }
 
-    public void drawInstanced(int vertexOffset, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
+    public void drawInstanced(int vertexOffset, float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount) {
         useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
-        if (instancesOffset > 0) {
-            GL42.glDrawArraysInstancedBaseInstance(GL11.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount, instancesOffset);
-        } else {
-            GL31.glDrawArraysInstanced(GL11.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount);
-        }
+        GL31.glDrawArraysInstanced(GL11.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount);
         stopUsingProgram();
-    }
-
-    public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {
-        drawInstanced(0, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
     }
 
     public void drawIndirect(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, int instancesOffset) {

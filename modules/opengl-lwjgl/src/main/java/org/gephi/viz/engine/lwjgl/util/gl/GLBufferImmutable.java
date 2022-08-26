@@ -106,13 +106,13 @@ public class GLBufferImmutable implements GLBuffer {
 
         this.flags = flags;
         final int elementBytes = bufferElementBytes(buffer);
-        sizeBytes = buffer.capacity() * elementBytes;
+        sizeBytes = (long) buffer.capacity() * elementBytes;
 
         bufferStorage(buffer);
     }
 
     @Override
-    public void update(Buffer buffer) {
+    public void update(Buffer buffer, long offsetBytes) {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");
         }
@@ -121,14 +121,14 @@ public class GLBufferImmutable implements GLBuffer {
         }
 
         final int elementBytes = bufferElementBytes(buffer);
-        final long neededBytesCapacity = buffer.remaining() * elementBytes;
+        final long neededBytesCapacity = (long) buffer.remaining() * elementBytes;
         ensureCapacity(neededBytesCapacity);
 
-        bufferSubData(buffer, 0);
+        bufferSubData(buffer, offsetBytes);
     }
 
     @Override
-    public void updateWithOrphaning(Buffer buffer) {
+    public void updateWithOrphaning(Buffer buffer, long offsetBytes) {
         throw new UnsupportedOperationException("This buffer is immutable and can't be reinitialized");
     }
 

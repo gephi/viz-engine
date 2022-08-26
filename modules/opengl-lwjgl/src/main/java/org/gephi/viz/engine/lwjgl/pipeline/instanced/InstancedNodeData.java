@@ -9,7 +9,6 @@ import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
 import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
-import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
@@ -20,7 +19,6 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
 
 /**
- *
  * @author Eduardo Ramos
  */
 public class InstancedNodeData extends AbstractNodeData {
@@ -34,10 +32,6 @@ public class InstancedNodeData extends AbstractNodeData {
     private final int firstVertex32;
     private final int firstVertex16;
     private final int firstVertex8;
-
-    private final InstanceCounter instanceCounter = new InstanceCounter();
-    private float maxNodeSize = 0;
-    private float maxNodeSizeToDraw = 0;
 
     public InstancedNodeData() {
         super(true);
@@ -67,10 +61,10 @@ public class InstancedNodeData extends AbstractNodeData {
 
     public void update(VizEngine engine, GraphIndexImpl spatialIndex) {
         updateData(
-                spatialIndex,
-                engine.getLookup().lookup(GraphRenderingOptions.class),
-                engine.getLookup().lookup(GraphSelection.class),
-                engine.getLookup().lookup(GraphSelectionNeighbours.class)
+            spatialIndex,
+            engine.getLookup().lookup(GraphRenderingOptions.class),
+            engine.getLookup().lookup(GraphSelection.class),
+            engine.getLookup().lookup(GraphSelectionNeighbours.class)
         );
     }
 
@@ -79,16 +73,13 @@ public class InstancedNodeData extends AbstractNodeData {
         final float zoom = engine.getZoom();
 
         final int instanceCount;
-        final int instancesOffset;
         final float colorLightenFactor;
 
         if (layer == RenderingLayer.BACK) {
             instanceCount = instanceCounter.unselectedCountToDraw * 2;
-            instancesOffset = 0;
             colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
         } else {
             instanceCount = instanceCounter.selectedCountToDraw * 2;
-            instancesOffset = instanceCounter.unselectedCountToDraw * 2;
             colorLightenFactor = 0;
         }
 
@@ -111,8 +102,15 @@ public class InstancedNodeData extends AbstractNodeData {
                 firstVertex = firstVertex8;
             }
 
-            setupVertexArrayAttributes(engine);
-            diskModelToRender.drawInstanced(firstVertex, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, instancesOffset);
+
+            if (layer == RenderingLayer.BACK) {
+                setupSecondaryVertexArrayAttributes(engine);
+            } else {
+                setupVertexArrayAttributes(engine);
+            }
+            diskModelToRender.drawInstanced(
+                firstVertex, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount
+            );
             unsetupVertexArrayAttributes();
         }
     }
@@ -152,12 +150,24 @@ public class InstancedNodeData extends AbstractNodeData {
         attributesGLBuffer.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBuffer.unbind();
 
+        attributesGLBufferSecondary = new GLBufferMutable(bufferName[ATTRIBS_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
+        attributesGLBufferSecondary.bind();
+        attributesGLBufferSecondary.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
+        attributesGLBufferSecondary.unbind();
+
         attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
     }
 
     public void updateBuffers() {
+        attributesGLBufferSecondary.bind();
+        attributesGLBufferSecondary.updateWithOrphaning(attributesBuffer.floatBuffer(),0);
+        attributesGLBufferSecondary.unbind();
+
         attributesGLBuffer.bind();
-        attributesGLBuffer.updateWithOrphaning(attributesBuffer.floatBuffer());
+        attributesGLBuffer.updateWithOrphaning(
+            attributesBuffer.floatBuffer(),
+            (long) instanceCounter.unselectedCount * ATTRIBS_STRIDE_BYTES
+        );
         attributesGLBuffer.unbind();
 
         instanceCounter.promoteCountToDraw();
@@ -167,7 +177,10 @@ public class InstancedNodeData extends AbstractNodeData {
         //Persistent buffer if available?
     }
 
-    private void updateData(final GraphIndexImpl spatialIndex, final GraphRenderingOptions renderingOptions, final GraphSelection selection, final GraphSelectionNeighbours neighboursSelection) {
+    private void updateData(final GraphIndexImpl spatialIndex,
+                            final GraphRenderingOptions renderingOptions,
+                            final GraphSelection selection,
+                            final GraphSelectionNeighbours neighboursSelection) {
         if (!renderingOptions.isShowNodes()) {
             instanceCounter.clearCount();
             return;
