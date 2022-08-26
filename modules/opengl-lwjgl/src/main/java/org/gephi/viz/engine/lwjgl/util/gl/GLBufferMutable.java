@@ -74,19 +74,19 @@ public class GLBufferMutable implements GLBuffer {
         }
     }
 
-    private void bufferSubData(Buffer buf, long offsetBytes) {
+    private void bufferSubData(Buffer buf) {
         if (buf instanceof FloatBuffer) {
-            glBufferSubData(type, offsetBytes, (FloatBuffer) buf);
+            glBufferSubData(type, 0, (FloatBuffer) buf);
         } else if (buf instanceof IntBuffer) {
-            glBufferSubData(type, offsetBytes, (IntBuffer) buf);
+            glBufferSubData(type, 0, (IntBuffer) buf);
         } else if (buf instanceof ShortBuffer) {
-            glBufferSubData(type, offsetBytes, (ShortBuffer) buf);
+            glBufferSubData(type, 0, (ShortBuffer) buf);
         } else if (buf instanceof ByteBuffer) {
-            glBufferSubData(type, offsetBytes, (ByteBuffer) buf);
+            glBufferSubData(type, 0, (ByteBuffer) buf);
         } else if (buf instanceof DoubleBuffer) {
-            glBufferSubData(type, offsetBytes, (DoubleBuffer) buf);
+            glBufferSubData(type, 0, (DoubleBuffer) buf);
         } else if (buf instanceof LongBuffer) {
-            glBufferSubData(type, offsetBytes, (LongBuffer) buf);
+            glBufferSubData(type, 0, (LongBuffer) buf);
         } else {
             throw new UnsupportedOperationException("Buffer class not supported: " + buf.getClass().getName());
         }
@@ -118,7 +118,7 @@ public class GLBufferMutable implements GLBuffer {
     }
 
     @Override
-    public void update(Buffer buffer, long offsetBytes) {
+    public void update(Buffer buffer) {
         if (!isInitialized()) {
             throw new IllegalStateException("You should initialize the buffer first!");
         }
@@ -130,17 +130,17 @@ public class GLBufferMutable implements GLBuffer {
         final long neededBytesCapacity = (long) buffer.remaining() * elementBytes;
         ensureCapacity(neededBytesCapacity);
 
-        bufferSubData(buffer, offsetBytes);
+        bufferSubData(buffer);
     }
 
     @Override
-    public void updateWithOrphaning(Buffer buffer, long offsetBytes) {
+    public void updateWithOrphaning(Buffer buffer) {
         if (!isBound()) {
             throw new IllegalStateException("You should bind the buffer first!");
         }
         
         glBufferData(type, sizeBytes, usage);
-        update(buffer, offsetBytes);
+        update(buffer);
     }
 
     @Override

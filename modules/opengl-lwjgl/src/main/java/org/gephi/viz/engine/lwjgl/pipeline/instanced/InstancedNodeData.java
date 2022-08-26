@@ -159,15 +159,22 @@ public class InstancedNodeData extends AbstractNodeData {
     }
 
     public void updateBuffers() {
+        int offset = 0;
+        final FloatBuffer buf = attributesBuffer.floatBuffer();
+
+        buf.limit(instanceCounter.unselectedCount * ATTRIBS_STRIDE * 2);
+        buf.position(0);
+
         attributesGLBufferSecondary.bind();
-        attributesGLBufferSecondary.updateWithOrphaning(attributesBuffer.floatBuffer(),0);
+        attributesGLBufferSecondary.updateWithOrphaning(buf);
         attributesGLBufferSecondary.unbind();
 
+        offset = buf.limit();
+        buf.limit(offset + instanceCounter.selectedCount * ATTRIBS_STRIDE * 2);
+        buf.position(offset);
+
         attributesGLBuffer.bind();
-        attributesGLBuffer.updateWithOrphaning(
-            attributesBuffer.floatBuffer(),
-            (long) instanceCounter.unselectedCount * ATTRIBS_STRIDE_BYTES
-        );
+        attributesGLBuffer.updateWithOrphaning(buf);
         attributesGLBuffer.unbind();
 
         instanceCounter.promoteCountToDraw();

@@ -167,25 +167,37 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
     public void updateBuffers() {
         int offset = 0;
+        final FloatBuffer buf = attributesBuffer.floatBuffer();
+
+        buf.limit(undirectedInstanceCounter.unselectedCount * ATTRIBS_STRIDE);
+        buf.position(0);
+
         attributesGLBufferUndirectedSecondary.bind();
-        attributesGLBufferUndirectedSecondary.updateWithOrphaning(attributesBuffer.floatBuffer(), offset);
+        attributesGLBufferUndirectedSecondary.updateWithOrphaning(buf);
         attributesGLBufferUndirectedSecondary.unbind();
 
-        offset += (long) undirectedInstanceCounter.unselectedCount * ATTRIBS_STRIDE_BYTES;
+        offset = buf.limit();
+        buf.limit(offset + undirectedInstanceCounter.selectedCount * ATTRIBS_STRIDE);
+        buf.position(offset);
 
         attributesGLBufferUndirected.bind();
-        attributesGLBufferUndirected.updateWithOrphaning(attributesBuffer.floatBuffer(), offset);
+        attributesGLBufferUndirected.updateWithOrphaning(buf);
         attributesGLBufferUndirected.unbind();
 
-        offset += (long) undirectedInstanceCounter.selectedCount * ATTRIBS_STRIDE_BYTES;
+        offset = buf.limit();
+        buf.limit(offset + directedInstanceCounter.unselectedCount * ATTRIBS_STRIDE);
+        buf.position(offset);
 
         attributesGLBufferDirectedSecondary.bind();
-        attributesGLBufferDirectedSecondary.updateWithOrphaning(attributesBuffer.floatBuffer(), offset);
+        attributesGLBufferDirectedSecondary.updateWithOrphaning(buf);
         attributesGLBufferDirectedSecondary.unbind();
 
-        offset += (long) directedInstanceCounter.unselectedCount * ATTRIBS_STRIDE_BYTES;
+        offset = buf.limit();
+        buf.limit(offset + directedInstanceCounter.selectedCount * ATTRIBS_STRIDE);
+        buf.position(offset);
+
         attributesGLBufferDirected.bind();
-        attributesGLBufferDirected.updateWithOrphaning(attributesBuffer.floatBuffer(), offset);
+        attributesGLBufferDirected.updateWithOrphaning(buf);
         attributesGLBufferDirected.unbind();
 
         undirectedInstanceCounter.promoteCountToDraw();
