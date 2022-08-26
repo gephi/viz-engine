@@ -10,7 +10,7 @@ public interface GraphRenderingOptions {
 
     //Show:
     boolean DEFAULT_SHOW_NODES = true;
-    boolean DEFAULT_SHOW_EDGES = false; //DEBUG
+    boolean DEFAULT_SHOW_EDGES = true;
     boolean DEFAULT_SHOW_NODE_LABELS = false;
     boolean DEFAULT_SHOW_EDGE_LABELS = false;
 

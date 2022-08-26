@@ -27,11 +27,12 @@ import static org.lwjgl.opengl.GL15.glGenBuffers;
  */
 public class ArrayDrawEdgeData extends AbstractEdgeData {
 
-    private final int[] bufferName = new int[3];
+    private final int[] bufferName = new int[4];
 
     private static final int VERT_BUFFER_UNDIRECTED = 0;
     private static final int VERT_BUFFER_DIRECTED = 1;
-    private static final int ATTRIBS_BUFFER = 2;
+    private static final int ATTRIBS_BUFFER_DIRECTED = 2;
+    private static final int ATTRIBS_BUFFER_UNDIRECTED = 3;
 
     public ArrayDrawEdgeData() {
         super(false);
@@ -112,9 +113,9 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED);
                 batchUpdateBuffer.flip();
 
-                attributesGLBuffer.bind();
-                attributesGLBuffer.updateWithOrphaning(batchUpdateBuffer, 0);
-                attributesGLBuffer.unbind();
+                attributesGLBufferUndirected.bind();
+                attributesGLBufferUndirected.updateWithOrphaning(batchUpdateBuffer, 0);
+                attributesGLBufferUndirected.unbind();
                 lineModelUndirected.drawArraysMultipleInstance(drawBatchCount);
             }
 
@@ -168,9 +169,9 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
                 batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED);
                 batchUpdateBuffer.flip();
 
-                attributesGLBuffer.bind();
-                attributesGLBuffer.updateWithOrphaning(batchUpdateBuffer, 0);
-                attributesGLBuffer.unbind();
+                attributesGLBufferDirected.bind();
+                attributesGLBufferDirected.updateWithOrphaning(batchUpdateBuffer, 0);
+                attributesGLBufferDirected.unbind();
 
                 lineModelDirected.drawArraysMultipleInstance(drawBatchCount);
             }
@@ -231,10 +232,15 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
         }
 
         //Initialize for batch edges size:
-        attributesGLBuffer = new GLBufferMutable(bufferName[ATTRIBS_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
-        attributesGLBuffer.bind();
-        attributesGLBuffer.init(VERTEX_COUNT_MAX * ATTRIBS_STRIDE * Float.BYTES * BATCH_EDGES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
-        attributesGLBuffer.unbind();
+        attributesGLBufferDirected = new GLBufferMutable(bufferName[ATTRIBS_BUFFER_DIRECTED], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
+        attributesGLBufferDirected.bind();
+        attributesGLBufferDirected.init(VERTEX_COUNT_MAX * ATTRIBS_STRIDE * Float.BYTES * BATCH_EDGES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
+        attributesGLBufferDirected.unbind();
+
+        attributesGLBufferUndirected = new GLBufferMutable(bufferName[ATTRIBS_BUFFER_UNDIRECTED], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
+        attributesGLBufferUndirected.bind();
+        attributesGLBufferUndirected.init(VERTEX_COUNT_MAX * ATTRIBS_STRIDE * Float.BYTES * BATCH_EDGES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
+        attributesGLBufferUndirected.unbind();
 
         attributesBuffer = new float[ATTRIBS_STRIDE * BATCH_EDGES_SIZE];
     }

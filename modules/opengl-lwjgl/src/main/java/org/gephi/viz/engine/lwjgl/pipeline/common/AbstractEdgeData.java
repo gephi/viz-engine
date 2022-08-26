@@ -41,10 +41,15 @@ public class AbstractEdgeData {
     protected final InstanceCounter undirectedInstanceCounter = new InstanceCounter();
     protected final InstanceCounter directedInstanceCounter = new InstanceCounter();
 
+    // NOTE: Why secondary buffers and VAOs?
+    // Sadly, we cannot use glDrawArraysInstancedBaseInstance in MacOS and it will be never available
+
     protected GLBuffer vertexGLBufferUndirected;
     protected GLBuffer vertexGLBufferDirected;
-    protected GLBuffer attributesGLBuffer;
+    protected GLBuffer attributesGLBufferDirected;
+    protected GLBuffer attributesGLBufferDirectedSecondary;
     protected GLBuffer attributesGLBufferUndirected;
+    protected GLBuffer attributesGLBufferUndirectedSecondary;
 
     protected final EdgesCallback edgesCallback = new EdgesCallback();
 
@@ -53,6 +58,7 @@ public class AbstractEdgeData {
         EdgeLineModelUndirected.TOTAL_ATTRIBUTES_FLOATS,
         EdgeLineModelDirected.TOTAL_ATTRIBUTES_FLOATS
     );
+    protected static final int ATTRIBS_STRIDE_BYTES = ATTRIBS_STRIDE * 4;
 
     protected static final int VERTEX_COUNT_UNDIRECTED = EdgeLineModelUndirected.VERTEX_COUNT;
     protected static final int VERTEX_COUNT_DIRECTED = EdgeLineModelDirected.VERTEX_COUNT;
@@ -513,22 +519,41 @@ public class AbstractEdgeData {
     }
 
     private UndirectedEdgesVAO undirectedEdgesVAO;
+    private UndirectedEdgesVAO undirectedEdgesVAOSecondary;
     private DirectedEdgesVAO directedEdgesVAO;
+    private DirectedEdgesVAO directedEdgesVAOSecondary;
 
     public void setupUndirectedVertexArrayAttributes(VizEngine engine) {
         if (undirectedEdgesVAO == null) {
             undirectedEdgesVAO = new UndirectedEdgesVAO(
                 engine.getLookup().lookup(GLCapabilities.class),
-                engine.getLookup().lookup(OpenGLOptions.class)
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferUndirected
             );
         }
 
         undirectedEdgesVAO.use();
     }
 
+    public void setupUndirectedVertexArrayAttributesSecondary(VizEngine engine) {
+        if (undirectedEdgesVAOSecondary == null) {
+            undirectedEdgesVAOSecondary = new UndirectedEdgesVAO(
+                engine.getLookup().lookup(GLCapabilities.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferUndirectedSecondary
+            );
+        }
+
+        undirectedEdgesVAOSecondary.use();
+    }
+
     public void unsetupUndirectedVertexArrayAttributes() {
         if (undirectedEdgesVAO != null) {
             undirectedEdgesVAO.stopUsing();
+        }
+
+        if (undirectedEdgesVAOSecondary != null) {
+            undirectedEdgesVAOSecondary.stopUsing();
         }
     }
 
@@ -536,16 +561,33 @@ public class AbstractEdgeData {
         if (directedEdgesVAO == null) {
             directedEdgesVAO = new DirectedEdgesVAO(
                 engine.getLookup().lookup(GLCapabilities.class),
-                engine.getLookup().lookup(OpenGLOptions.class)
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferDirected
             );
         }
 
         directedEdgesVAO.use();
     }
 
+    public void setupDirectedVertexArrayAttributesSecondary(VizEngine engine) {
+        if (directedEdgesVAOSecondary == null) {
+            directedEdgesVAOSecondary = new DirectedEdgesVAO(
+                engine.getLookup().lookup(GLCapabilities.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferDirectedSecondary
+            );
+        }
+
+        directedEdgesVAOSecondary.use();
+    }
+
     public void unsetupDirectedVertexArrayAttributes() {
         if (directedEdgesVAO != null) {
             directedEdgesVAO.stopUsing();
+        }
+
+        if (directedEdgesVAOSecondary != null) {
+            directedEdgesVAOSecondary.stopUsing();
         }
     }
 
@@ -558,8 +600,20 @@ public class AbstractEdgeData {
             vertexGLBufferDirected.destroy();
         }
 
-        if (attributesGLBuffer != null) {
-            attributesGLBuffer.destroy();
+        if (attributesGLBufferDirected != null) {
+            attributesGLBufferDirected.destroy();
+        }
+
+        if (attributesGLBufferDirectedSecondary != null) {
+            attributesGLBufferDirectedSecondary.destroy();
+        }
+
+        if (attributesGLBufferUndirected != null) {
+            attributesGLBufferUndirected.destroy();
+        }
+
+        if (attributesGLBufferUndirectedSecondary != null) {
+            attributesGLBufferUndirectedSecondary.destroy();
         }
 
         edgesCallback.reset();
@@ -567,8 +621,11 @@ public class AbstractEdgeData {
 
     private class UndirectedEdgesVAO extends GLVertexArrayObject {
 
-        public UndirectedEdgesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
+        private final GLBuffer attributesBuffer;
+
+        public UndirectedEdgesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions, GLBuffer attributesBuffer) {
             super(capabilities, openGLOptions);
+            this.attributesBuffer = attributesBuffer;
         }
 
         @Override
@@ -579,7 +636,7 @@ public class AbstractEdgeData {
             }
             vertexGLBufferUndirected.unbind();
 
-            attributesGLBuffer.bind();
+            attributesBuffer.bind();
             {
                 int stride = ATTRIBS_STRIDE * Float.BYTES;
                 int offset = 0;
@@ -606,7 +663,7 @@ public class AbstractEdgeData {
 
                 glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, EdgeLineModelUndirected.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
             }
-            attributesGLBuffer.unbind();
+            attributesBuffer.unbind();
         }
 
         @Override
@@ -646,8 +703,11 @@ public class AbstractEdgeData {
 
     private class DirectedEdgesVAO extends GLVertexArrayObject {
 
-        public DirectedEdgesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions) {
+        private final GLBuffer attributesBuffer;
+
+        public DirectedEdgesVAO(GLCapabilities capabilities, OpenGLOptions openGLOptions, GLBuffer attributesBuffer) {
             super(capabilities, openGLOptions);
+            this.attributesBuffer = attributesBuffer;
         }
 
         @Override
@@ -658,7 +718,7 @@ public class AbstractEdgeData {
             }
             vertexGLBufferDirected.unbind();
 
-            attributesGLBuffer.bind();
+            attributesBuffer.bind();
             {
                 int stride = ATTRIBS_STRIDE * Float.BYTES;
                 int offset = 0;
@@ -685,7 +745,7 @@ public class AbstractEdgeData {
 
                 glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
             }
-            attributesGLBuffer.unbind();
+            attributesBuffer.unbind();
         }
 
         @Override

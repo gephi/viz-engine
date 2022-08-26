@@ -35,6 +35,9 @@ public abstract class AbstractNodeData {
     protected static final int OBSERVED_SIZE_LOD_THRESHOLD_32 = 16;
     protected static final int OBSERVED_SIZE_LOD_THRESHOLD_16 = 2;
 
+    // NOTE: Why secondary buffers and VAOs?
+    // Sadly, we cannot use glDrawArraysInstancedBaseInstance in MacOS and it will be never available
+
     protected GLBuffer vertexGLBuffer;
     protected GLBuffer attributesGLBuffer;
     protected GLBuffer attributesGLBufferSecondary;

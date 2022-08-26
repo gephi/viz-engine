@@ -21,7 +21,6 @@ public class IndirectDraw {
         final GLCapabilities capabilities = engine.getLookup().lookup(GLCapabilities.class);
 
         if (capabilities.OpenGL43) {
-            System.out.println("43");
             return true;
         }
 
