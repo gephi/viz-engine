@@ -74,7 +74,7 @@ public class VizEngine<R extends RenderingTarget, I> {
     private final Set<WorldUpdater<R>> allUpdaters = new LinkedHashSet<>();
     private final List<WorldUpdater<R>> updatersPipeline = new ArrayList<>();
     private ExecutorService updatersThreadPool;
-    private WorldUpdaterExecutionMode worldUpdatersExecutionMode = WorldUpdaterExecutionMode.CONCURRENT_ASYNCHRONOUS;
+    private WorldUpdaterExecutionMode worldUpdatersExecutionMode = WorldUpdaterExecutionMode.CONCURRENT_SYNCHRONOUS;
 
     //Input listeners:
     private final List<I> eventsQueue = Collections.synchronizedList(new ArrayList<>());

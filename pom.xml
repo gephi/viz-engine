@@ -18,8 +18,8 @@
         <lwjgl.version>3.3.1</lwjgl.version>
         <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
         
-        <joml.version>1.10.4</joml.version>
-        <netbeans.version>RELEASE140</netbeans.version>
+        <joml.version>1.10.5</joml.version>
+        <netbeans.version>RELEASE150</netbeans.version>
     </properties>
     
     <modules>
