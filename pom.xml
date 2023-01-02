@@ -13,13 +13,13 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         
-        <gephi.graphstore.version>0.6.11-viz-engine-SNAPSHOT</gephi.graphstore.version>
-        <gephi.version>0.9.7</gephi.version>
+        <gephi.graphstore.version>0.6.15-viz-engine-SNAPSHOT</gephi.graphstore.version>
+        <gephi.version>0.10.0-SNAPSHOT</gephi.version>
         <lwjgl.version>3.3.1</lwjgl.version>
         <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
         
         <joml.version>1.10.5</joml.version>
-        <netbeans.version>RELEASE150</netbeans.version>
+        <netbeans.version>RELEASE160</netbeans.version>
     </properties>
     
     <modules>
