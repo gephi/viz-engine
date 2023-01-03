@@ -46,10 +46,11 @@ public class InstancedNodeData extends AbstractNodeData {
         firstVertex8 = firstVertex16 + diskModel16.getVertexCount();
     }
 
-    private final int[] bufferName = new int[2];
+    private final int[] bufferName = new int[3];
 
     private static final int VERT_BUFFER = 0;
     private static final int ATTRIBS_BUFFER = 1;
+    private static final int ATTRIBS_BUFFER_SECONDARY = 2;
 
     public void init() {
         initBuffers();
@@ -150,7 +151,7 @@ public class InstancedNodeData extends AbstractNodeData {
         attributesGLBuffer.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBuffer.unbind();
 
-        attributesGLBufferSecondary = new GLBufferMutable(bufferName[ATTRIBS_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
+        attributesGLBufferSecondary = new GLBufferMutable(bufferName[ATTRIBS_BUFFER_SECONDARY], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
         attributesGLBufferSecondary.bind();
         attributesGLBufferSecondary.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBufferSecondary.unbind();
@@ -215,6 +216,10 @@ public class InstancedNodeData extends AbstractNodeData {
         int newNodesCountSelected = 0;
 
         float newMaxNodeSize = 0;
+        for (int j = 0; j < visibleNodesCount; j++) {
+            final float size = visibleNodesArray[j].size();
+            newMaxNodeSize = size >= newMaxNodeSize ? size : newMaxNodeSize;
+        }
 
         int index = 0;
         if (someSelection) {
@@ -228,12 +233,10 @@ public class InstancedNodeData extends AbstractNodeData {
                     }
 
                     newNodesCountSelected++;
-                    newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
-
                     index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
 
                     if (index == attributesBufferBatch.length) {
-                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        attribs.put(attributesBufferBatch);
                         index = 0;
                     }
                 }
@@ -248,12 +251,11 @@ public class InstancedNodeData extends AbstractNodeData {
                     }
 
                     newNodesCountUnselected++;
-                    newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
 
                     index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, false);
 
                     if (index == attributesBufferBatch.length) {
-                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        attribs.put(attributesBufferBatch);
                         index = 0;
                     }
                 }
@@ -268,12 +270,11 @@ public class InstancedNodeData extends AbstractNodeData {
                     }
 
                     newNodesCountSelected++;
-                    newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
 
                     index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
 
                     if (index == attributesBufferBatch.length) {
-                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        attribs.put(attributesBufferBatch);
                         index = 0;
                     }
                 }
@@ -284,12 +285,11 @@ public class InstancedNodeData extends AbstractNodeData {
                 final Node node = visibleNodesArray[j];
 
                 newNodesCountSelected++;
-                newMaxNodeSize = Math.max(newMaxNodeSize, node.size());
 
                 index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                 if (index == attributesBufferBatch.length) {
-                    attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                    attribs.put(attributesBufferBatch);
                     index = 0;
                 }
             }

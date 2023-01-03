@@ -236,7 +236,7 @@ public class IndirectNodeData extends AbstractNodeData {
                     fillNodeCommandData(node, zoom, commandIndex, instanceId);
 
                     if (index + stride == attributesBufferBatch.length) {
-                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        attribs.put(attributesBufferBatch);
                         index = 0;
                     }
 
@@ -266,7 +266,7 @@ public class IndirectNodeData extends AbstractNodeData {
                     fillNodeCommandData(node, zoom, commandIndex, instanceId);
 
                     if (index + stride == attributesBufferBatch.length) {
-                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        attribs.put(attributesBufferBatch);
                         index = 0;
                     }
 
@@ -296,7 +296,7 @@ public class IndirectNodeData extends AbstractNodeData {
                     fillNodeCommandData(node, zoom, commandIndex, instanceId);
 
                     if (index + stride == attributesBufferBatch.length) {
-                        attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                        attribs.put(attributesBufferBatch);
                         index = 0;
                     }
 
@@ -322,7 +322,7 @@ public class IndirectNodeData extends AbstractNodeData {
                 fillNodeCommandData(node, zoom, commandIndex, instanceId);
 
                 if (index + stride == attributesBufferBatch.length) {
-                    attribs.put(attributesBufferBatch, 0, attributesBufferBatch.length);
+                    attribs.put(attributesBufferBatch);
                     index = 0;
                 }
 
