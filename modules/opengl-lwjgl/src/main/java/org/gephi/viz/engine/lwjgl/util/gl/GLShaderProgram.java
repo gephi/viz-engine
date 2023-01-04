@@ -159,13 +159,17 @@ public class GLShaderProgram {
 
     private static String loadSource(String srcRoot, String baseName, String extension) throws IOException {
         final StringBuilder builder = new StringBuilder();
+        final String path = srcRoot + "/" + baseName + "." + extension;
 
-        try (InputStream in = GLShaderProgram.class.getResourceAsStream(srcRoot + "/" + baseName + "." + extension);
+        try (InputStream in = GLShaderProgram.class.getResourceAsStream(path);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(line).append("\n");
             }
+        } catch (IOException ex) {
+            System.err.println("Error loading path: " + path);
+            throw ex;
         }
 
         return builder.toString();

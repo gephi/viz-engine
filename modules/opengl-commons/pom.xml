@@ -18,4 +18,68 @@
             <artifactId>viz-engine-core</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.build.directory}/generated-resources</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>com.igormaznitsa</groupId>
+                <artifactId>jcp</artifactId>
+                <version>7.0.5</version>
+                <configuration>
+                    <allowWhitespaces>true</allowWhitespaces>
+                    <eol>\r\n</eol>
+                    <extensions>
+                        <extension>vert</extension>
+                        <extension>frag</extension>
+                    </extensions>
+                    <keepAttributes>true</keepAttributes>
+                    <keepComments>false</keepComments>
+                    <keepLines>false</keepLines>
+                    <sources>src/main/resources</sources>
+                    <target>target/generated-resources</target>
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                    <targetEncoding>UTF-8</targetEncoding>
+                    <ignoreMissingSources>false</ignoreMissingSources>
+                    <unknownVarAsFalse>false</unknownVarAsFalse>
+                    <verbose>true</verbose>
+                    <clearTarget>false</clearTarget>
+                    <careForLastEol>true</careForLastEol>
+                    <preserveIndents>true</preserveIndents>
+                    <dontOverwriteSameContent>false</dontOverwriteSameContent>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>preprocess-shaders-without-selection</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>preprocess</goal>
+                        </goals>
+                        <configuration>
+                            <vars>
+                                <with_selection>false</with_selection>
+                            </vars>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>preprocess-shaders-with-selection</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>preprocess</goal>
+                        </goals>
+                        <configuration>
+                            <vars>
+                                <with_selection>true</with_selection>
+                            </vars>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

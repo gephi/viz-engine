@@ -82,21 +82,23 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
         final int instanceCount;
         final int instancesOffset;
-        final float colorLightenFactor;
 
         if (layer == RenderingLayer.BACK) {
             instanceCount = instanceCounter.unselectedCountToDraw * 2;
             instancesOffset = 0;
-            colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
+            final float colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
+
+            diskModel64.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
         } else {
             instanceCount = instanceCounter.selectedCountToDraw * 2;
             instancesOffset = instanceCounter.unselectedCountToDraw * 2;
-            colorLightenFactor = 0;
+
+            diskModel64.useProgram(mvpFloats, backgroundColorFloats);
         }
 
         if (instanceCount > 0) {
             setupVertexArrayAttributes(engine);
-            diskModel64.useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor);
+
 
             final float[] attrs = new float[ATTRIBS_STRIDE];
             int index = instancesOffset * ATTRIBS_STRIDE;

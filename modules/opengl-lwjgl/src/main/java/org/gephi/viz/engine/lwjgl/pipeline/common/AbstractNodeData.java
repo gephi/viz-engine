@@ -73,7 +73,7 @@ public abstract class AbstractNodeData {
 
             //Color:
             buffer[index + 2] = Float.intBitsToFloat(rgba);
-            //Bias, multiplier and lighten factor:
+            //Bias and multiplier:
             buffer[index + 3] = 0;
             buffer[index + 4] = Constants.NODER_BORDER_DARKEN_FACTOR;
 

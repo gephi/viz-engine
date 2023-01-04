@@ -103,14 +103,20 @@ public class InstancedNodeData extends AbstractNodeData {
                 firstVertex = firstVertex8;
             }
 
-
             if (layer == RenderingLayer.BACK) {
                 setupSecondaryVertexArrayAttributes(engine);
             } else {
                 setupVertexArrayAttributes(engine);
             }
+
+            if (instanceCounter.unselectedCountToDraw > 0) {
+                diskModelToRender.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
+            } else {
+                diskModelToRender.useProgram(mvpFloats, backgroundColorFloats);
+            }
+
             diskModelToRender.drawInstanced(
-                firstVertex, mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount
+                firstVertex, instanceCount
             );
             unsetupVertexArrayAttributes();
         }
