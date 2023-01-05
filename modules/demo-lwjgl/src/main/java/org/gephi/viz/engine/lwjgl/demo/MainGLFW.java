@@ -67,10 +67,12 @@ public class MainGLFW {
 
         final GLFWEventsListener glfwEventsListener = new GLFWEventsListener(windowHandle, engine);
         glfwEventsListener.register();
-        engine.reshape(WIDTH, HEIGHT);
+
+        reshape(engine);
 
         // Make the window visible
         glfwShowWindow(windowHandle);
+        glfwEventsListener.updateScale();
 
         setupTestEventListeners(engine);
 
@@ -81,6 +83,23 @@ public class MainGLFW {
 
         glfwEventsListener.destroy();
         destroy();
+    }
+
+    private void reshape(final VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
+        final int[] widthArr = new int[1];
+        final int[] heightArr = new int[1];
+        final float[] xScaleArr = new float[1];
+        final float[] yScaleArr = new float[1];
+
+        glfwGetWindowSize(windowHandle, widthArr, heightArr);
+        glfwGetWindowContentScale(windowHandle, xScaleArr, yScaleArr);
+
+        final int width = widthArr[0];
+        final int height = heightArr[0];
+        final float xScale = xScaleArr[0];
+        final float yScale = yScaleArr[0];
+
+        engine.reshape((int) (width * xScale), (int) (height * yScale));
     }
 
     private void init() {
@@ -119,24 +138,19 @@ public class MainGLFW {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        // Get the thread stack and push a new frame
-        try (MemoryStack stack = stackPush()) {
-            final IntBuffer pWidth = stack.mallocInt(1); // int*
-            final IntBuffer pHeight = stack.mallocInt(1); // int*
+        final int[] widthArr = new int[1];
+        final int[] heightArr = new int[1];
+        glfwGetWindowSize(windowHandle, widthArr, heightArr);
 
-            // Get the window size passed to glfwCreateWindow
-            glfwGetWindowSize(windowHandle, pWidth, pHeight);
+        // Get the resolution of the primary monitor
+        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-            // Get the resolution of the primary monitor
-            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-            // Center the window
-            glfwSetWindowPos(
-                    windowHandle,
-                    (vidmode.width() - pWidth.get(0)) / 2,
-                    (vidmode.height() - pHeight.get(0)) / 2
-            );
-        } // the stack frame is popped automatically
+        // Center the window
+        glfwSetWindowPos(
+            windowHandle,
+            (vidmode.width() - widthArr[0]) / 2,
+            (vidmode.height() - heightArr[0]) / 2
+        );
     }
 
     private void destroy() {
