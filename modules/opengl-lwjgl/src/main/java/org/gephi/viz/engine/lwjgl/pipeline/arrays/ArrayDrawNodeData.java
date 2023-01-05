@@ -79,6 +79,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     public void drawArrays(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
         final float[] backgroundColorFloats = engine.getBackgroundColor();
         final float zoom = engine.getZoom();
+        final float colorLightenFactor;
 
         final int instanceCount;
         final int instancesOffset;
@@ -86,19 +87,21 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         if (layer == RenderingLayer.BACK) {
             instanceCount = instanceCounter.unselectedCountToDraw * 2;
             instancesOffset = 0;
-            final float colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
-
-            diskModel64.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
+            colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
         } else {
             instanceCount = instanceCounter.selectedCountToDraw * 2;
             instancesOffset = instanceCounter.unselectedCountToDraw * 2;
+            colorLightenFactor = 0;
+        }
 
+        if (instanceCounter.unselectedCountToDraw > 0) {
+            diskModel64.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
+        } else {
             diskModel64.useProgram(mvpFloats, backgroundColorFloats);
         }
 
         if (instanceCount > 0) {
             setupVertexArrayAttributes(engine);
-
 
             final float[] attrs = new float[ATTRIBS_STRIDE];
             int index = instancesOffset * ATTRIBS_STRIDE;

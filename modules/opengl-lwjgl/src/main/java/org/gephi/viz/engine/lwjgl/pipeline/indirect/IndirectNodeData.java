@@ -91,17 +91,21 @@ public class IndirectNodeData extends AbstractNodeData {
 
         final int instanceCount;
         final int instancesOffset;
+        final float colorLightenFactor;
 
         if (layer == RenderingLayer.BACK) {
             instanceCount = instanceCounter.unselectedCountToDraw * 2;
             instancesOffset = 0;
-            final float colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
-
-            diskModel64.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
+            colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
         } else {
             instanceCount = instanceCounter.selectedCountToDraw * 2;
             instancesOffset = instanceCounter.unselectedCountToDraw * 2;
+            colorLightenFactor = 0;
+        }
 
+        if (instanceCounter.unselectedCountToDraw > 0) {
+            diskModel64.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
+        } else {
             diskModel64.useProgram(mvpFloats, backgroundColorFloats);
         }
 
