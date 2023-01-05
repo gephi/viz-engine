@@ -5,21 +5,22 @@
 
 uniform mat4 mvp;
 uniform vec4 backgroundColor;
+uniform float sizeMultiplier;
+uniform float colorMultiplier;
 //#if with_selection
+uniform float colorBias;
 uniform float colorLightenFactor;
 //#endif
 
 attribute vec2 vert;
 attribute vec2 position;
 attribute vec4 elementColor;
-attribute float colorBias;
-attribute float colorMultiplier;
 attribute float size;
 
 varying vec4 fragColor;
 
 void main() {	
-    vec2 instancePosition = size * vert + position;
+    vec2 instancePosition = size * sizeMultiplier * vert + position;
     gl_Position = mvp * vec4(instancePosition, 0.0, 1.0);
 
     //bgra -> rgba because Java color is argb big-endian

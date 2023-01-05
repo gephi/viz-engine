@@ -30,7 +30,6 @@
             <plugin>
                 <groupId>com.igormaznitsa</groupId>
                 <artifactId>jcp</artifactId>
-                <version>7.0.5</version>
                 <configuration>
                     <allowWhitespaces>true</allowWhitespaces>
                     <eol>\r\n</eol>

@@ -9,9 +9,6 @@ import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.NodeRendererArrayDra
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.EdgesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.NodesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
-import org.gephi.viz.engine.lwjgl.pipeline.indirect.IndirectNodeData;
-import org.gephi.viz.engine.lwjgl.pipeline.indirect.renderers.NodeRendererIndirect;
-import org.gephi.viz.engine.lwjgl.pipeline.indirect.updaters.NodesUpdaterIndirectRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedEdgeData;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedNodeData;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers.EdgeRendererInstanced;
@@ -47,19 +44,10 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         engine.addToLookup(renderingOptions);
         engine.addToLookup(openGLOptions);
 
-        setupIndirectRendering(engine, graphIndex);
-        setupInstancedRendering(engine, graphIndex);
-        setupVertexArrayRendering(engine, graphIndex);
+        setupInstancedRendering(engine, graphIndex);//Preferred and better performance
+        setupVertexArrayRendering(engine, graphIndex);//Fallback for very old versions of OpenGL
 
         setupInputListeners(engine);
-    }
-
-    private void setupIndirectRendering(VizEngine engine, GraphIndexImpl graphIndex) {
-        //Only nodes supported, edges don't have a LOD to benefit from
-        final IndirectNodeData nodeData = new IndirectNodeData();
-
-        engine.addRenderer(new NodeRendererIndirect(engine, nodeData));
-        engine.addWorldUpdater(new NodesUpdaterIndirectRendering(engine, nodeData, graphIndex));
     }
 
     private void setupInstancedRendering(VizEngine engine, GraphIndexImpl graphIndex) {
@@ -69,10 +57,10 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         engine.addWorldUpdater(new NodesUpdaterInstancedRendering(engine, nodeData, graphIndex));
 
         //Edges:
-        final InstancedEdgeData indirectEdgeData = new InstancedEdgeData();
+        final InstancedEdgeData instancedEdgeData = new InstancedEdgeData();
 
-        engine.addRenderer(new EdgeRendererInstanced(engine, indirectEdgeData));
-        engine.addWorldUpdater(new EdgesUpdaterInstancedRendering(engine, indirectEdgeData, graphIndex));
+        engine.addRenderer(new EdgeRendererInstanced(engine, instancedEdgeData));
+        engine.addWorldUpdater(new EdgesUpdaterInstancedRendering(engine, instancedEdgeData, graphIndex));
     }
 
     private void setupVertexArrayRendering(VizEngine engine, GraphIndexImpl graphIndex) {

@@ -15,6 +15,7 @@ import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.lwjgl.system.MemoryStack;
 
+import static org.gephi.viz.engine.util.gl.Constants.NODER_BORDER_DARKEN_FACTOR;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
 
@@ -70,56 +71,78 @@ public class InstancedNodeData extends AbstractNodeData {
     }
 
     public void drawInstanced(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedNodesCount() > 0;
+        final boolean renderingUnselectedNodes = layer.isBack();
+        if (!someSelection && renderingUnselectedNodes) {
+            return;
+        }
+
         final float[] backgroundColorFloats = engine.getBackgroundColor();
         final float zoom = engine.getZoom();
 
-        final int instanceCount;
-        final float colorLightenFactor;
+        final float maxObservedSize = maxNodeSizeToDraw * zoom;
 
-        if (layer == RenderingLayer.BACK) {
-            instanceCount = instanceCounter.unselectedCountToDraw * 2;
-            colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
+        final NodeDiskModel diskModelToRender;
+        final int firstVertex;
+        if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_64) {
+            diskModelToRender = diskModel64;
+            firstVertex = firstVertex64;
+        } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_32) {
+            diskModelToRender = diskModel32;
+            firstVertex = firstVertex32;
+        } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_16) {
+            diskModelToRender = diskModel16;
+            firstVertex = firstVertex16;
         } else {
-            instanceCount = instanceCounter.selectedCountToDraw * 2;
-            colorLightenFactor = 0;
+            diskModelToRender = diskModel8;
+            firstVertex = firstVertex8;
         }
 
-        if (instanceCount > 0) {
-            final float maxObservedSize = maxNodeSizeToDraw * zoom;
+        final int instanceCount;
+        final boolean isRenderingOutsideCircle = layer.getLevel() == 2;
+        final float sizeMultiplier = isRenderingOutsideCircle ? 1f : INSIDE_CIRCLE_SIZE;
 
-            final NodeDiskModel diskModelToRender;
-            final int firstVertex;
-            if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_64) {
-                diskModelToRender = diskModel64;
-                firstVertex = firstVertex64;
-            } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_32) {
-                diskModelToRender = diskModel32;
-                firstVertex = firstVertex32;
-            } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_16) {
-                diskModelToRender = diskModel16;
-                firstVertex = firstVertex16;
-            } else {
-                diskModelToRender = diskModel8;
-                firstVertex = firstVertex8;
-            }
-
-            if (layer == RenderingLayer.BACK) {
-                setupSecondaryVertexArrayAttributes(engine);
-            } else {
-                setupVertexArrayAttributes(engine);
-            }
-
-            if (instanceCounter.unselectedCountToDraw > 0) {
-                diskModelToRender.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
-            } else {
-                diskModelToRender.useProgram(mvpFloats, backgroundColorFloats);
-            }
-
-            diskModelToRender.drawInstanced(
-                firstVertex, instanceCount
+        if (renderingUnselectedNodes) {
+            instanceCount = instanceCounter.unselectedCountToDraw;
+            final float colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
+            final float colorBias = 0f;
+            final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
+            diskModelToRender.useProgramWithSelection(
+                mvpFloats, backgroundColorFloats,
+                sizeMultiplier,
+                colorBias,
+                colorMultiplier,
+                colorLightenFactor
             );
-            unsetupVertexArrayAttributes();
+
+            setupSecondaryVertexArrayAttributes(engine);
+        } else {
+            instanceCount = instanceCounter.selectedCountToDraw;
+            final float colorLightenFactor = 0;
+
+            if (someSelection) {
+                final float colorBias = isRenderingOutsideCircle ? 0f : 0.5f;
+                final float colorMultiplier = isRenderingOutsideCircle ? 1f : 0.5f;
+                diskModelToRender.useProgramWithSelection(
+                    mvpFloats, backgroundColorFloats,
+                    sizeMultiplier,
+                    colorBias,
+                    colorMultiplier,
+                    colorLightenFactor
+                );
+            } else {
+                final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
+                diskModelToRender.useProgram(mvpFloats, backgroundColorFloats, sizeMultiplier, colorMultiplier);
+            }
+
+            setupVertexArrayAttributes(engine);
         }
+
+        diskModelToRender.drawInstanced(
+            firstVertex, instanceCount
+        );
+        diskModelToRender.stopUsingProgram();
+        unsetupVertexArrayAttributes();
     }
 
     private ManagedDirectBuffer attributesBuffer;
@@ -128,7 +151,7 @@ public class InstancedNodeData extends AbstractNodeData {
     private static final int BATCH_NODES_SIZE = 32768;
 
     private void initBuffers() {
-        attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2];
+        attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE];
 
         glGenBuffers(bufferName);
 
@@ -154,22 +177,22 @@ public class InstancedNodeData extends AbstractNodeData {
         //Initialize for batch nodes size:
         attributesGLBuffer = new GLBufferMutable(bufferName[ATTRIBS_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
         attributesGLBuffer.bind();
-        attributesGLBuffer.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
+        attributesGLBuffer.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBuffer.unbind();
 
         attributesGLBufferSecondary = new GLBufferMutable(bufferName[ATTRIBS_BUFFER_SECONDARY], GLBufferMutable.GL_BUFFER_TYPE_ARRAY);
         attributesGLBufferSecondary.bind();
-        attributesGLBufferSecondary.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE * 2, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
+        attributesGLBufferSecondary.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBufferSecondary.unbind();
 
-        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
+        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE);
     }
 
     public void updateBuffers() {
         int offset = 0;
         final FloatBuffer buf = attributesBuffer.floatBuffer();
 
-        buf.limit(instanceCounter.unselectedCount * ATTRIBS_STRIDE * 2);
+        buf.limit(instanceCounter.unselectedCount * ATTRIBS_STRIDE);
         buf.position(0);
 
         attributesGLBufferSecondary.bind();
@@ -177,7 +200,7 @@ public class InstancedNodeData extends AbstractNodeData {
         attributesGLBufferSecondary.unbind();
 
         offset = buf.limit();
-        buf.limit(offset + instanceCounter.selectedCount * ATTRIBS_STRIDE * 2);
+        buf.limit(offset + instanceCounter.selectedCount * ATTRIBS_STRIDE);
         buf.position(offset);
 
         attributesGLBuffer.bind();
@@ -209,7 +232,7 @@ public class InstancedNodeData extends AbstractNodeData {
 
         final int totalNodes = spatialIndex.getNodeCount();
 
-        attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE * 2);
+        attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE);
 
         final FloatBuffer attribs = attributesBuffer.floatBuffer();
 
@@ -239,7 +262,7 @@ public class InstancedNodeData extends AbstractNodeData {
                     }
 
                     newNodesCountSelected++;
-                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
+                    index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);
@@ -258,7 +281,7 @@ public class InstancedNodeData extends AbstractNodeData {
 
                     newNodesCountUnselected++;
 
-                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, false);
+                    index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);
@@ -277,7 +300,7 @@ public class InstancedNodeData extends AbstractNodeData {
 
                     newNodesCountSelected++;
 
-                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
+                    index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);

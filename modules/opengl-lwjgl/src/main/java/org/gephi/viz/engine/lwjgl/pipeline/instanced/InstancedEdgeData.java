@@ -17,6 +17,7 @@ import org.gephi.viz.engine.structure.GraphIndex;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.lwjgl.system.MemoryStack;
 
+import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 
@@ -54,6 +55,12 @@ public class InstancedEdgeData extends AbstractEdgeData {
     }
 
     public void drawInstanced(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        final boolean renderingUnselectedEdges = layer == BACK1;
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedEdgesCount() > 0;
+        if (!someSelection && renderingUnselectedEdges) {
+            return;
+        }
+
         GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
 
         final float[] backgroundColorFloats = engine.getBackgroundColor();
@@ -73,46 +80,41 @@ public class InstancedEdgeData extends AbstractEdgeData {
         final int instanceCount;
         final float colorLightenFactor;
 
-        if (layer == RenderingLayer.BACK) {
+        final boolean renderingUnselectedEdges = layer == BACK1;
+
+        if (renderingUnselectedEdges) {
             instanceCount = undirectedInstanceCounter.unselectedCountToDraw;
             colorLightenFactor = lightenNonSelectedFactor;
+            setupUndirectedVertexArrayAttributesSecondary(engine);
         } else {
             instanceCount = undirectedInstanceCounter.selectedCountToDraw;
             colorLightenFactor = 0;
+            setupUndirectedVertexArrayAttributes(engine);
         }
 
-        if (instanceCount > 0) {
-            if (layer == RenderingLayer.BACK) {
-                setupUndirectedVertexArrayAttributesSecondary(engine);
-            } else {
-                setupUndirectedVertexArrayAttributes(engine);
-            }
-            lineModelUndirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, edgeScale, minWeight, maxWeight);
-            unsetupUndirectedVertexArrayAttributes();
-        }
+        lineModelUndirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, edgeScale, minWeight, maxWeight);
+        lineModelUndirected.stopUsingProgram();
+        unsetupUndirectedVertexArrayAttributes();
     }
 
     private void drawDirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
         final int instanceCount;
         final float colorLightenFactor;
+        final boolean renderingUnselectedEdges = layer == BACK1;
 
-        if (layer == RenderingLayer.BACK) {
+        if (renderingUnselectedEdges) {
             instanceCount = directedInstanceCounter.unselectedCountToDraw;
             colorLightenFactor = lightenNonSelectedFactor;
+            setupDirectedVertexArrayAttributesSecondary(engine);
         } else {
             instanceCount = directedInstanceCounter.selectedCountToDraw;
             colorLightenFactor = 0;
+            setupDirectedVertexArrayAttributes(engine);
         }
 
-        if (instanceCount > 0) {
-            if (layer == RenderingLayer.BACK) {
-                setupDirectedVertexArrayAttributesSecondary(engine);
-            } else {
-                setupDirectedVertexArrayAttributes(engine);
-            }
-            lineModelDirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, edgeScale, minWeight, maxWeight);
-            unsetupDirectedVertexArrayAttributes();
-        }
+        lineModelDirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, edgeScale, minWeight, maxWeight);
+        lineModelDirected.stopUsingProgram();
+        unsetupDirectedVertexArrayAttributes();
     }
 
     private ManagedDirectBuffer attributesBuffer;

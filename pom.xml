@@ -12,6 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <jcp-maven-plugin.version>7.0.5</jcp-maven-plugin.version>
         
         <gephi.graphstore.version>0.6.15-viz-engine-SNAPSHOT</gephi.graphstore.version>
         <gephi.version>0.10.0-SNAPSHOT</gephi.version>
@@ -20,6 +21,8 @@
         
         <joml.version>1.10.5</joml.version>
         <netbeans.version>RELEASE160</netbeans.version>
+
+        <junit.version>4.13.2</junit.version>
     </properties>
     
     <modules>
@@ -275,11 +278,23 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.2</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.igormaznitsa</groupId>
+                    <artifactId>jcp</artifactId>
+                    <version>${jcp-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
     
     <!-- Repositories -->
     <repositories>

@@ -18,6 +18,8 @@ import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.util.ArrayUtils;
 import org.lwjgl.system.MemoryUtil;
 
+import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
+import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 
@@ -53,6 +55,12 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
     }
 
     public void drawArrays(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        final boolean renderingUnselectedEdges = layer == BACK1;
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedEdgesCount() > 0;
+        if (!someSelection && renderingUnselectedEdges) {
+            return;
+        }
+
         final GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
 
         final float[] backgroundColorFloats = engine.getBackgroundColor();
@@ -69,11 +77,12 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
     }
 
     private void drawUndirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
+        final boolean renderingUnselectedEdges = layer == BACK1;
         final int instanceCount;
         final int instancesOffset;
         final float colorLightenFactor;
 
-        if (layer == RenderingLayer.BACK) {
+        if (renderingUnselectedEdges) {
             instanceCount = undirectedInstanceCounter.unselectedCountToDraw;
             instancesOffset = 0;
             colorLightenFactor = lightenNonSelectedFactor;
@@ -83,53 +92,52 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
             colorLightenFactor = 0;
         }
 
-        if (instanceCount > 0) {
-            setupUndirectedVertexArrayAttributes(engine);
-            lineModelUndirected.useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, edgeScale, minWeight, maxWeight);
+        setupUndirectedVertexArrayAttributes(engine);
+        lineModelUndirected.useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, edgeScale, minWeight, maxWeight);
 
-            final FloatBuffer batchUpdateBuffer = attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer.floatBuffer();
+        final FloatBuffer batchUpdateBuffer = attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer.floatBuffer();
 
-            final int maxIndex = (instancesOffset + instanceCount);
-            for (int edgeBase = instancesOffset; edgeBase < maxIndex; edgeBase += BATCH_EDGES_SIZE) {
-                final int drawBatchCount = Math.min(maxIndex - edgeBase, BATCH_EDGES_SIZE);
+        final int maxIndex = (instancesOffset + instanceCount);
+        for (int edgeBase = instancesOffset; edgeBase < maxIndex; edgeBase += BATCH_EDGES_SIZE) {
+            final int drawBatchCount = Math.min(maxIndex - edgeBase, BATCH_EDGES_SIZE);
 
-                //Need to copy attributes as many times as vertex per model:
-                for (int edgeIndex = 0; edgeIndex < drawBatchCount; edgeIndex++) {
-                    System.arraycopy(
-                            attributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
-                            attributesDrawBufferBatchOneCopyPerVertex, edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED,
-                            ATTRIBS_STRIDE
-                    );
+            //Need to copy attributes as many times as vertex per model:
+            for (int edgeIndex = 0; edgeIndex < drawBatchCount; edgeIndex++) {
+                System.arraycopy(
+                        attributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
+                        attributesDrawBufferBatchOneCopyPerVertex, edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED,
+                        ATTRIBS_STRIDE
+                );
 
-                    ArrayUtils.repeat(
-                            attributesDrawBufferBatchOneCopyPerVertex,
-                            edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED,
-                            ATTRIBS_STRIDE,
-                            VERTEX_COUNT_UNDIRECTED
-                    );
-                }
-
-                batchUpdateBuffer.clear();
-                batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED);
-                batchUpdateBuffer.flip();
-
-                attributesGLBufferUndirected.bind();
-                attributesGLBufferUndirected.updateWithOrphaning(batchUpdateBuffer);
-                attributesGLBufferUndirected.unbind();
-                lineModelUndirected.drawArraysMultipleInstance(drawBatchCount);
+                ArrayUtils.repeat(
+                        attributesDrawBufferBatchOneCopyPerVertex,
+                        edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED,
+                        ATTRIBS_STRIDE,
+                        VERTEX_COUNT_UNDIRECTED
+                );
             }
 
-            lineModelUndirected.stopUsingProgram();
-            unsetupUndirectedVertexArrayAttributes();
+            batchUpdateBuffer.clear();
+            batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_UNDIRECTED);
+            batchUpdateBuffer.flip();
+
+            attributesGLBufferUndirected.bind();
+            attributesGLBufferUndirected.updateWithOrphaning(batchUpdateBuffer);
+            attributesGLBufferUndirected.unbind();
+            lineModelUndirected.drawArraysMultipleInstance(drawBatchCount);
         }
+
+        lineModelUndirected.stopUsingProgram();
+        unsetupUndirectedVertexArrayAttributes();
     }
 
     private void drawDirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
+        final boolean renderingUnselectedEdges = layer == BACK1;
         final int instanceCount;
         final int instancesOffset;
         final float colorLightenFactor;
 
-        if (layer == RenderingLayer.BACK) {
+        if (renderingUnselectedEdges) {
             instanceCount = directedInstanceCounter.unselectedCountToDraw;
             instancesOffset = undirectedInstanceCounter.totalToDraw();
             colorLightenFactor = lightenNonSelectedFactor;
@@ -139,46 +147,44 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
             colorLightenFactor = 0;
         }
 
-        if (instanceCount > 0) {
-            setupDirectedVertexArrayAttributes(engine);
-            lineModelDirected.useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, edgeScale, minWeight, maxWeight);
+        setupDirectedVertexArrayAttributes(engine);
+        lineModelDirected.useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, edgeScale, minWeight, maxWeight);
 
-            final FloatBuffer batchUpdateBuffer = attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer.floatBuffer();
+        final FloatBuffer batchUpdateBuffer = attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer.floatBuffer();
 
-            final int maxIndex = (instancesOffset + instanceCount);
-            for (int edgeBase = instancesOffset; edgeBase < maxIndex; edgeBase += BATCH_EDGES_SIZE) {
-                final int drawBatchCount = Math.min(maxIndex - edgeBase, BATCH_EDGES_SIZE);
+        final int maxIndex = (instancesOffset + instanceCount);
+        for (int edgeBase = instancesOffset; edgeBase < maxIndex; edgeBase += BATCH_EDGES_SIZE) {
+            final int drawBatchCount = Math.min(maxIndex - edgeBase, BATCH_EDGES_SIZE);
 
-                //Need to copy attributes as many times as vertex per model:
-                for (int edgeIndex = 0; edgeIndex < drawBatchCount; edgeIndex++) {
-                    System.arraycopy(
-                            attributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
-                            attributesDrawBufferBatchOneCopyPerVertex, edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED,
-                            ATTRIBS_STRIDE
-                    );
+            //Need to copy attributes as many times as vertex per model:
+            for (int edgeIndex = 0; edgeIndex < drawBatchCount; edgeIndex++) {
+                System.arraycopy(
+                        attributesBuffer, (edgeBase + edgeIndex) * ATTRIBS_STRIDE,
+                        attributesDrawBufferBatchOneCopyPerVertex, edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED,
+                        ATTRIBS_STRIDE
+                );
 
-                    ArrayUtils.repeat(
-                            attributesDrawBufferBatchOneCopyPerVertex,
-                            edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED,
-                            ATTRIBS_STRIDE,
-                            VERTEX_COUNT_DIRECTED
-                    );
-                }
-
-                batchUpdateBuffer.clear();
-                batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED);
-                batchUpdateBuffer.flip();
-
-                attributesGLBufferDirected.bind();
-                attributesGLBufferDirected.updateWithOrphaning(batchUpdateBuffer);
-                attributesGLBufferDirected.unbind();
-
-                lineModelDirected.drawArraysMultipleInstance(drawBatchCount);
+                ArrayUtils.repeat(
+                        attributesDrawBufferBatchOneCopyPerVertex,
+                        edgeIndex * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED,
+                        ATTRIBS_STRIDE,
+                        VERTEX_COUNT_DIRECTED
+                );
             }
 
-            lineModelDirected.stopUsingProgram();
-            unsetupDirectedVertexArrayAttributes();
+            batchUpdateBuffer.clear();
+            batchUpdateBuffer.put(attributesDrawBufferBatchOneCopyPerVertex, 0, drawBatchCount * ATTRIBS_STRIDE * VERTEX_COUNT_DIRECTED);
+            batchUpdateBuffer.flip();
+
+            attributesGLBufferDirected.bind();
+            attributesGLBufferDirected.updateWithOrphaning(batchUpdateBuffer);
+            attributesGLBufferDirected.unbind();
+
+            lineModelDirected.drawArraysMultipleInstance(drawBatchCount);
         }
+
+        lineModelDirected.stopUsingProgram();
+        unsetupDirectedVertexArrayAttributes();
     }
 
     private float[] attributesBuffer;

@@ -77,27 +77,57 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     }
 
     public void drawArrays(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedNodesCount() > 0;
+        final boolean renderingUnselectedNodes = layer.isBack();
+        if (!someSelection && renderingUnselectedNodes) {
+            return;
+        }
+
         final float[] backgroundColorFloats = engine.getBackgroundColor();
         final float zoom = engine.getZoom();
-        final float colorLightenFactor;
+
+        final boolean isRenderingOutsideCircle = layer.getLevel() == 2;
+        final float sizeMultiplier = isRenderingOutsideCircle ? 1f : INSIDE_CIRCLE_SIZE;
 
         final int instanceCount;
         final int instancesOffset;
-
-        if (layer == RenderingLayer.BACK) {
-            instanceCount = instanceCounter.unselectedCountToDraw * 2;
+        if (renderingUnselectedNodes) {
+            instanceCount = instanceCounter.unselectedCountToDraw;
             instancesOffset = 0;
-            colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
-        } else {
-            instanceCount = instanceCounter.selectedCountToDraw * 2;
-            instancesOffset = instanceCounter.unselectedCountToDraw * 2;
-            colorLightenFactor = 0;
-        }
 
-        if (instanceCounter.unselectedCountToDraw > 0) {
-            diskModel64.useProgramWithSelection(mvpFloats, backgroundColorFloats, colorLightenFactor);
+            final float colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
+            final float colorBias = 0f;
+            final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
+            diskModel64.useProgramWithSelection(
+                mvpFloats, backgroundColorFloats,
+                sizeMultiplier,
+                colorBias,
+                colorMultiplier,
+                colorLightenFactor
+            );
+
+            setupSecondaryVertexArrayAttributes(engine);
         } else {
-            diskModel64.useProgram(mvpFloats, backgroundColorFloats);
+            instanceCount = instanceCounter.selectedCountToDraw;
+            instancesOffset = instanceCounter.unselectedCountToDraw;
+            final float colorLightenFactor = 0;
+
+            if (someSelection) {
+                final float colorBias = isRenderingOutsideCircle ? 0f : 0.5f;
+                final float colorMultiplier = isRenderingOutsideCircle ? 1f : 0.5f;
+                diskModel64.useProgramWithSelection(
+                    mvpFloats, backgroundColorFloats,
+                    sizeMultiplier,
+                    colorBias,
+                    colorMultiplier,
+                    colorLightenFactor
+                );
+            } else {
+                final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
+                diskModel64.useProgram(mvpFloats, backgroundColorFloats, sizeMultiplier, colorMultiplier);
+            }
+
+            setupVertexArrayAttributes(engine);
         }
 
         if (instanceCount > 0) {
@@ -115,7 +145,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
                 attribs.get(attrs);
 
                 //Choose LOD:
-                final float size = attrs[5];
+                final float size = attrs[3];
                 final float observedSize = size * zoom;
 
                 final int circleVertexCount;
@@ -147,8 +177,6 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                 glVertexAttrib4f(SHADER_COLOR_LOCATION, b, g, r, a);
 
-                glVertexAttrib1f(SHADER_COLOR_BIAS_LOCATION, attrs[3]);
-                glVertexAttrib1f(SHADER_COLOR_MULTIPLIER_LOCATION, attrs[4]);
                 glVertexAttrib1f(SHADER_SIZE_LOCATION, size);
 
                 //Draw the instance:
@@ -162,6 +190,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
     public void updateBuffers() {
         instanceCounter.promoteCountToDraw();
+        maxNodeSizeToDraw = maxNodeSize;
     }
 
     private ManagedDirectBuffer attributesBuffer;
@@ -170,7 +199,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     private static final int BATCH_NODES_SIZE = 32768;
 
     private void initBuffers() {
-        attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2];
+        attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE];
 
         glGenBuffers(bufferName);
 
@@ -193,7 +222,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
             vertexGLBuffer.unbind();
         }
 
-        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2);
+        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE);
     }
 
     private void updateData(final GraphIndexImpl spatialIndex, final GraphRenderingOptions renderingOptions, final GraphSelection selection, final GraphSelectionNeighbours neighboursSelection, final float zoom) {
@@ -211,7 +240,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
         final int totalNodes = spatialIndex.getNodeCount();
 
-        attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE * 2);
+        attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE);
 
         final FloatBuffer attribs = attributesBuffer.floatBuffer();
 
@@ -223,10 +252,10 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         int newNodesCountUnselected = 0;
         int newNodesCountSelected = 0;
 
-        float maxNodeSize = 0;
+        float newMaxNodeSize = 0;
         for (int j = 0; j < visibleNodesCount; j++) {
             final float size = visibleNodesArray[j].size();
-            maxNodeSize = size >= maxNodeSize ? size : maxNodeSize;
+            newMaxNodeSize = size >= newMaxNodeSize ? size : newMaxNodeSize;
         }
 
         int index = 0;
@@ -242,7 +271,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                     newNodesCountSelected++;
 
-                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
+                    index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);
@@ -261,7 +290,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                     newNodesCountUnselected++;
 
-                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, false);
+                    index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);
@@ -280,7 +309,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
 
                     newNodesCountSelected++;
 
-                    index = fillNodeAttributesDataWithSelection(attributesBufferBatch, node, index, true);
+                    index = fillNodeAttributesData(attributesBufferBatch, node, index);
 
                     if (index == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);

@@ -14,7 +14,5 @@ public interface Renderer<R extends RenderingTarget> extends PipelinedExecutor<R
 
     void render(R target, RenderingLayer layer);
 
-    default EnumSet<RenderingLayer> getLayers() {
-        return EnumSet.of(RenderingLayer.MIDDLE);
-    }
+    EnumSet<RenderingLayer> getLayers();
 }

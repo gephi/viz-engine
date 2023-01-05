@@ -113,9 +113,11 @@ public class EdgeLineModelUndirected {
     }
 
     public void drawInstanced(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, int instanceCount, float scale, float minWeight, float maxWeight) {
+        if (instanceCount <= 0) {
+            return;
+        }
         useProgram(mvpFloats, backgroundColorFloats, colorLightenFactor, scale, minWeight, maxWeight);
         GL31.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, VERTEX_COUNT, instanceCount);
-        stopUsingProgram();
     }
 
     public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float colorLightenFactor, float scale, float minWeight, float maxWeight) {

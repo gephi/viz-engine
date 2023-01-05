@@ -21,10 +21,9 @@ public class Constants {
     public static final int SHADER_VERT_LOCATION = 0;
     public static final int SHADER_POSITION_LOCATION = 1;
     public static final int SHADER_COLOR_LOCATION = 2;
-    public static final int SHADER_COLOR_BIAS_LOCATION = 3;
-    public static final int SHADER_COLOR_MULTIPLIER_LOCATION = 4;
-    public static final int SHADER_SIZE_LOCATION = 5;
-
+    public static final int SHADER_SIZE_LOCATION = 3;
+    public static final int SHADER_COLOR_BIAS_LOCATION = 4;
+    public static final int SHADER_COLOR_MULTIPLIER_LOCATION = 5;
     public static final int SHADER_SOURCE_COLOR_LOCATION = 6;
     public static final int SHADER_TARGET_COLOR_LOCATION = 7;
     public static final int SHADER_SOURCE_SIZE_LOCATION = 8;
@@ -40,7 +39,10 @@ public class Constants {
     public static final String UNIFORM_NAME_EDGE_SCALE_MAX = "edgeScaleMax";
     
     public static final String UNIFORM_NAME_BACKGROUND_COLOR = "backgroundColor";
+    public static final String UNIFORM_NAME_SIZE_MULTIPLIER = "sizeMultiplier";
     public static final String UNIFORM_NAME_COLOR_LIGHTEN_FACTOR = "colorLightenFactor";
+    public static final String UNIFORM_NAME_COLOR_BIAS = "colorBias";
+    public static final String UNIFORM_NAME_COLOR_MULTIPLIER = "colorMultiplier";
 
     //Rendering order:
     public static final int RENDERING_ORDER_NODES = 100;

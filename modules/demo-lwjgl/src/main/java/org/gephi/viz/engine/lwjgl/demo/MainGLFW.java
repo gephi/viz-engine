@@ -25,7 +25,6 @@ import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class MainGLFW {

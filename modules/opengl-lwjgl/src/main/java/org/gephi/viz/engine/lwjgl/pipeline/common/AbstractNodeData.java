@@ -44,7 +44,6 @@ public abstract class AbstractNodeData {
     protected final NodesCallback nodesCallback = new NodesCallback();
 
     protected static final int ATTRIBS_STRIDE = NodeDiskModel.TOTAL_ATTRIBUTES_FLOATS;
-    protected static final int ATTRIBS_STRIDE_BYTES = ATTRIBS_STRIDE * 4;
 
     protected final boolean instanced;
 
@@ -56,102 +55,23 @@ public abstract class AbstractNodeData {
     protected float maxNodeSize = 0;
     protected float maxNodeSizeToDraw = 0;
 
-    private static final int BATCH_NODES_SIZE = 32768;
-    private final float[] attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE * 2];
-
     protected int fillNodeAttributesData(final float[] buffer, final Node node, final int index) {
         final float x = node.x();
         final float y = node.y();
         final float size = node.size();
         final int rgba = node.getRGBA();
 
-        //Outside circle:
-        {
-            //Position:
-            buffer[index] = x;
-            buffer[index + 1] = y;
+        //Position:
+        buffer[index] = x;
+        buffer[index + 1] = y;
 
-            //Color:
-            buffer[index + 2] = Float.intBitsToFloat(rgba);
-            //Bias and multiplier:
-            buffer[index + 3] = 0;
-            buffer[index + 4] = Constants.NODER_BORDER_DARKEN_FACTOR;
+        //Color:
+        buffer[index + 2] = Float.intBitsToFloat(rgba);
 
-            //Size:
-            buffer[index + 5] = size;
-        }
+        //Size:
+        buffer[index + 3] = size;
 
-        final int nextIndex = index + ATTRIBS_STRIDE;
-
-        //Inside circle:
-        {
-            //Position:
-            buffer[nextIndex] = x;
-            buffer[nextIndex + 1] = y;
-
-            //Color:
-            buffer[nextIndex + 2] = Float.intBitsToFloat(rgba);
-            //Bias and multiplier:
-            buffer[nextIndex + 3] = 0;
-            buffer[nextIndex + 4] = 1;
-
-            //Size:
-            buffer[nextIndex + 5] = size * INSIDE_CIRCLE_SIZE;
-        }
-
-        return nextIndex + ATTRIBS_STRIDE;
-    }
-
-    protected int fillNodeAttributesDataWithSelection(final float[] buffer, final Node node, final int index, final boolean selected) {
-        final float x = node.x();
-        final float y = node.y();
-        final float size = node.size();
-        final int rgba = node.getRGBA();
-
-        //Outside circle:
-        {
-            //Position:
-            buffer[index] = x;
-            buffer[index + 1] = y;
-
-            //Color:
-            buffer[index + 2] = Float.intBitsToFloat(rgba);
-            //Bias and multiplier:
-            buffer[index + 3] = 0;
-            if (selected) {
-                buffer[index + 4] = 1;
-            } else {
-                buffer[index + 4] = Constants.NODER_BORDER_DARKEN_FACTOR;//Darken the color
-            }
-
-            //Size:
-            buffer[index + 5] = size;
-        }
-
-        final int nextIndex = index + ATTRIBS_STRIDE;
-
-        //Inside circle:
-        {
-            //Position:
-            buffer[nextIndex] = x;
-            buffer[nextIndex + 1] = y;
-
-            //Color:
-            buffer[nextIndex + 2] = Float.intBitsToFloat(rgba);
-            //Bias and multiplier:
-            if (selected) {
-                buffer[nextIndex + 3] = 0.5f;
-                buffer[nextIndex + 4] = 0.5f;
-            } else {
-                buffer[nextIndex + 3] = 0;
-                buffer[nextIndex + 4] = 1;
-            }
-
-            //Size:
-            buffer[nextIndex + 5] = size * INSIDE_CIRCLE_SIZE;
-        }
-
-        return nextIndex + ATTRIBS_STRIDE;
+        return index + ATTRIBS_STRIDE;
     }
 
     private NodesVAO nodesVAO;
@@ -241,12 +161,6 @@ public abstract class AbstractNodeData {
                     glVertexAttribPointer(SHADER_COLOR_LOCATION, NodeDiskModel.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                     offset += NodeDiskModel.COLOR_FLOATS * Float.BYTES;
 
-                    glVertexAttribPointer(SHADER_COLOR_BIAS_LOCATION, NodeDiskModel.COLOR_BIAS_FLOATS, GL_FLOAT, false, stride, offset);
-                    offset += NodeDiskModel.COLOR_BIAS_FLOATS * Float.BYTES;
-
-                    glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, NodeDiskModel.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
-                    offset += NodeDiskModel.COLOR_MULTIPLIER_FLOATS * Float.BYTES;
-
                     glVertexAttribPointer(SHADER_SIZE_LOCATION, NodeDiskModel.SIZE_FLOATS, GL_FLOAT, false, stride, offset);
                 }
                 attributesBuffer.unbind();
@@ -260,8 +174,6 @@ public abstract class AbstractNodeData {
                     SHADER_VERT_LOCATION,
                     SHADER_POSITION_LOCATION,
                     SHADER_COLOR_LOCATION,
-                    SHADER_COLOR_BIAS_LOCATION,
-                    SHADER_COLOR_MULTIPLIER_LOCATION,
                     SHADER_SIZE_LOCATION
                 };
             } else {
@@ -277,8 +189,6 @@ public abstract class AbstractNodeData {
                 return new int[]{
                     SHADER_POSITION_LOCATION,
                     SHADER_COLOR_LOCATION,
-                    SHADER_COLOR_BIAS_LOCATION,
-                    SHADER_COLOR_MULTIPLIER_LOCATION,
                     SHADER_SIZE_LOCATION
                 };
             } else {
