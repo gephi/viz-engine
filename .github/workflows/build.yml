@@ -22,4 +22,4 @@ jobs:
         distribution: ${{ matrix.distribution }}
         java-version: ${{ matrix.java }}
     - name: Build with Maven
-      run: mvn --batch-mode -Djava.awt.headless=true verify
+      run: mvn --batch-mode verify
