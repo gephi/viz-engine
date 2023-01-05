@@ -180,6 +180,12 @@
                 <groupId>org.lwjglx</groupId>
                 <artifactId>lwjgl3-awt</artifactId>
                 <version>${lwjgl3-awt.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.lwjgl</groupId>
+                        <artifactId>lwjgl-vulkan</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             
             <!-- Engine own modules -->
