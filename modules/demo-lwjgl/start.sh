@@ -1,10 +1,13 @@
 #!/bin/sh
+
+mode=${1:-awt}
+mode=$(echo $mode | tr '[:upper:]' '[:lower:]')
+echo $mode
 if  [[ "$OSTYPE" == "darwin"* ]]; then
-  # on Macos, lwjgl expect to be launched with -XstartOnFirstThread on jvm
-  if  [[ "$1" == "GLFW" ]]; then
+  if  [[ "$1" == "glfw" ]]; then
     java -XstartOnFirstThread -jar -Xmx2048m target/viz-engine-lwjgl-demo-1.0.0-SNAPSHOT.jar "$@"
   else
-    java -Dsun.java2d.metal=true -Dsun.java2d.noddraw=true -Dsun.awt.noerasebackground=true -jar -Xmx2048m target/viz-engine-lwjgl-demo-1.0.0-SNAPSHOT.jar "$@"
+    java -jar -Xmx2048m target/viz-engine-lwjgl-demo-1.0.0-SNAPSHOT.jar "$@"
   fi
 else
   java -jar -Xmx2048m target/viz-engine-lwjgl-demo-1.0.0-SNAPSHOT.jar "$@"

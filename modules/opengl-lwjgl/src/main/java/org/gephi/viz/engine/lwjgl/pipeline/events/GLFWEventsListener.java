@@ -37,6 +37,8 @@ public class GLFWEventsListener {
 
     private int mouseX = 0;
     private int mouseY = 0;
+    private float xScale = 1;
+    private float yScale = 1;
 
     private long lastLeftMouseButtonPressMillis = 0;
     private long lastMiddleMouseButtonPressMillis = 0;
@@ -204,8 +206,8 @@ public class GLFWEventsListener {
                 }
             }
 
-            mouseX = (int) xpos;
-            mouseY = (int) ypos;
+            mouseX = (int) (xpos * xScale);
+            mouseY = (int) (ypos * yScale);
 
             if (isDragging) {
                 engine.queueEvent(
@@ -223,6 +225,15 @@ public class GLFWEventsListener {
                     MouseEvent.scroll(mouseX, mouseY, xoffset, yoffset)
             );
         });
+    }
+
+    public void updateScale() {
+        final float[] xScaleArr = new float[1];
+        final float[] yScaleArr = new float[1];
+        glfwGetWindowContentScale(windowHandle, xScaleArr, yScaleArr);
+
+        this.xScale = xScaleArr[0];
+        this.yScale = yScaleArr[0];
     }
 
     private static MouseEvent.Button toButtonEnum(int button) {
