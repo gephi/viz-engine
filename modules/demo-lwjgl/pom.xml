@@ -16,7 +16,8 @@
         <viz-demo.maven-jar-plugin.version>3.3.0</viz-demo.maven-jar-plugin.version>
         <viz-demo.maven-dependency-plugin.version>3.4.0</viz-demo.maven-dependency-plugin.version>
     </properties>
-    
+
+
     <dependencies>
         <dependency>
             <groupId>org.gephi</groupId>
@@ -92,83 +93,35 @@
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
-            <classifier>natives-linux</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl</artifactId>
-            <classifier>natives-macos</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl</artifactId>
-            <classifier>natives-windows</classifier>
+            <classifier>${lwjgl.natives}</classifier>
         </dependency>
         
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-glfw</artifactId>
-            <classifier>natives-linux</classifier>
+            <classifier>${lwjgl.natives}</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-glfw</artifactId>
-            <classifier>natives-macos</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-glfw</artifactId>
-            <classifier>natives-windows</classifier>
-        </dependency>
+
         
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-opengl</artifactId>
-            <classifier>natives-linux</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-opengl</artifactId>
-            <classifier>natives-macos</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-opengl</artifactId>
-            <classifier>natives-windows</classifier>
+            <classifier>${lwjgl.natives}</classifier>
         </dependency>
         
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-stb</artifactId>
-            <classifier>natives-linux</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-stb</artifactId>
-            <classifier>natives-macos</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-stb</artifactId>
-            <classifier>natives-windows</classifier>
+            <classifier>${lwjgl.natives}</classifier>
         </dependency>
         
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-jemalloc</artifactId>
-            <classifier>natives-linux</classifier>
+            <classifier>${lwjgl.natives}</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-jemalloc</artifactId>
-            <classifier>natives-macos</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl-jemalloc</artifactId>
-            <classifier>natives-windows</classifier>
-        </dependency>
-        
+
+
         <dependency>
             <groupId>org.lwjglx</groupId>
             <artifactId>lwjgl3-awt</artifactId>
