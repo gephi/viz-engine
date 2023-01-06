@@ -36,52 +36,20 @@ public class NodeDiskModel {
             + COLOR_FLOATS
             + SIZE_FLOATS;
 
-    private final int triangleAmount;
-    private final float[] vertexData;
-    private final int vertexCount;
-
     private GLShaderProgram program;
     private GLShaderProgram programWithSelection;
 
-    public NodeDiskModel(int triangleAmount) {
-        this.triangleAmount = triangleAmount;
-        this.vertexData = generateFilledCircle(triangleAmount);
-
-        this.vertexCount = triangleAmount * 3;
-    }
-
-    public int getTriangleAmount() {
-        return triangleAmount;
-    }
-
-    public int getVertexCount() {
-        return vertexCount;
-    }
-
-    public float[] getVertexData() {
-        return vertexData;
-    }
-
     public void initGLPrograms() {
-        initProgram();
-    }
-
-    private static final String SHADERS_ROOT = Constants.SHADERS_ROOT + "node";
-
-    private static final String SHADERS_NODE_CIRCLE_SOURCE = "node";
-    private static final String SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION = "node_with_selection";
-
-    private void initProgram() {
         program = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE, SHADERS_NODE_CIRCLE_SOURCE)
-                .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
-                .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
-                .addUniformName(UNIFORM_NAME_SIZE_MULTIPLIER)
-                .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
-                .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
-                .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
-                .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
-                .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
-                .init();
+            .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
+            .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
+            .addUniformName(UNIFORM_NAME_SIZE_MULTIPLIER)
+            .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
+            .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
+            .init();
 
         programWithSelection = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION, SHADERS_NODE_CIRCLE_SOURCE)
             .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
@@ -97,11 +65,16 @@ public class NodeDiskModel {
             .init();
     }
 
+    private static final String SHADERS_ROOT = Constants.SHADERS_ROOT + "node";
+
+    private static final String SHADERS_NODE_CIRCLE_SOURCE = "node";
+    private static final String SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION = "node_with_selection";
+
     public void drawArraysSingleInstance(int firstVertexIndex, int vertexCount) {
         GL11.glDrawArrays(GL11.GL_TRIANGLES, firstVertexIndex, vertexCount);
     }
 
-    public void drawInstanced(int vertexOffset, int instanceCount) {
+    public void drawInstanced(int vertexOffset, int vertexCount, int instanceCount) {
         if (instanceCount <= 0) {
             return;
         }
@@ -132,40 +105,5 @@ public class NodeDiskModel {
 
     public void stopUsingProgram() {
         GL20.glUseProgram(0);
-    }
-
-    public GLShaderProgram getCircleProgram() {
-        return program;
-    }
-
-    private static float[] generateFilledCircle(int triangleAmount) {
-        final double twicePi = 2.0 * Math.PI;
-
-        final int circleFloatsCount = (triangleAmount * 3) * VERTEX_FLOATS;
-        final float[] data = new float[circleFloatsCount];
-        final int triangleFloats = 3 * VERTEX_FLOATS;
-
-        //Circle:
-        for (int i = 1, j = 0; i <= triangleAmount; i++, j += triangleFloats) {
-            //Center
-            data[j + 0] = 0;//X
-            data[j + 1] = 0;//Y
-
-            //Triangle start:
-            data[j + 2] = (float) Math.cos((i - 1) * twicePi / triangleAmount);//X
-            data[j + 3] = (float) Math.sin((i - 1) * twicePi / triangleAmount);//Y
-
-            //Triangle end:
-            if (i == triangleAmount) {
-                //Last point
-                data[j + 4] = 1;//X
-                data[j + 5] = 0;//Y
-            } else {
-                data[j + 4] = (float) Math.cos(i * twicePi / triangleAmount);//X
-                data[j + 5] = (float) Math.sin(i * twicePi / triangleAmount);//Y
-            }
-        }
-
-        return data;
     }
 }
