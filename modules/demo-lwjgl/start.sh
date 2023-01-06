@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 mode=${1:-awt}
 mode=$(echo "$mode" | tr '[:upper:]' '[:lower:]')
