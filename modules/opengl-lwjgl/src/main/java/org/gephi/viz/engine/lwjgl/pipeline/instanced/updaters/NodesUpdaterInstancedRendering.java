@@ -2,9 +2,9 @@ package org.gephi.viz.engine.lwjgl.pipeline.instanced.updaters;
 
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
-import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.lwjgl.availability.InstancedDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedNodeData;
+import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.spi.WorldUpdater;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 

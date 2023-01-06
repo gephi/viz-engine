@@ -1,7 +1,5 @@
 package org.gephi.viz.engine.lwjgl.pipeline.instanced;
 
-import java.nio.FloatBuffer;
-
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.viz.engine.VizEngine;
@@ -16,6 +14,8 @@ import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.structure.GraphIndex;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.lwjgl.system.MemoryStack;
+
+import java.nio.FloatBuffer;
 
 import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;

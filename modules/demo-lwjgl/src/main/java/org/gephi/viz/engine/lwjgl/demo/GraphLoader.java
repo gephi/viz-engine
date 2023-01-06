@@ -1,7 +1,5 @@
 package org.gephi.viz.engine.lwjgl.demo;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.io.importer.api.Container;
@@ -10,6 +8,9 @@ import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.project.api.ProjectController;
 import org.openide.util.Lookup;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  *

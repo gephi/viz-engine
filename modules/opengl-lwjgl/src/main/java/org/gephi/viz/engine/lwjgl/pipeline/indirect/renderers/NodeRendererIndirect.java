@@ -1,25 +1,24 @@
-package org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers;
+package org.gephi.viz.engine.lwjgl.pipeline.indirect.renderers;
 
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
-import org.gephi.viz.engine.lwjgl.availability.InstancedDraw;
-import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeRenderer;
-import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedEdgeData;
+import org.gephi.viz.engine.lwjgl.availability.IndirectDraw;
+import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeRenderer;
+import org.gephi.viz.engine.lwjgl.pipeline.indirect.IndirectNodeData;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 
 /**
- * TODO: self loops
  *
  * @author Eduardo Ramos
  */
-public class EdgeRendererInstanced extends AbstractEdgeRenderer {
+public class NodeRendererIndirect extends AbstractNodeRenderer {
 
     private final VizEngine engine;
-    private final InstancedEdgeData edgeData;
+    private final IndirectNodeData nodeData;
 
-    public EdgeRendererInstanced(VizEngine engine, InstancedEdgeData edgeData) {
+    public NodeRendererIndirect(VizEngine engine, IndirectNodeData nodeData) {
         this.engine = engine;
-        this.edgeData = edgeData;
+        this.nodeData = nodeData;
     }
 
     @Override
@@ -29,7 +28,7 @@ public class EdgeRendererInstanced extends AbstractEdgeRenderer {
 
     @Override
     public void worldUpdated(LWJGLRenderingTarget target) {
-        edgeData.updateBuffers();
+        nodeData.updateBuffers();
     }
 
     private final float[] mvpFloats = new float[16];
@@ -37,24 +36,21 @@ public class EdgeRendererInstanced extends AbstractEdgeRenderer {
     @Override
     public void render(LWJGLRenderingTarget target, RenderingLayer layer) {
         engine.getModelViewProjectionMatrixFloats(mvpFloats);
-        edgeData.drawInstanced(
-                layer,
-                engine, mvpFloats
-        );
+        nodeData.drawIndirect(layer, engine, mvpFloats);
     }
 
     @Override
     public int getPreferenceInCategory() {
-        return InstancedDraw.getPreferenceInCategory();
+        return IndirectDraw.getPreferenceInCategory();
     }
 
     @Override
     public String getName() {
-        return "Edges (Instanced)";
+        return "Nodes (Indirect)";
     }
 
     @Override
     public boolean isAvailable(LWJGLRenderingTarget target) {
-        return InstancedDraw.isAvailable(engine);
+        return IndirectDraw.isAvailable(engine);
     }
 }

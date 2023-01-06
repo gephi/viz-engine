@@ -1,9 +1,10 @@
 package org.gephi.viz.engine;
 
-import java.util.List;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.viz.engine.spi.RenderingTarget;
 import org.gephi.viz.engine.spi.VizEngineConfigurator;
+
+import java.util.List;
 
 /**
  *

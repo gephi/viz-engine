@@ -1,9 +1,11 @@
 package org.gephi.viz.engine.util.structure;
 
-import java.util.Arrays;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.viz.engine.structure.GraphIndex.ElementsCallback;
+
+import java.util.Arrays;
+
 import static org.gephi.viz.engine.util.ArrayUtils.getNextPowerOf2;
 
 /**

@@ -7,33 +7,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_COLOR;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_COLOR_BIAS;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_COLOR_MULTIPLIER;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_POSITION;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_POSITION_TARGET;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_SIZE;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_SOURCE_COLOR;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_TARGET_SIZE;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_VERT;
-import static org.gephi.viz.engine.util.gl.Constants.EDGE_SCALE_MAX;
-import static org.gephi.viz.engine.util.gl.Constants.EDGE_SCALE_MIN;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_BIAS_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_MULTIPLIER_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_POSITION_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_POSITION_TARGET_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_SIZE_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_SOURCE_COLOR_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_TARGET_SIZE_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_VERT_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_BACKGROUND_COLOR;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_LIGHTEN_FACTOR;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_EDGE_SCALE_MAX;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_EDGE_SCALE_MIN;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_MIN_WEIGHT;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_MODEL_VIEW_PROJECTION;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR;
+import static org.gephi.viz.engine.util.gl.Constants.*;
 
 /**
  *

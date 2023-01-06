@@ -1,7 +1,5 @@
 package org.gephi.viz.engine.lwjgl;
 
-import java.util.function.Consumer;
-
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.util.TimeUtils;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
@@ -11,6 +9,8 @@ import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.system.Platform;
+
+import java.util.function.Consumer;
 
 /**
  * @author Eduardo Ramos

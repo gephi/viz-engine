@@ -1,27 +1,17 @@
 package org.gephi.viz.engine.lwjgl.pipeline.arrays;
 
-import java.nio.FloatBuffer;
-
-import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
 import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
-import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
-import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
-import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.lwjgl.system.MemoryStack;
+
+import java.nio.FloatBuffer;
 
 import static org.gephi.viz.engine.util.gl.Constants.*;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL20.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glVertexAttrib1f;
-import static org.lwjgl.opengl.GL20.glVertexAttrib2fv;
-import static org.lwjgl.opengl.GL20.glVertexAttrib4f;
+import static org.lwjgl.opengl.GL20.*;
 
 /**
  * @author Eduardo Ramos
@@ -33,19 +23,16 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     private static final int VERT_BUFFER = 0;
 
     public ArrayDrawNodeData() {
-        super(false);
-    }
-
-    public void init() {
-        super.init();
+        super(false, false);
     }
 
     public void update(VizEngine engine, GraphIndexImpl spatialIndex) {
         updateData(
-            spatialIndex,
-            engine.getLookup().lookup(GraphRenderingOptions.class),
-            engine.getLookup().lookup(GraphSelection.class),
-            engine.getLookup().lookup(GraphSelectionNeighbours.class)
+                engine.getZoom(),
+                spatialIndex,
+                engine.getLookup().lookup(GraphRenderingOptions.class),
+                engine.getLookup().lookup(GraphSelection.class),
+                engine.getLookup().lookup(GraphSelectionNeighbours.class)
         );
     }
 
@@ -53,16 +40,13 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats);
 
         if (instanceCount <= 0) {
+            diskModel.stopUsingProgram();
+            unsetupVertexArrayAttributes();
             return;
         }
 
         final boolean renderingUnselectedNodes = layer.isBack();
-        final int instancesOffset;
-        if (renderingUnselectedNodes) {
-            instancesOffset = 0;
-        } else {
-            instancesOffset = instanceCounter.unselectedCountToDraw;
-        }
+        final int instancesOffset = renderingUnselectedNodes ? 0 : instanceCounter.unselectedCountToDraw;
 
 
         final float zoom = engine.getZoom();
@@ -131,10 +115,5 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         glGenBuffers(bufferName);
 
         initCirclesGLVertexBuffer(bufferName[VERT_BUFFER]);
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
     }
 }

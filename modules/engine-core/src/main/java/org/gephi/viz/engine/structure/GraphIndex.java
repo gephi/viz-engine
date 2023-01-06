@@ -1,12 +1,8 @@
 package org.gephi.viz.engine.structure;
 
+import org.gephi.graph.api.*;
+
 import java.util.function.Consumer;
-import org.gephi.graph.api.Edge;
-import org.gephi.graph.api.EdgeIterable;
-import org.gephi.graph.api.Graph;
-import org.gephi.graph.api.Node;
-import org.gephi.graph.api.NodeIterable;
-import org.gephi.graph.api.Rect2D;
 
 /**
  *

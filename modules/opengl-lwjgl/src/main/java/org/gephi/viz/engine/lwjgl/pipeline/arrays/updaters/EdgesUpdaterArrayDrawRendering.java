@@ -1,10 +1,10 @@
 package org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters;
 
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.gephi.viz.engine.lwjgl.availability.ArrayDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawEdgeData;
+import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.spi.WorldUpdater;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 

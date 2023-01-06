@@ -1,16 +1,9 @@
 package org.gephi.viz.engine.lwjgl.util.gl;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
+
 import static org.gephi.viz.engine.util.gl.Buffers.bufferElementBytes;
-import static org.lwjgl.opengl.GL20.glBindBuffer;
-import static org.lwjgl.opengl.GL20.glDeleteBuffers;
-import static org.lwjgl.opengl.GL20.glBufferSubData;
+import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL44.glBufferStorage;
 
 /**

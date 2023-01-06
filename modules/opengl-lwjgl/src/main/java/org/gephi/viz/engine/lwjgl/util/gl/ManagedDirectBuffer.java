@@ -1,15 +1,11 @@
 package org.gephi.viz.engine.lwjgl.util.gl;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
-import static org.gephi.viz.engine.util.ArrayUtils.getNextPowerOf2;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
+
+import java.nio.*;
+
+import static org.gephi.viz.engine.util.ArrayUtils.getNextPowerOf2;
 
 /**
  *

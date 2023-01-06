@@ -1,9 +1,9 @@
-package org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters;
+package org.gephi.viz.engine.lwjgl.pipeline.indirect.updaters;
 
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
-import org.gephi.viz.engine.lwjgl.availability.ArrayDraw;
-import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawNodeData;
+import org.gephi.viz.engine.lwjgl.availability.IndirectDraw;
+import org.gephi.viz.engine.lwjgl.pipeline.indirect.IndirectNodeData;
 import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.spi.WorldUpdater;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
@@ -12,13 +12,13 @@ import org.gephi.viz.engine.structure.GraphIndexImpl;
  *
  * @author Eduardo Ramos
  */
-public class NodesUpdaterArrayDrawRendering implements WorldUpdater<LWJGLRenderingTarget> {
+public class NodesUpdaterIndirectRendering implements WorldUpdater<LWJGLRenderingTarget> {
 
     private final VizEngine engine;
-    private final ArrayDrawNodeData nodeData;
+    private final IndirectNodeData nodeData;
     private final GraphIndexImpl spatialIndex;
 
-    public NodesUpdaterArrayDrawRendering(VizEngine engine, ArrayDrawNodeData nodeData, GraphIndexImpl spatialIndex) {
+    public NodesUpdaterIndirectRendering(VizEngine engine, IndirectNodeData nodeData, GraphIndexImpl spatialIndex) {
         this.engine = engine;
         this.nodeData = nodeData;
         this.spatialIndex = spatialIndex;
@@ -46,17 +46,17 @@ public class NodesUpdaterArrayDrawRendering implements WorldUpdater<LWJGLRenderi
 
     @Override
     public int getPreferenceInCategory() {
-        return ArrayDraw.getPreferenceInCategory();
+        return IndirectDraw.getPreferenceInCategory();
     }
 
     @Override
     public String getName() {
-        return "Nodes (Vertex Array)";
+        return "Nodes (Indirect)";
     }
 
     @Override
     public boolean isAvailable(LWJGLRenderingTarget target) {
-        return ArrayDraw.isAvailable(engine);
+        return IndirectDraw.isAvailable(engine);
     }
 
     @Override

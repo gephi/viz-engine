@@ -1,4 +1,4 @@
-package org.gephi.viz.engine.lwjgl.pipeline.instanced;
+package org.gephi.viz.engine.lwjgl.pipeline.indirect;
 
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
@@ -10,23 +10,28 @@ import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
+import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_BYTES;
+import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;
 import static org.lwjgl.opengl.GL20.glGenBuffers;
 
 /**
+ *
  * @author Eduardo Ramos
  */
-public class InstancedNodeData extends AbstractNodeData {
+public class IndirectNodeData extends AbstractNodeData {
 
-    public InstancedNodeData() {
-        super(true, false);
-    }
-
-    private final int[] bufferName = new int[3];
+    private final int[] bufferName = new int[4];
 
     private static final int VERT_BUFFER = 0;
     private static final int ATTRIBS_BUFFER = 1;
     private static final int ATTRIBS_BUFFER_SECONDARY = 2;
+    private static final int INDIRECT_DRAW_BUFFER = 3;
+
+    public IndirectNodeData() {
+        super(true, true);
+    }
 
     public void update(VizEngine engine, GraphIndexImpl spatialIndex) {
         updateData(
@@ -38,7 +43,7 @@ public class InstancedNodeData extends AbstractNodeData {
         );
     }
 
-    public void drawInstanced(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+    public void drawIndirect(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
         final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats);
 
         if (instanceCount <= 0) {
@@ -47,32 +52,21 @@ public class InstancedNodeData extends AbstractNodeData {
             return;
         }
 
-        final float maxObservedSize = maxNodeSizeToDraw * engine.getZoom();
-        final int circleVertexCount;
-        final int firstVertex;
-        if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_64) {
-            circleVertexCount = circleVertexCount64;
-            firstVertex = firstVertex64;
-        } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_32) {
-            circleVertexCount = circleVertexCount32;
-            firstVertex = firstVertex32;
-        } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_16) {
-            circleVertexCount = circleVertexCount16;
-            firstVertex = firstVertex16;
-        } else {
-            circleVertexCount = circleVertexCount8;
-            firstVertex = firstVertex8;
-        }
+        final boolean renderingUnselectedNodes = layer.isBack();
+        final int instancesOffset = renderingUnselectedNodes ? 0 : instanceCounter.unselectedCountToDraw;
 
-        diskModel.drawInstanced(
-            firstVertex, circleVertexCount, instanceCount
+        commandsGLBuffer.bind();
+        diskModel.drawIndirect(
+                instanceCount, instancesOffset
         );
+        commandsGLBuffer.unbind();
         diskModel.stopUsingProgram();
         unsetupVertexArrayAttributes();
     }
 
     protected void initBuffers() {
         super.initBuffers();
+
         glGenBuffers(bufferName);
 
         initCirclesGLVertexBuffer(bufferName[VERT_BUFFER]);
@@ -87,6 +81,11 @@ public class InstancedNodeData extends AbstractNodeData {
         attributesGLBufferSecondary.bind();
         attributesGLBufferSecondary.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_NODES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBufferSecondary.unbind();
+
+        commandsGLBuffer = new GLBufferMutable(bufferName[INDIRECT_DRAW_BUFFER], GLBufferMutable.GL_BUFFER_TYPE_DRAW_INDIRECT);
+        commandsGLBuffer.bind();
+        commandsGLBuffer.init(INDIRECT_DRAW_COMMAND_BYTES * BATCH_NODES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
+        commandsGLBuffer.unbind();
     }
 
     public void updateBuffers() {
@@ -106,6 +105,14 @@ public class InstancedNodeData extends AbstractNodeData {
         attributesGLBuffer.bind();
         attributesGLBuffer.updateWithOrphaning(buf);
         attributesGLBuffer.unbind();
+
+        final IntBuffer commandsBufferData = commandsBuffer.intBuffer();
+        commandsBufferData.position(0);
+        commandsBufferData.limit(instanceCounter.total() * INDIRECT_DRAW_COMMAND_INTS_COUNT);
+
+        commandsGLBuffer.bind();
+        commandsGLBuffer.updateWithOrphaning(commandsBufferData);
+        commandsGLBuffer.unbind();
 
         instanceCounter.promoteCountToDraw();
         maxNodeSizeToDraw = maxNodeSize;

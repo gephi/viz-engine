@@ -1,12 +1,12 @@
 package org.gephi.viz.engine.lwjgl.pipeline.common;
 
-import java.util.EnumSet;
-
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.spi.Renderer;
 import org.gephi.viz.engine.util.gl.Constants;
+
+import java.util.EnumSet;
 
 public abstract class AbstractEdgeRenderer implements Renderer<LWJGLRenderingTarget> {
     private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(RenderingLayer.BACK1, RenderingLayer.BACK4);

@@ -1,15 +1,11 @@
 package org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers;
 
-import java.util.EnumSet;
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeRenderer;
-import org.gephi.viz.engine.pipeline.PipelineCategory;
-import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.gephi.viz.engine.lwjgl.availability.ArrayDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawEdgeData;
-import org.gephi.viz.engine.spi.Renderer;
-import org.gephi.viz.engine.util.gl.Constants;
+import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeRenderer;
+import org.gephi.viz.engine.pipeline.RenderingLayer;
 
 /**
  *

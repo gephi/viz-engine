@@ -1,7 +1,5 @@
 package org.gephi.viz.engine.lwjgl.pipeline.common;
 
-import java.nio.FloatBuffer;
-
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.graph.api.Node;
@@ -16,16 +14,9 @@ import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.gephi.viz.engine.util.structure.EdgesCallback;
 import org.lwjgl.opengl.GLCapabilities;
 
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_BIAS_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_MULTIPLIER_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_POSITION_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_POSITION_TARGET_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_SIZE_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_SOURCE_COLOR_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_TARGET_COLOR_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_TARGET_SIZE_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_VERT_LOCATION;
+import java.nio.FloatBuffer;
+
+import static org.gephi.viz.engine.util.gl.Constants.*;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;

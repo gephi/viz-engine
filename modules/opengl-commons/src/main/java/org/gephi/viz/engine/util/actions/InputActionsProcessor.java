@@ -1,18 +1,15 @@
 package org.gephi.viz.engine.util.actions;
 
-import java.util.Collection;
-import java.util.Iterator;
-import org.gephi.graph.api.Edge;
-import org.gephi.graph.api.Graph;
-import org.gephi.graph.api.Node;
-import org.gephi.graph.api.NodeIterable;
-import org.gephi.graph.api.Rect2D;
+import org.gephi.graph.api.*;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndex;
 import org.joml.Vector2f;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  *

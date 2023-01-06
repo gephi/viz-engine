@@ -1,7 +1,5 @@
 package org.gephi.viz.engine.lwjgl.pipeline.arrays;
 
-import java.nio.FloatBuffer;
-
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.viz.engine.VizEngine;
@@ -18,7 +16,8 @@ import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.util.ArrayUtils;
 import org.lwjgl.system.MemoryUtil;
 
-import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
+import java.nio.FloatBuffer;
+
 import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;

@@ -1,13 +1,5 @@
 package org.gephi.viz.engine.lwjgl.demo;
 
-import org.lwjgl.glfw.*;
-import org.lwjgl.system.*;
-
-import java.nio.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder;
@@ -22,10 +14,17 @@ import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
 import org.gephi.viz.engine.spi.InputListener;
 import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
 
-import static org.lwjgl.glfw.Callbacks.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class MainGLFW {
 

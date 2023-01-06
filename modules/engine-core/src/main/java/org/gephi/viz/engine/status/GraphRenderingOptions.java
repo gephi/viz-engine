@@ -1,6 +1,6 @@
 package org.gephi.viz.engine.status;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  *

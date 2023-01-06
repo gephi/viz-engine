@@ -1,14 +1,14 @@
 package org.gephi.viz.engine.lwjgl.pipeline.events;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.LWJGLRenderingTarget;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.system.Platform;
+
+import java.awt.event.KeyAdapter;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 
 /**
  * @author Eduardo Ramos

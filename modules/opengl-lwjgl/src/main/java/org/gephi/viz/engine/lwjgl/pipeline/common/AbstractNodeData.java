@@ -1,7 +1,5 @@
 package org.gephi.viz.engine.lwjgl.pipeline.common;
 
-import java.nio.FloatBuffer;
-
 import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.lwjgl.models.NodeDiskModel;
@@ -21,9 +19,12 @@ import org.gephi.viz.engine.util.structure.NodesCallback;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import static org.gephi.viz.engine.util.gl.Constants.*;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 /**
@@ -44,6 +45,7 @@ public abstract class AbstractNodeData {
     protected GLBuffer vertexGLBuffer;
     protected GLBuffer attributesGLBuffer;
     protected GLBuffer attributesGLBufferSecondary;
+    protected GLBuffer commandsGLBuffer;
     protected final NodesCallback nodesCallback = new NodesCallback();
 
     protected static final int ATTRIBS_STRIDE = NodeDiskModel.TOTAL_ATTRIBUTES_FLOATS;
@@ -64,6 +66,7 @@ public abstract class AbstractNodeData {
     protected final int firstVertex16;
     protected final int firstVertex8;
     protected final boolean instancedRendering;
+    protected final boolean indirectCommands;
 
     // State:
     protected final InstanceCounter instanceCounter = new InstanceCounter();
@@ -72,11 +75,14 @@ public abstract class AbstractNodeData {
 
     // Buffers for vertex attributes:
     protected static final int BATCH_NODES_SIZE = 32768;
-    protected float[] attributesBufferBatch;
     protected ManagedDirectBuffer attributesBuffer;
+    protected float[] attributesBufferBatch;
+    protected ManagedDirectBuffer commandsBuffer;
+    private int[] commandsBufferBatch;
 
-    public AbstractNodeData(boolean instancedRendering) {
+    public AbstractNodeData(final boolean instancedRendering, final boolean indirectCommands) {
         this.instancedRendering = instancedRendering;
+        this.indirectCommands = indirectCommands;
 
         diskModel = new NodeDiskModel();
 
@@ -96,7 +102,7 @@ public abstract class AbstractNodeData {
         firstVertex8 = firstVertex16 + generator16.getVertexCount();
     }
 
-    protected void init() {
+    public void init() {
         diskModel.initGLPrograms();
         initBuffers();
     }
@@ -104,6 +110,11 @@ public abstract class AbstractNodeData {
     protected void initBuffers() {
         attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE];
         attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE);
+
+        if (indirectCommands) {
+            commandsBufferBatch = new int[INDIRECT_DRAW_COMMAND_INTS_COUNT * BATCH_NODES_SIZE];
+            commandsBuffer = new ManagedDirectBuffer(GL_UNSIGNED_INT, INDIRECT_DRAW_COMMAND_INTS_COUNT * BATCH_NODES_SIZE);
+        }
     }
 
     protected void initCirclesGLVertexBuffer(final int bufferName) {
@@ -190,7 +201,8 @@ public abstract class AbstractNodeData {
         return instanceCount;
     }
 
-    protected void updateData(final GraphIndexImpl spatialIndex,
+    protected void updateData(final float zoom,
+                              final GraphIndexImpl spatialIndex,
                               final GraphRenderingOptions renderingOptions,
                               final GraphSelection selection,
                               final GraphSelectionNeighbours neighboursSelection) {
@@ -209,8 +221,12 @@ public abstract class AbstractNodeData {
         final int totalNodes = spatialIndex.getNodeCount();
 
         attributesBuffer.ensureCapacity(totalNodes * ATTRIBS_STRIDE);
+        if (indirectCommands) {
+            commandsBuffer.ensureCapacity(totalNodes * INDIRECT_DRAW_COMMAND_INTS_COUNT);
+        }
 
         final FloatBuffer attribs = attributesBuffer.floatBuffer();
+        final IntBuffer commands = indirectCommands ? commandsBuffer.intBuffer() : null;
 
         spatialIndex.getVisibleNodes(nodesCallback);
 
@@ -223,10 +239,12 @@ public abstract class AbstractNodeData {
         float newMaxNodeSize = 0;
         for (int j = 0; j < visibleNodesCount; j++) {
             final float size = visibleNodesArray[j].size();
-            newMaxNodeSize = size >= newMaxNodeSize ? size : newMaxNodeSize;
+            newMaxNodeSize = Math.max(size, newMaxNodeSize);
         }
 
-        int index = 0;
+        int attributesIndex = 0;
+        int commandIndex = 0;
+        int instanceId = 0;
         if (someSelection) {
             if (hideNonSelected) {
                 for (int j = 0; j < visibleNodesCount; j++) {
@@ -238,12 +256,23 @@ public abstract class AbstractNodeData {
                     }
 
                     newNodesCountSelected++;
-                    fillNodeAttributesData(attributesBufferBatch, node, index);
-                    index += ATTRIBS_STRIDE;
+                    fillNodeAttributesData(node, attributesIndex);
+                    attributesIndex += ATTRIBS_STRIDE;
 
-                    if (index == attributesBufferBatch.length) {
+                    if (attributesIndex == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);
-                        index = 0;
+                        attributesIndex = 0;
+                    }
+
+                    if (indirectCommands) {
+                        fillNodeCommandData(node, zoom, commandIndex, instanceId);
+                        instanceId++;
+                        commandIndex += INDIRECT_DRAW_COMMAND_INTS_COUNT;
+
+                        if (commandIndex == commandsBufferBatch.length) {
+                            commands.put(commandsBufferBatch);
+                            commandIndex = 0;
+                        }
                     }
                 }
             } else {
@@ -258,15 +287,27 @@ public abstract class AbstractNodeData {
 
                     newNodesCountUnselected++;
 
-                    fillNodeAttributesData(attributesBufferBatch, node, index);
-                    index += ATTRIBS_STRIDE;
+                    fillNodeAttributesData(node, attributesIndex);
+                    attributesIndex += ATTRIBS_STRIDE;
 
-                    if (index == attributesBufferBatch.length) {
+                    if (attributesIndex == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);
-                        index = 0;
+                        attributesIndex = 0;
+                    }
+
+                    if (indirectCommands) {
+                        fillNodeCommandData(node, zoom, commandIndex, instanceId);
+                        instanceId++;
+                        commandIndex += INDIRECT_DRAW_COMMAND_INTS_COUNT;
+
+                        if (commandIndex == commandsBufferBatch.length) {
+                            commands.put(commandsBufferBatch);
+                            commandIndex = 0;
+                        }
                     }
                 }
 
+                instanceId = 0;//Reset instance id, since we draw elements in 2 separate attribute buffers (main/selected and secondary/unselected)
                 //Then selected ones (up):
                 for (int j = 0; j < visibleNodesCount; j++) {
                     final Node node = visibleNodesArray[j];
@@ -278,12 +319,23 @@ public abstract class AbstractNodeData {
 
                     newNodesCountSelected++;
 
-                    fillNodeAttributesData(attributesBufferBatch, node, index);
-                    index += ATTRIBS_STRIDE;
+                    fillNodeAttributesData(node, attributesIndex);
+                    attributesIndex += ATTRIBS_STRIDE;
 
-                    if (index == attributesBufferBatch.length) {
+                    if (attributesIndex == attributesBufferBatch.length) {
                         attribs.put(attributesBufferBatch);
-                        index = 0;
+                        attributesIndex = 0;
+                    }
+
+                    if (indirectCommands) {
+                        fillNodeCommandData(node, zoom, commandIndex, instanceId);
+                        instanceId++;
+                        commandIndex += INDIRECT_DRAW_COMMAND_INTS_COUNT;
+
+                        if (commandIndex == commandsBufferBatch.length) {
+                            commands.put(commandsBufferBatch);
+                            commandIndex = 0;
+                        }
                     }
                 }
             }
@@ -294,19 +346,34 @@ public abstract class AbstractNodeData {
 
                 newNodesCountSelected++;
 
-                fillNodeAttributesData(attributesBufferBatch, node, index);
-                index += ATTRIBS_STRIDE;
+                fillNodeAttributesData(node, attributesIndex);
+                attributesIndex += ATTRIBS_STRIDE;
 
-                if (index == attributesBufferBatch.length) {
+                if (attributesIndex == attributesBufferBatch.length) {
                     attribs.put(attributesBufferBatch);
-                    index = 0;
+                    attributesIndex = 0;
+                }
+
+                if (indirectCommands) {
+                    fillNodeCommandData(node, zoom, commandIndex, instanceId);
+                    instanceId++;
+                    commandIndex += INDIRECT_DRAW_COMMAND_INTS_COUNT;
+
+                    if (commandIndex == commandsBufferBatch.length) {
+                        commands.put(commandsBufferBatch);
+                        commandIndex = 0;
+                    }
                 }
             }
         }
 
         //Remaining:
-        if (index > 0) {
-            attribs.put(attributesBufferBatch, 0, index);
+        if (attributesIndex > 0) {
+            attribs.put(attributesBufferBatch, 0, attributesIndex);
+        }
+
+        if (indirectCommands && commandIndex > 0) {
+            commands.put(commandsBufferBatch, 0, commandIndex);
         }
 
         instanceCounter.unselectedCount = newNodesCountUnselected;
@@ -314,21 +381,48 @@ public abstract class AbstractNodeData {
         maxNodeSize = newMaxNodeSize;
     }
 
-    protected void fillNodeAttributesData(final float[] buffer, final Node node, final int index) {
+    protected void fillNodeAttributesData(final Node node, final int index) {
         final float x = node.x();
         final float y = node.y();
         final float size = node.size();
         final int rgba = node.getRGBA();
 
         //Position:
-        buffer[index] = x;
-        buffer[index + 1] = y;
+        attributesBufferBatch[index] = x;
+        attributesBufferBatch[index + 1] = y;
 
         //Color:
-        buffer[index + 2] = Float.intBitsToFloat(rgba);
+        attributesBufferBatch[index + 2] = Float.intBitsToFloat(rgba);
 
         //Size:
-        buffer[index + 3] = size;
+        attributesBufferBatch[index + 3] = size;
+    }
+
+    protected void fillNodeCommandData(final Node node, final float zoom, final int index, final int instanceId) {
+        //Indirect Draw:
+        //Choose LOD:
+        final float observedSize = node.size() * zoom;
+
+        final int circleVertexCount;
+        final int firstVertex;
+        if (observedSize > OBSERVED_SIZE_LOD_THRESHOLD_64) {
+            circleVertexCount = circleVertexCount64;
+            firstVertex = firstVertex64;
+        } else if (observedSize > OBSERVED_SIZE_LOD_THRESHOLD_32) {
+            circleVertexCount = circleVertexCount32;
+            firstVertex = firstVertex32;
+        } else if (observedSize > OBSERVED_SIZE_LOD_THRESHOLD_16) {
+            circleVertexCount = circleVertexCount16;
+            firstVertex = firstVertex16;
+        } else {
+            circleVertexCount = circleVertexCount8;
+            firstVertex = firstVertex8;
+        }
+
+        commandsBufferBatch[index] = circleVertexCount;//vertex count
+        commandsBufferBatch[index + 1] = 1;//instance count
+        commandsBufferBatch[index + 2] = firstVertex;//first vertex
+        commandsBufferBatch[index + 3] = instanceId;//base instance
     }
 
     private NodesVAO nodesVAO;
@@ -370,6 +464,7 @@ public abstract class AbstractNodeData {
 
     public void dispose() {
         attributesBufferBatch = null;
+        commandsBufferBatch = null;
         if (attributesBuffer != null) {
             attributesBuffer.destroy();
             attributesBuffer = null;
@@ -388,6 +483,10 @@ public abstract class AbstractNodeData {
         if (attributesGLBufferSecondary != null) {
             attributesGLBufferSecondary.destroy();
             attributesGLBufferSecondary = null;
+        }
+        if (commandsBuffer != null) {
+            commandsBuffer.destroy();
+            commandsBuffer = null;
         }
 
         nodesCallback.reset();

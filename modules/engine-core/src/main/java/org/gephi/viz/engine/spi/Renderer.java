@@ -1,7 +1,8 @@
 package org.gephi.viz.engine.spi;
 
-import java.util.EnumSet;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
+
+import java.util.EnumSet;
 
 /**
  *

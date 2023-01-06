@@ -1,38 +1,20 @@
 package org.gephi.viz.engine;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
 import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Rect2D;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
-import org.gephi.viz.engine.spi.InputListener;
-import org.gephi.viz.engine.spi.PipelinedExecutor;
-import org.gephi.viz.engine.spi.Renderer;
-import org.gephi.viz.engine.spi.RenderingTarget;
-import org.gephi.viz.engine.spi.WorldUpdater;
-import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
+import org.gephi.viz.engine.spi.*;
 import org.gephi.viz.engine.util.TimeUtils;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
-import org.joml.Vector2f;
-import org.joml.Vector2fc;
-import org.joml.Vector3f;
+import org.joml.*;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
+
+import java.awt.*;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
+import java.lang.Math;
 
 /**
  * @param <R> Rendering target
@@ -41,7 +23,7 @@ import org.openide.util.lookup.InstanceContent;
  */
 public class VizEngine<R extends RenderingTarget, I> {
 
-    public static final int DEFAULT_MAX_WORLD_UPDATES_PER_SECOND = 30;
+    public static final int DEFAULT_MAX_WORLD_UPDATES_PER_SECOND = 60;
 
     //Rendering target
     private final R renderingTarget;

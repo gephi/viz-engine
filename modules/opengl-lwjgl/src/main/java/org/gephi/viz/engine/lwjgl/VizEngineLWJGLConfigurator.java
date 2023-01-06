@@ -9,6 +9,9 @@ import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.NodeRendererArrayDra
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.EdgesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.NodesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
+import org.gephi.viz.engine.lwjgl.pipeline.indirect.IndirectNodeData;
+import org.gephi.viz.engine.lwjgl.pipeline.indirect.renderers.NodeRendererIndirect;
+import org.gephi.viz.engine.lwjgl.pipeline.indirect.updaters.NodesUpdaterIndirectRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedEdgeData;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.InstancedNodeData;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers.EdgeRendererInstanced;
@@ -16,11 +19,7 @@ import org.gephi.viz.engine.lwjgl.pipeline.instanced.renderers.NodeRendererInsta
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.updaters.EdgesUpdaterInstancedRendering;
 import org.gephi.viz.engine.lwjgl.pipeline.instanced.updaters.NodesUpdaterInstancedRendering;
 import org.gephi.viz.engine.spi.VizEngineConfigurator;
-import org.gephi.viz.engine.status.GraphRenderingOptionsImpl;
-import org.gephi.viz.engine.status.GraphSelection;
-import org.gephi.viz.engine.status.GraphSelectionImpl;
-import org.gephi.viz.engine.status.GraphSelectionNeighbours;
-import org.gephi.viz.engine.status.GraphSelectionNeighboursImpl;
+import org.gephi.viz.engine.status.*;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
@@ -44,10 +43,19 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         engine.addToLookup(renderingOptions);
         engine.addToLookup(openGLOptions);
 
+        setupIndirectRendering(engine, graphIndex);
         setupInstancedRendering(engine, graphIndex);//Preferred and better performance
         setupVertexArrayRendering(engine, graphIndex);//Fallback for very old versions of OpenGL
 
         setupInputListeners(engine);
+    }
+
+    private void setupIndirectRendering(VizEngine engine, GraphIndexImpl graphIndex) {
+        //Only nodes supported, edges don't have a LOD to benefit from
+        final IndirectNodeData nodeData = new IndirectNodeData();
+
+        engine.addRenderer(new NodeRendererIndirect(engine, nodeData));
+        engine.addWorldUpdater(new NodesUpdaterIndirectRendering(engine, nodeData, graphIndex));
     }
 
     private void setupInstancedRendering(VizEngine engine, GraphIndexImpl graphIndex) {

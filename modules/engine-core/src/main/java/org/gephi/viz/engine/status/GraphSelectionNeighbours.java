@@ -1,8 +1,9 @@
 package org.gephi.viz.engine.status;
 
+import org.gephi.graph.api.Node;
+
 import java.util.Collection;
 import java.util.Set;
-import org.gephi.graph.api.Node;
 
 /**
  *

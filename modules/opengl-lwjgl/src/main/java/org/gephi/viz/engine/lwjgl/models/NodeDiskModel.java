@@ -5,21 +5,10 @@ import org.gephi.viz.engine.util.gl.Constants;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
+import org.lwjgl.opengl.GL43;
 
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_COLOR;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_POSITION;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_SIZE;
-import static org.gephi.viz.engine.util.gl.Constants.ATTRIB_NAME_VERT;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_COLOR_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_POSITION_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_SIZE_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.SHADER_VERT_LOCATION;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_BACKGROUND_COLOR;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_BIAS;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_LIGHTEN_FACTOR;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_MULTIPLIER;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_MODEL_VIEW_PROJECTION;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_SIZE_MULTIPLIER;
+import static org.gephi.viz.engine.util.gl.Constants.*;
+import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_BYTES;
 
 /**
  * @author Eduardo Ramos
@@ -79,6 +68,13 @@ public class NodeDiskModel {
             return;
         }
         GL31.glDrawArraysInstanced(GL11.GL_TRIANGLES, vertexOffset, vertexCount, instanceCount);
+    }
+
+    public void drawIndirect(int instanceCount, int instancesOffset) {
+        if (instanceCount <= 0) {
+            return;
+        }
+        GL43.glMultiDrawArraysIndirect(GL11.GL_TRIANGLES, (long) instancesOffset * INDIRECT_DRAW_COMMAND_BYTES, instanceCount, 0);
     }
 
     public void useProgramWithSelection(float[] mvpFloats, float[] backgroundColorFloats, float sizeMultiplier, float colorBias, float colorMultiplier, float colorLightenFactor) {
