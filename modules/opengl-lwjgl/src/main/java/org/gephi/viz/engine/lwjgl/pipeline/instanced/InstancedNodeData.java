@@ -49,19 +49,24 @@ public class InstancedNodeData extends AbstractNodeData {
         }
 
         final float maxObservedSize = maxNodeSizeToDraw * engine.getZoom();
+        final int circleVertexCount;
         final int firstVertex;
         if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_64) {
+            circleVertexCount = circleVertexCount64;
             firstVertex = firstVertex64;
         } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_32) {
+            circleVertexCount = circleVertexCount32;
             firstVertex = firstVertex32;
         } else if (maxObservedSize > OBSERVED_SIZE_LOD_THRESHOLD_16) {
+            circleVertexCount = circleVertexCount16;
             firstVertex = firstVertex16;
         } else {
+            circleVertexCount = circleVertexCount8;
             firstVertex = firstVertex8;
         }
 
         diskModel.drawInstanced(
-            firstVertex, firstVertex, instanceCount
+            firstVertex, circleVertexCount, instanceCount
         );
         diskModel.stopUsingProgram();
         unsetupVertexArrayAttributes();
