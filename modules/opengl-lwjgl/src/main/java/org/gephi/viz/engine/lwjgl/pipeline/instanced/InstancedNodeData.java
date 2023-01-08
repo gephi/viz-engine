@@ -39,7 +39,16 @@ public class InstancedNodeData extends AbstractNodeData {
     }
 
     public void drawInstanced(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
-        final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats);
+        //First we draw outside circle (for border) and then inside circle:
+        drawInstancedInternal(layer, engine, mvpFloats, true);
+        drawInstancedInternal(layer, engine, mvpFloats, false);
+    }
+
+    private void drawInstancedInternal(final RenderingLayer layer,
+                                      final VizEngine engine,
+                                      final float[] mvpFloats,
+                                      final boolean isRenderingOutsideCircle) {
+        final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats, isRenderingOutsideCircle);
 
         if (instanceCount <= 0) {
             diskModel.stopUsingProgram();
@@ -65,7 +74,7 @@ public class InstancedNodeData extends AbstractNodeData {
         }
 
         diskModel.drawInstanced(
-            firstVertex, circleVertexCount, instanceCount
+                firstVertex, circleVertexCount, instanceCount
         );
         diskModel.stopUsingProgram();
         unsetupVertexArrayAttributes();

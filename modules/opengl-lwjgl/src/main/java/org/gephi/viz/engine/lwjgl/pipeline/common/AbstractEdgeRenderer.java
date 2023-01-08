@@ -9,7 +9,10 @@ import org.gephi.viz.engine.util.gl.Constants;
 import java.util.EnumSet;
 
 public abstract class AbstractEdgeRenderer implements Renderer<LWJGLRenderingTarget> {
-    private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(RenderingLayer.BACK1, RenderingLayer.BACK4);
+    private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(
+            RenderingLayer.BACK1,
+            RenderingLayer.MIDDLE1
+    );
 
     @Override
     public EnumSet<RenderingLayer> getLayers() {

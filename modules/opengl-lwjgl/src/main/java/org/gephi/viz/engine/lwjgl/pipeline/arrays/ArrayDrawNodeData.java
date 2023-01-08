@@ -37,7 +37,16 @@ public class ArrayDrawNodeData extends AbstractNodeData {
     }
 
     public void drawArrays(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
-        final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats);
+        //First we draw outside circle (for border) and then inside circle:
+        drawArraysInternal(layer, engine, mvpFloats, true);
+        drawArraysInternal(layer, engine, mvpFloats, false);
+    }
+
+    public void drawArraysInternal(final RenderingLayer layer,
+                                   final VizEngine engine,
+                                   final float[] mvpFloats,
+                                   final boolean isRenderingOutsideCircle) {
+        final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats, isRenderingOutsideCircle);
 
         if (instanceCount <= 0) {
             diskModel.stopUsingProgram();

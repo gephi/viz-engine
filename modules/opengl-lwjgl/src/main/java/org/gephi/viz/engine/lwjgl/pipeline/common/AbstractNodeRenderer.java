@@ -10,8 +10,8 @@ import java.util.EnumSet;
 
 public abstract class AbstractNodeRenderer implements Renderer<LWJGLRenderingTarget> {
     public static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(
-        RenderingLayer.BACK2, RenderingLayer.BACK3,
-        RenderingLayer.MIDDLE2, RenderingLayer.MIDDLE3
+        RenderingLayer.BACK2,
+        RenderingLayer.MIDDLE2
     );
 
     @Override

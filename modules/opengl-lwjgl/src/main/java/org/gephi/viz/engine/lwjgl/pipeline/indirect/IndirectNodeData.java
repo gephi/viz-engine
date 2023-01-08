@@ -44,7 +44,16 @@ public class IndirectNodeData extends AbstractNodeData {
     }
 
     public void drawIndirect(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
-        final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats);
+        //First we draw outside circle (for border) and then inside circle:
+        drawIndirectInternal(layer, engine, mvpFloats, true);
+        drawIndirectInternal(layer, engine, mvpFloats, false);
+    }
+
+    private void drawIndirectInternal(final RenderingLayer layer,
+                                      final VizEngine engine,
+                                      final float[] mvpFloats,
+                                      final boolean isRenderingOutsideCircle) {
+        final int instanceCount = setupShaderProgramForRenderingLayer(layer, engine, mvpFloats, isRenderingOutsideCircle);
 
         if (instanceCount <= 0) {
             diskModel.stopUsingProgram();

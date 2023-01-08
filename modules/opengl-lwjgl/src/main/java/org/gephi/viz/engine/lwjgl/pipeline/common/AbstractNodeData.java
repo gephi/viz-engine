@@ -149,7 +149,10 @@ public abstract class AbstractNodeData {
         }
     }
 
-    protected int setupShaderProgramForRenderingLayer(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
+    protected int setupShaderProgramForRenderingLayer(final RenderingLayer layer,
+                                                      final VizEngine engine,
+                                                      final float[] mvpFloats,
+                                                      final boolean isRenderingOutsideCircle) {
         final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedNodesCount() > 0;
         final boolean renderingUnselectedNodes = layer.isBack();
         if (!someSelection && renderingUnselectedNodes) {
@@ -159,7 +162,6 @@ public abstract class AbstractNodeData {
         final float[] backgroundColorFloats = engine.getBackgroundColor();
 
         final int instanceCount;
-        final boolean isRenderingOutsideCircle = layer.getLevel() == 2;
         final float sizeMultiplier = isRenderingOutsideCircle ? 1f : INSIDE_CIRCLE_SIZE;
 
         if (renderingUnselectedNodes) {
