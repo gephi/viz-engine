@@ -66,7 +66,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>preprocess-shaders-with-selection</id>
+                        <id>preprocess-shaders-with-selection-unselected</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>preprocess</goal>
@@ -74,6 +74,20 @@
                         <configuration>
                             <vars>
                                 <with_selection>true</with_selection>
+                                <selected>false</selected>
+                            </vars>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>preprocess-shaders-with-selection-selected</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>preprocess</goal>
+                        </goals>
+                        <configuration>
+                            <vars>
+                                <with_selection>true</with_selection>
+                                <selected>true</selected>
                             </vars>
                         </configuration>
                     </execution>

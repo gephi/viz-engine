@@ -37,7 +37,8 @@ public class EdgeLineModelUndirected {
     public static final int VERTEX_COUNT = TRIANGLE_COUNT * VERTEX_PER_TRIANGLE;
 
     private GLShaderProgram program;
-    private GLShaderProgram programWithSelection;
+    private GLShaderProgram programWithSelectionSelected;
+    private GLShaderProgram programWithSelectionUnselected;
 
     public int getVertexCount() {
         return VERTEX_COUNT;
@@ -50,7 +51,8 @@ public class EdgeLineModelUndirected {
     private static final String SHADERS_ROOT = Constants.SHADERS_ROOT + "edge";
 
     private static final String SHADERS_EDGE_LINE_SOURCE = "edge-line-undirected";
-    private static final String SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION = "edge-line-undirected_with_selection";
+    private static final String SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION_SELECTED = "edge-line-undirected_with_selection_selected";
+    private static final String SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION_UNSELECTED = "edge-line-undirected_with_selection_unselected";
 
     private void initProgram() {
         program = new GLShaderProgram(SHADERS_ROOT, SHADERS_EDGE_LINE_SOURCE, SHADERS_EDGE_LINE_SOURCE)
@@ -69,12 +71,27 @@ public class EdgeLineModelUndirected {
                 .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
                 .init();
 
-        programWithSelection = new GLShaderProgram(SHADERS_ROOT, SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION, SHADERS_EDGE_LINE_SOURCE)
+        programWithSelectionSelected = new GLShaderProgram(SHADERS_ROOT, SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION_SELECTED, SHADERS_EDGE_LINE_SOURCE)
+                .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
+                .addUniformName(UNIFORM_NAME_COLOR_BIAS)
+                .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
+                .addUniformName(UNIFORM_NAME_EDGE_SCALE_MIN)
+                .addUniformName(UNIFORM_NAME_EDGE_SCALE_MAX)
+                .addUniformName(UNIFORM_NAME_MIN_WEIGHT)
+                .addUniformName(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR)
+                .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
+                .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
+                .addAttribLocation(ATTRIB_NAME_POSITION_TARGET, SHADER_POSITION_TARGET_LOCATION)
+                .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
+                .addAttribLocation(ATTRIB_NAME_SOURCE_COLOR, SHADER_SOURCE_COLOR_LOCATION)
+                .addAttribLocation(ATTRIB_NAME_TARGET_COLOR, SHADER_TARGET_COLOR_LOCATION)
+                .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+                .init();
+
+        programWithSelectionUnselected = new GLShaderProgram(SHADERS_ROOT, SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION_UNSELECTED, SHADERS_EDGE_LINE_SOURCE)
                 .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
                 .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
                 .addUniformName(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR)
-                .addUniformName(UNIFORM_NAME_COLOR_BIAS)
-                .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
                 .addUniformName(UNIFORM_NAME_EDGE_SCALE_MIN)
                 .addUniformName(UNIFORM_NAME_EDGE_SCALE_MAX)
                 .addUniformName(UNIFORM_NAME_MIN_WEIGHT)
@@ -110,9 +127,14 @@ public class EdgeLineModelUndirected {
         prepareProgramData(mvpFloats, scale, minWeight, maxWeight);
     }
 
-    public void useProgramWithSelection(float[] mvpFloats, float[] backgroundColorFloats, float scale, float minWeight, float maxWeight, float colorBias, float colorMultiplier, float colorLightenFactor) {
-        programWithSelection.use();
-        prepareProgramDataWithSelection(mvpFloats, backgroundColorFloats, scale, minWeight, maxWeight, colorBias, colorMultiplier, colorLightenFactor);
+    public void useProgramWithSelectionSelected(float[] mvpFloats, float scale, float minWeight, float maxWeight, float colorBias, float colorMultiplier) {
+        programWithSelectionSelected.use();
+        prepareProgramDataWithSelectionSelected(mvpFloats, scale, minWeight, maxWeight, colorBias, colorMultiplier);
+    }
+
+    public void useProgramWithSelectionUnselected(float[] mvpFloats, float scale, float minWeight, float maxWeight, float[] backgroundColorFloats, float colorLightenFactor) {
+        programWithSelectionUnselected.use();
+        prepareProgramDataWithSelectionUnselected(mvpFloats, scale, minWeight, maxWeight, backgroundColorFloats, colorLightenFactor);
     }
 
     public void stopUsingProgram() {
@@ -132,20 +154,33 @@ public class EdgeLineModelUndirected {
         }
     }
 
-    private void prepareProgramDataWithSelection(float[] mvpFloats, float[] backgroundColorFloats, float scale, float minWeight, float maxWeight, float colorBias, float colorMultiplier, float colorLightenFactor) {
-        GL20.glUniformMatrix4fv(programWithSelection.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
-        GL20.glUniform4fv(programWithSelection.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_COLOR_BIAS), colorBias);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MIN), EDGE_SCALE_MIN * scale);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
+    private void prepareProgramDataWithSelectionSelected(float[] mvpFloats, float scale, float minWeight, float maxWeight, float colorBias, float colorMultiplier) {
+        GL20.glUniformMatrix4fv(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_BIAS), colorBias);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MIN), EDGE_SCALE_MIN * scale);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
 
         if (NumberUtils.equalsEpsilon(minWeight, maxWeight, 1e-3f)) {
-            GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);
+            GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);
         } else {
-            GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), maxWeight - minWeight);
+            GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), maxWeight - minWeight);
+        }
+    }
+
+    private void prepareProgramDataWithSelectionUnselected(float[] mvpFloats, float scale, float minWeight, float maxWeight, float[] backgroundColorFloats, float colorLightenFactor) {
+        GL20.glUniformMatrix4fv(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
+        GL20.glUniform4fv(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
+        GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
+        GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MIN), EDGE_SCALE_MIN * scale);
+        GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
+        GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
+
+        if (NumberUtils.equalsEpsilon(minWeight, maxWeight, 1e-3f)) {
+            GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), 1);
+        } else {
+            GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_WEIGHT_DIFFERENCE_DIVISOR), maxWeight - minWeight);
         }
     }
 

@@ -1,14 +1,21 @@
 //#if with_selection
-//#outname "edge-line-undirected_with_selection.vert"
+//#if selected
+//#outname "edge-line-undirected_with_selection_selected.vert"
+//#else
+//#outname "edge-line-undirected_with_selection_unselected.vert"
+//#endif
 //#endif
 #version 100
 
 uniform mat4 mvp;
 //#if with_selection
-uniform vec4 backgroundColor;
+//#if selected
 uniform float colorBias;
 uniform float colorMultiplier;
+//#else
+uniform vec4 backgroundColor;
 uniform float colorLightenFactor;
+//#endif
 //#endif
 uniform float minWeight;
 uniform float weightDifferenceDivisor;
@@ -48,8 +55,11 @@ void main() {
     color = color / 255.0;
 
     //#if with_selection
+    //#if selected
     color.rgb = colorBias + color.rgb * colorMultiplier;
+    //#else
     color.rgb = mix(color.rgb, backgroundColor.rgb, colorLightenFactor);
+    //#endif
     //#endif
 
     fragColor = color;

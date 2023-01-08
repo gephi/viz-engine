@@ -108,16 +108,13 @@ public class AbstractEdgeData {
         final int instanceCount;
         if (renderingUnselectedEdges) {
             instanceCount = undirectedInstanceCounter.unselectedCountToDraw;
-            final float colorBias = 0f;
-            final float colorMultiplier = 1f;
 
-            lineModelUndirected.useProgramWithSelection(
-                    mvpFloats, backgroundColorFloats,
+            lineModelUndirected.useProgramWithSelectionUnselected(
+                    mvpFloats,
                     edgeScale,
                     minWeight,
                     maxWeight,
-                    colorBias,
-                    colorMultiplier,
+                    backgroundColorFloats,
                     lightenNonSelectedFactor
             );
 
@@ -146,17 +143,14 @@ public class AbstractEdgeData {
                 } else {
                     final float colorBias = 0.5f;
                     final float colorMultiplier = 0.5f;
-                    final float colorLightenFactor = 0f;
 
-                    lineModelUndirected.useProgramWithSelection(
+                    lineModelUndirected.useProgramWithSelectionSelected(
                             mvpFloats,
-                            backgroundColorFloats,
                             edgeScale,
                             minWeight,
                             maxWeight,
                             colorBias,
-                            colorMultiplier,
-                            colorLightenFactor
+                            colorMultiplier
                     );
                 }
             } else {
@@ -198,17 +192,12 @@ public class AbstractEdgeData {
         final int instanceCount;
         if (renderingUnselectedEdges) {
             instanceCount = directedInstanceCounter.unselectedCountToDraw;
-            final float colorBias = 0f;
-            final float colorMultiplier = 1f;
-
-            lineModelDirected.useProgramWithSelection(
+            lineModelDirected.useProgramWithSelectionUnselected(
                     mvpFloats,
-                    backgroundColorFloats,
                     edgeScale,
                     minWeight,
                     maxWeight,
-                    colorBias,
-                    colorMultiplier,
+                    backgroundColorFloats,
                     lightenNonSelectedFactor
             );
 
@@ -237,17 +226,14 @@ public class AbstractEdgeData {
                 } else {
                     final float colorBias = 0.5f;
                     final float colorMultiplier = 0.5f;
-                    final float colorLightenFactor = 0f;
 
-                    lineModelDirected.useProgramWithSelection(
+                    lineModelDirected.useProgramWithSelectionSelected(
                             mvpFloats,
-                            backgroundColorFloats,
                             edgeScale,
                             minWeight,
                             maxWeight,
                             colorBias,
-                            colorMultiplier,
-                            colorLightenFactor
+                            colorMultiplier
                     );
                 }
             } else {
