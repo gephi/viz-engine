@@ -31,7 +31,6 @@ public class NodeDiskModel {
     public void initGLPrograms() {
         program = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE, SHADERS_NODE_CIRCLE_SOURCE)
             .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
-            .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
             .addUniformName(UNIFORM_NAME_SIZE_MULTIPLIER)
             .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
             .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
@@ -89,12 +88,11 @@ public class NodeDiskModel {
         GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
     }
 
-    public void useProgram(float[] mvpFloats, float[] backgroundColorFloats, float sizeMultiplier, float colorMultiplier) {
+    public void useProgram(float[] mvpFloats, float sizeMultiplier, float colorMultiplier) {
         //Circle:
         program.use();
 
         GL20.glUniformMatrix4fv(program.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
-        GL20.glUniform4fv(program.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_SIZE_MULTIPLIER), sizeMultiplier);
         GL20.glUniform1f(program.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
     }

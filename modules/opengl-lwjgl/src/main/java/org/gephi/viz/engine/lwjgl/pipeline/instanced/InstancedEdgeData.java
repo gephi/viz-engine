@@ -34,16 +34,9 @@ public class InstancedEdgeData extends AbstractEdgeData {
     private static final int ATTRIBS_BUFFER_UNDIRECTED_SECONDARY = 3;
     private static final int ATTRIBS_BUFFER_DIRECTED = 4;
     private static final int ATTRIBS_BUFFER_DIRECTED_SECONDARY = 5;
-    private static final int ATTRIBS_BUFFER = 2;
 
     public InstancedEdgeData() {
-        super(true);
-    }
-
-    @Override
-    public void init() {
-        super.init();
-        initBuffers();
+        super(true, true);
     }
 
     public void update(VizEngine engine, GraphIndexImpl graphIndex) {
@@ -55,76 +48,28 @@ public class InstancedEdgeData extends AbstractEdgeData {
     }
 
     public void drawInstanced(RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
-        final boolean renderingUnselectedEdges = layer == BACK1;
-        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedEdgesCount() > 0;
-        if (!someSelection && renderingUnselectedEdges) {
-            return;
-        }
-
-        GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
-
-        final float[] backgroundColorFloats = engine.getBackgroundColor();
-        final float edgeScale = renderingOptions.getEdgeScale();
-        float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
-
-        final GraphIndex graphIndex = engine.getLookup().lookup(GraphIndex.class);
-
-        final float minWeight = graphIndex.getEdgesMinWeight();
-        final float maxWeight = graphIndex.getEdgesMaxWeight();
-
-        drawUndirected(engine, layer, mvpFloats, backgroundColorFloats, lightenNonSelectedFactor, edgeScale, minWeight, maxWeight);
-        drawDirected(engine, layer, mvpFloats, backgroundColorFloats, lightenNonSelectedFactor, edgeScale, minWeight, maxWeight);
+        drawUndirected(engine, layer, mvpFloats);
+        drawDirected(engine, layer, mvpFloats);
     }
 
-    private void drawUndirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
-        final int instanceCount;
-        final float colorLightenFactor;
+    private void drawUndirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats) {
+        final int instanceCount = setupShaderProgramForRenderingLayerUndirected(layer, engine, mvpFloats);
 
-        final boolean renderingUnselectedEdges = layer == BACK1;
-
-        if (renderingUnselectedEdges) {
-            instanceCount = undirectedInstanceCounter.unselectedCountToDraw;
-            colorLightenFactor = lightenNonSelectedFactor;
-            setupUndirectedVertexArrayAttributesSecondary(engine);
-        } else {
-            instanceCount = undirectedInstanceCounter.selectedCountToDraw;
-            colorLightenFactor = 0;
-            setupUndirectedVertexArrayAttributes(engine);
-        }
-
-        lineModelUndirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, edgeScale, minWeight, maxWeight);
+        lineModelUndirected.drawInstanced(instanceCount);
         lineModelUndirected.stopUsingProgram();
         unsetupUndirectedVertexArrayAttributes();
     }
 
-    private void drawDirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats, float[] backgroundColorFloats, float lightenNonSelectedFactor, float edgeScale, float minWeight, float maxWeight) {
-        final int instanceCount;
-        final float colorLightenFactor;
-        final boolean renderingUnselectedEdges = layer == BACK1;
+    private void drawDirected(VizEngine engine, RenderingLayer layer, float[] mvpFloats) {
+        final int instanceCount = setupShaderProgramForRenderingLayerDirected(layer, engine, mvpFloats);
 
-        if (renderingUnselectedEdges) {
-            instanceCount = directedInstanceCounter.unselectedCountToDraw;
-            colorLightenFactor = lightenNonSelectedFactor;
-            setupDirectedVertexArrayAttributesSecondary(engine);
-        } else {
-            instanceCount = directedInstanceCounter.selectedCountToDraw;
-            colorLightenFactor = 0;
-            setupDirectedVertexArrayAttributes(engine);
-        }
-
-        lineModelDirected.drawInstanced(mvpFloats, backgroundColorFloats, colorLightenFactor, instanceCount, edgeScale, minWeight, maxWeight);
+        lineModelDirected.drawInstanced(instanceCount);
         lineModelDirected.stopUsingProgram();
         unsetupDirectedVertexArrayAttributes();
     }
 
-    private ManagedDirectBuffer attributesBuffer;
-
-    private float[] attributesBufferBatch;
-    private static final int BATCH_EDGES_SIZE = 32768;
-
-    private void initBuffers() {
-        attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_EDGES_SIZE];
-
+    protected void initBuffers() {
+        super.initBuffers();
         glGenBuffers(bufferName);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -163,12 +108,9 @@ public class InstancedEdgeData extends AbstractEdgeData {
         attributesGLBufferUndirectedSecondary.bind();
         attributesGLBufferUndirectedSecondary.init(ATTRIBS_STRIDE * Float.BYTES * BATCH_EDGES_SIZE, GLBufferMutable.GL_BUFFER_USAGE_DYNAMIC_DRAW);
         attributesGLBufferUndirectedSecondary.unbind();
-
-        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_EDGES_SIZE);
     }
 
     public void updateBuffers() {
-        int offset = 0;
         final FloatBuffer buf = attributesBuffer.floatBuffer();
 
         buf.limit(undirectedInstanceCounter.unselectedCount * ATTRIBS_STRIDE);
@@ -178,7 +120,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
         attributesGLBufferUndirectedSecondary.updateWithOrphaning(buf);
         attributesGLBufferUndirectedSecondary.unbind();
 
-        offset = buf.limit();
+        int offset = buf.limit();
         buf.limit(offset + undirectedInstanceCounter.selectedCount * ATTRIBS_STRIDE);
         buf.position(offset);
 
@@ -204,7 +146,6 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
         undirectedInstanceCounter.promoteCountToDraw();
         directedInstanceCounter.promoteCountToDraw();
-        //TODO: Persistent buffer if available?
     }
 
     private void updateData(final GraphIndexImpl graphIndex, final GraphRenderingOptions renderingOptions, final GraphSelection graphSelection) {

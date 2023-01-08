@@ -4,10 +4,10 @@
 #version 100
 
 uniform mat4 mvp;
-uniform vec4 backgroundColor;
 uniform float sizeMultiplier;
 uniform float colorMultiplier;
 //#if with_selection
+uniform vec4 backgroundColor;
 uniform float colorBias;
 uniform float colorLightenFactor;
 //#endif

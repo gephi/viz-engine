@@ -22,13 +22,11 @@ public class Constants {
     public static final int SHADER_POSITION_LOCATION = 1;
     public static final int SHADER_COLOR_LOCATION = 2;
     public static final int SHADER_SIZE_LOCATION = 3;
-    public static final int SHADER_COLOR_BIAS_LOCATION = 4;
-    public static final int SHADER_COLOR_MULTIPLIER_LOCATION = 5;
-    public static final int SHADER_SOURCE_COLOR_LOCATION = 6;
-    public static final int SHADER_TARGET_COLOR_LOCATION = 7;
-    public static final int SHADER_SOURCE_SIZE_LOCATION = 8;
-    public static final int SHADER_TARGET_SIZE_LOCATION = 9;
-    public static final int SHADER_POSITION_TARGET_LOCATION = 10;
+    public static final int SHADER_SOURCE_COLOR_LOCATION = 4;
+    public static final int SHADER_TARGET_COLOR_LOCATION = 5;
+    public static final int SHADER_SOURCE_SIZE_LOCATION = 6;
+    public static final int SHADER_TARGET_SIZE_LOCATION = 7;
+    public static final int SHADER_POSITION_TARGET_LOCATION = 8;
 
     public static final String UNIFORM_NAME_MODEL_VIEW_PROJECTION = "mvp";
     public static final String UNIFORM_NAME_EDGE_SCALE = "edgeScale";

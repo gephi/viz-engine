@@ -1,8 +1,15 @@
+//#if with_selection
+//#outname "edge-line-undirected_with_selection.vert"
+//#endif
 #version 100
 
 uniform mat4 mvp;
+//#if with_selection
 uniform vec4 backgroundColor;
+uniform float colorBias;
+uniform float colorMultiplier;
 uniform float colorLightenFactor;
+//#endif
 uniform float minWeight;
 uniform float weightDifferenceDivisor;
 uniform float edgeScaleMin;
@@ -15,8 +22,6 @@ attribute float size;//It's the weight
 attribute vec4 sourceColor;
 attribute vec4 targetColor;
 attribute vec4 elementColor;
-attribute float colorBias;
-attribute float colorMultiplier;
 
 varying vec4 fragColor;
 
@@ -42,8 +47,10 @@ void main() {
     }
     color = color / 255.0;
 
+    //#if with_selection
     color.rgb = colorBias + color.rgb * colorMultiplier;
     color.rgb = mix(color.rgb, backgroundColor.rgb, colorLightenFactor);
+    //#endif
 
     fragColor = color;
 }

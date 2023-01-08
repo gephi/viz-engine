@@ -170,11 +170,12 @@ public abstract class AbstractNodeData {
             final float colorBias = 0f;
             final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
             diskModel.useProgramWithSelection(
-                mvpFloats, backgroundColorFloats,
-                sizeMultiplier,
-                colorBias,
-                colorMultiplier,
-                colorLightenFactor
+                    mvpFloats,
+                    backgroundColorFloats,
+                    sizeMultiplier,
+                    colorBias,
+                    colorMultiplier,
+                    colorLightenFactor
             );
 
             setupSecondaryVertexArrayAttributes(engine);
@@ -186,15 +187,16 @@ public abstract class AbstractNodeData {
                 final float colorBias = isRenderingOutsideCircle ? 0f : 0.5f;
                 final float colorMultiplier = isRenderingOutsideCircle ? 1f : 0.5f;
                 diskModel.useProgramWithSelection(
-                    mvpFloats, backgroundColorFloats,
-                    sizeMultiplier,
-                    colorBias,
-                    colorMultiplier,
-                    colorLightenFactor
+                        mvpFloats,
+                        backgroundColorFloats,
+                        sizeMultiplier,
+                        colorBias,
+                        colorMultiplier,
+                        colorLightenFactor
                 );
             } else {
                 final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
-                diskModel.useProgram(mvpFloats, backgroundColorFloats, sizeMultiplier, colorMultiplier);
+                diskModel.useProgram(mvpFloats, sizeMultiplier, colorMultiplier);
             }
 
             setupVertexArrayAttributes(engine);

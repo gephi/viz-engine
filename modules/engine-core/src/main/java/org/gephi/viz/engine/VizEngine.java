@@ -139,7 +139,7 @@ public class VizEngine<R extends RenderingTarget, I> {
 
         dest.clear();
         dest.addAll(elements);
-        Collections.sort(dest, new PipelinedExecutor.Comparator());
+        dest.sort(new PipelinedExecutor.Comparator());
     }
 
     private void setupRenderersPipeline() {
@@ -314,7 +314,7 @@ public class VizEngine<R extends RenderingTarget, I> {
     }
 
     private void loadProjection() {
-        projectionMatrix.setOrtho2D(-width / 2, width / 2, -height / 2, height / 2);
+        projectionMatrix.setOrtho2D(-width / 2f, width / 2f, -height / 2f, height / 2f);
     }
 
     private void calculateWorldBoundaries() {
@@ -561,9 +561,8 @@ public class VizEngine<R extends RenderingTarget, I> {
         return viewBoundaries;
     }
 
-    public float[] getBackgroundColor(float[] backgroundColorFloats) {
+    public void getBackgroundColor(float[] backgroundColorFloats) {
         System.arraycopy(this.backgroundColor, 0, backgroundColorFloats, 0, 4);
-        return backgroundColorFloats;
     }
 
     public float[] getBackgroundColor() {
@@ -593,9 +592,8 @@ public class VizEngine<R extends RenderingTarget, I> {
         this.maxWorldUpdatesPerSecond = maxWorldUpdatesPerSecond;
     }
 
-    public float[] getModelViewProjectionMatrixFloats(float[] mvpFloats) {
+    public void getModelViewProjectionMatrixFloats(float[] mvpFloats) {
         modelViewProjectionMatrix.get(mvpFloats);
-        return mvpFloats;
     }
 
     public float[] getModelViewProjectionMatrixFloats() {
