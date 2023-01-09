@@ -26,7 +26,14 @@ public class NodeDiskModel {
             + SIZE_FLOATS;
 
     private GLShaderProgram program;
-    private GLShaderProgram programWithSelection;
+    private GLShaderProgram programWithSelectionSelected;
+    private GLShaderProgram programWithSelectionUnselected;
+
+    private static final String SHADERS_ROOT = Constants.SHADERS_ROOT + "node";
+
+    private static final String SHADERS_NODE_CIRCLE_SOURCE = "node";
+    private static final String SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION_SELECTED = "node_with_selection_selected";
+    private static final String SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION_UNSELECTED = "node_with_selection_unselected";
 
     public void initGLPrograms() {
         program = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE, SHADERS_NODE_CIRCLE_SOURCE)
@@ -39,24 +46,29 @@ public class NodeDiskModel {
             .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
             .init();
 
-        programWithSelection = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION, SHADERS_NODE_CIRCLE_SOURCE)
+        programWithSelectionSelected = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION_SELECTED, SHADERS_NODE_CIRCLE_SOURCE)
             .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
-            .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
             .addUniformName(UNIFORM_NAME_SIZE_MULTIPLIER)
             .addUniformName(UNIFORM_NAME_COLOR_BIAS)
             .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
+            .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
+            .init();
+
+        programWithSelectionUnselected = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION_UNSELECTED, SHADERS_NODE_CIRCLE_SOURCE)
+            .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
+            .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
+            .addUniformName(UNIFORM_NAME_BACKGROUND_COLOR)
             .addUniformName(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR)
+            .addUniformName(UNIFORM_NAME_SIZE_MULTIPLIER)
             .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
             .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
             .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
             .init();
     }
-
-    private static final String SHADERS_ROOT = Constants.SHADERS_ROOT + "node";
-
-    private static final String SHADERS_NODE_CIRCLE_SOURCE = "node";
-    private static final String SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION = "node_with_selection";
 
     public void drawArraysSingleInstance(int firstVertexIndex, int vertexCount) {
         GL11.glDrawArrays(GL11.GL_TRIANGLES, firstVertexIndex, vertexCount);
@@ -76,16 +88,25 @@ public class NodeDiskModel {
         GL43.glMultiDrawArraysIndirect(GL11.GL_TRIANGLES, (long) instancesOffset * INDIRECT_DRAW_COMMAND_BYTES, instanceCount, 0);
     }
 
-    public void useProgramWithSelection(float[] mvpFloats, float[] backgroundColorFloats, float sizeMultiplier, float colorBias, float colorMultiplier, float colorLightenFactor) {
+    public void useProgramWithSelectionSelected(float[] mvpFloats, float sizeMultiplier, float colorBias, float colorMultiplier) {
         //Circle:
-        programWithSelection.use();
+        programWithSelectionSelected.use();
 
-        GL20.glUniformMatrix4fv(programWithSelection.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
-        GL20.glUniform4fv(programWithSelection.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_SIZE_MULTIPLIER), sizeMultiplier);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_COLOR_BIAS), colorBias);
-        GL20.glUniform1f(programWithSelection.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
+        GL20.glUniformMatrix4fv(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_SIZE_MULTIPLIER), sizeMultiplier);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_BIAS), colorBias);
+        GL20.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
+    }
+
+    public void useProgramWithSelectionUnselected(float[] mvpFloats, float sizeMultiplier, float[] backgroundColorFloats, float colorLightenFactor, float colorMultiplier) {
+        //Circle:
+        programWithSelectionUnselected.use();
+
+        GL20.glUniformMatrix4fv(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), false, mvpFloats);
+        GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
+        GL20.glUniform4fv(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_BACKGROUND_COLOR), backgroundColorFloats);
+        GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_COLOR_LIGHTEN_FACTOR), colorLightenFactor);
+        GL20.glUniform1f(programWithSelectionUnselected.getUniformLocation(UNIFORM_NAME_SIZE_MULTIPLIER), sizeMultiplier);
     }
 
     public void useProgram(float[] mvpFloats, float sizeMultiplier, float colorMultiplier) {

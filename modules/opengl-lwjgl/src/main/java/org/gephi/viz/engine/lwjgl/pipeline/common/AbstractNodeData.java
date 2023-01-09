@@ -167,32 +167,27 @@ public abstract class AbstractNodeData {
         if (renderingUnselectedNodes) {
             instanceCount = instanceCounter.unselectedCountToDraw;
             final float colorLightenFactor = engine.getLookup().lookup(GraphRenderingOptions.class).getLightenNonSelectedFactor();
-            final float colorBias = 0f;
             final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
-            diskModel.useProgramWithSelection(
-                    mvpFloats,
-                    backgroundColorFloats,
-                    sizeMultiplier,
-                    colorBias,
-                    colorMultiplier,
-                    colorLightenFactor
+            diskModel.useProgramWithSelectionUnselected(
+                mvpFloats,
+                sizeMultiplier,
+                backgroundColorFloats,
+                colorLightenFactor,
+                colorMultiplier
             );
 
             setupSecondaryVertexArrayAttributes(engine);
         } else {
             instanceCount = instanceCounter.selectedCountToDraw;
-            final float colorLightenFactor = 0;
 
             if (someSelection) {
                 final float colorBias = isRenderingOutsideCircle ? 0f : 0.5f;
                 final float colorMultiplier = isRenderingOutsideCircle ? 1f : 0.5f;
-                diskModel.useProgramWithSelection(
-                        mvpFloats,
-                        backgroundColorFloats,
-                        sizeMultiplier,
-                        colorBias,
-                        colorMultiplier,
-                        colorLightenFactor
+                diskModel.useProgramWithSelectionSelected(
+                    mvpFloats,
+                    sizeMultiplier,
+                    colorBias,
+                    colorMultiplier
                 );
             } else {
                 final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
