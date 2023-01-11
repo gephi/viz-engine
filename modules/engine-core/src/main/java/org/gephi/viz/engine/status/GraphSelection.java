@@ -2,6 +2,7 @@ package org.gephi.viz.engine.status;
 
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Node;
+import org.joml.Vector2f;
 
 import java.util.Collection;
 import java.util.Set;
@@ -11,6 +12,10 @@ import java.util.Set;
  */
 public interface GraphSelection {
 
+     enum GraphSelectionMode {
+        SIMPLE_MOUSE_SELECTION,
+        RECTANGLE_SELECTION
+    }
     boolean isNodeSelected(Node node);
 
     int getSelectedNodesCount();
@@ -51,6 +56,19 @@ public interface GraphSelection {
 
     void clearSelectedEdges();
 
+    GraphSelectionMode getMode();
+
+    void setMode(GraphSelectionMode mode);
+
     void clearSelection();
 
+    void startRectangleSelection(Vector2f initialPosition);
+
+    void stopRectangleSelection(Vector2f endPosition);
+
+    void updateRectangleSelection(Vector2f updatedPosition);
+
+    Vector2f getRectangleInitialPosition();
+
+    Vector2f getRectangleCurrentPosition();
 }

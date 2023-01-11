@@ -13,6 +13,7 @@ import org.gephi.viz.engine.lwjgl.pipeline.events.KeyEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
 import org.gephi.viz.engine.spi.InputListener;
 import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
+import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -176,6 +177,10 @@ public class MainGLFW {
                         toggleLayout(engine);
                     }
 
+                    if ((keyEvent.getKeyCode() == GLFW_KEY_LEFT_CONTROL || keyEvent.getKeyCode() == GLFW_KEY_RIGHT_CONTROL) && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
+                        toggleSelectionMode(engine);
+                    }
+
                     if (keyEvent.getKeyCode() == GLFW_KEY_ESCAPE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
                         engine.destroy();
                     }
@@ -232,6 +237,17 @@ public class MainGLFW {
                         }
                         forceAtlas2.endAlgo();
                     });
+                }
+            }
+
+            private void toggleSelectionMode(VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
+                final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
+                final GraphSelection.GraphSelectionMode mode = selection.getMode();
+
+                if (mode != GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
+                    selection.setMode(GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION);
+                } else {
+                    selection.setMode(GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION);
                 }
             }
         });

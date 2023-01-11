@@ -65,7 +65,11 @@ public class GLShaderProgram {
 
             final int vertexShaderStatus = GL20.glGetShaderi(vertexShaderId, GL20.GL_COMPILE_STATUS);
             if (vertexShaderStatus != GL20.GL_TRUE) {
-                throw new RuntimeException(GL20.glGetShaderInfoLog(id));
+                throw new RuntimeException(String.format("Vertex shader %s/%s compilation problem: %s",
+                    srcRoot,
+                    vertBasename,
+                    GL20.glGetShaderInfoLog(vertexShaderId))
+                );
             }
 
             fragmentShaderId = GL20.glCreateShader(GL20.GL_FRAGMENT_SHADER);
@@ -73,7 +77,11 @@ public class GLShaderProgram {
             GL20.glCompileShader(fragmentShaderId);
             final int fragmentShaderStatus = GL20.glGetShaderi(fragmentShaderId, GL20.GL_COMPILE_STATUS);
             if (fragmentShaderStatus != GL20.GL_TRUE) {
-                throw new RuntimeException(GL20.glGetShaderInfoLog(id));
+                throw new RuntimeException(String.format("Fragment shader %s/%s compilation problem: %s",
+                    srcRoot,
+                    fragBasename,
+                    GL20.glGetShaderInfoLog(fragmentShaderId))
+                );
             }
 
             id = GL20.glCreateProgram();

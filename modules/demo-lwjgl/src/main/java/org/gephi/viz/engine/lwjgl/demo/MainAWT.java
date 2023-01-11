@@ -13,12 +13,14 @@ import org.gephi.viz.engine.lwjgl.pipeline.events.KeyEvent;
 import org.gephi.viz.engine.lwjgl.pipeline.events.LWJGLInputEvent;
 import org.gephi.viz.engine.spi.InputListener;
 import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
+import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.opengl.awt.GLData;
 import org.lwjgl.system.Platform;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -81,11 +83,11 @@ public class MainAWT {
         });
 
         engine = VizEngineFactory.<LWJGLRenderingTarget, LWJGLInputEvent>newEngine(
-                renderingTarget,
-                GraphLoader.load(graphFilePath),
-                Collections.singletonList(
-                        new VizEngineLWJGLConfigurator()
-                )
+            renderingTarget,
+            GraphLoader.load(graphFilePath),
+            Collections.singletonList(
+                new VizEngineLWJGLConfigurator()
+            )
         );
         engine.setWorldUpdatersExecutionMode(UPDATE_DATA_MODE);
 
@@ -183,6 +185,10 @@ public class MainAWT {
                         toggleLayout(engine);
                     }
 
+                    if (keyEvent.getKeyCode() == java.awt.event.KeyEvent.VK_CONTROL && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
+                        toggleSelectionMode(engine);
+                    }
+
                     if (keyEvent.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE && keyEvent.getAction() == KeyEvent.Action.RELEASE) {
                         frame.setVisible(false);
                         frame.dispose();
@@ -243,6 +249,17 @@ public class MainAWT {
                     });
                 }
             }
+
+            private void toggleSelectionMode(VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
+                final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
+                final GraphSelection.GraphSelectionMode mode = selection.getMode();
+
+                if (mode != GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
+                    selection.setMode(GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION);
+                } else {
+                    selection.setMode(GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION);
+                }
+            }
         });
     }
 
@@ -264,7 +281,7 @@ public class MainAWT {
         //final String graphFile = "samples/twitter_combined.csv";
 
         main.run(
-                args.length > 0 ? args[0] : graphFile
+            args.length > 0 ? args[0] : graphFile
         );
     }
 }

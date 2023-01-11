@@ -9,14 +9,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.joml.Vector2f;
+
 public class GraphSelectionImpl implements GraphSelection {
 
     private final VizEngine engine;
     private final Set<Node> nodes = new HashSet<>();
     private final Set<Edge> edges = new HashSet<>();
+    private GraphSelection.GraphSelectionMode selectionMode;
 
     public GraphSelectionImpl(VizEngine engine) {
         this.engine = engine;
+        this.selectionMode = GraphSelectionMode.SIMPLE_MOUSE_SELECTION;
     }
 
     @Override
@@ -155,5 +159,47 @@ public class GraphSelectionImpl implements GraphSelection {
     public void clearSelection() {
         clearSelectedEdges();
         clearSelectedNodes();
+    }
+
+    @Override
+    public GraphSelectionMode getMode() {
+        return selectionMode;
+    }
+
+    @Override
+    public void setMode(GraphSelectionMode mode) {
+        if (mode != null) {
+            selectionMode = mode;
+        }
+    }
+
+    private Vector2f rectangleSelectionInitialPosition;
+    private Vector2f rectangleSelectionCurrentPosition;
+
+    @Override
+    public void startRectangleSelection(Vector2f initialPosition) {
+        rectangleSelectionInitialPosition = initialPosition;
+        rectangleSelectionCurrentPosition = initialPosition;
+    }
+
+    @Override
+    public void stopRectangleSelection(Vector2f endPosition) {
+        this.rectangleSelectionInitialPosition = null;
+        this.rectangleSelectionCurrentPosition = null;
+    }
+
+    @Override
+    public void updateRectangleSelection(Vector2f updatedPosition) {
+        this.rectangleSelectionCurrentPosition = updatedPosition;
+    }
+
+    @Override
+    public Vector2f getRectangleInitialPosition() {
+        return this.rectangleSelectionInitialPosition;
+    }
+
+    @Override
+    public Vector2f getRectangleCurrentPosition() {
+        return this.rectangleSelectionCurrentPosition;
     }
 }
