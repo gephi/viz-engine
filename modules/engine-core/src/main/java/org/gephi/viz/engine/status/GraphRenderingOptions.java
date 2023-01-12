@@ -25,7 +25,7 @@ public interface GraphRenderingOptions {
     boolean DEFAULT_HIDE_NON_SELECTED = false;
     boolean DEFAULT_LIGHTEN_NON_SELECTED = true;
     boolean DEFAULT_AUTO_SELECT_NEIGHBOURS = true;
-    float DEFAULT_LIGHTEN_NON_SELECTED_FACTOR = 0.85f;
+    float DEFAULT_LIGHTEN_NON_SELECTED_FACTOR = 0.9f;
 
     float getEdgeScale();
 
