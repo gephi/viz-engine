@@ -12,7 +12,6 @@ import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
-import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.gephi.viz.engine.util.structure.NodesCallback;
@@ -203,8 +202,7 @@ public abstract class AbstractNodeData {
     protected void updateData(final float zoom,
                               final GraphIndexImpl spatialIndex,
                               final GraphRenderingOptions renderingOptions,
-                              final GraphSelection selection,
-                              final GraphSelectionNeighbours neighboursSelection) {
+                              final GraphSelection selection) {
         if (!renderingOptions.isShowNodes()) {
             instanceCounter.clearCount();
             return;
@@ -249,7 +247,7 @@ public abstract class AbstractNodeData {
                 for (int j = 0; j < visibleNodesCount; j++) {
                     final Node node = visibleNodesArray[j];
 
-                    final boolean selected = selection.isNodeSelected(node) || neighboursSelection.isNodeSelected(node);
+                    final boolean selected = selection.isNodeSelected(node);
                     if (!selected) {
                         continue;
                     }
@@ -279,7 +277,7 @@ public abstract class AbstractNodeData {
                 for (int j = 0; j < visibleNodesCount; j++) {
                     final Node node = visibleNodesArray[j];
 
-                    final boolean selected = selection.isNodeSelected(node) || neighboursSelection.isNodeSelected(node);
+                    final boolean selected = selection.isNodeSelected(node);
                     if (selected) {
                         continue;
                     }
@@ -311,7 +309,7 @@ public abstract class AbstractNodeData {
                 for (int j = 0; j < visibleNodesCount; j++) {
                     final Node node = visibleNodesArray[j];
 
-                    final boolean selected = selection.isNodeSelected(node) || neighboursSelection.isNodeSelected(node);
+                    final boolean selected = selection.isNodeSelected(node);
                     if (!selected) {
                         continue;
                     }

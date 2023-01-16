@@ -33,14 +33,12 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
     @Override
     public void configure(VizEngine<LWJGLRenderingTarget, LWJGLInputEvent> engine) {
         final GraphIndexImpl graphIndex = new GraphIndexImpl(engine);
-        final GraphSelection graphSelection = new GraphSelectionImpl(engine);
-        final GraphSelectionNeighbours graphSelectionNeighbours = new GraphSelectionNeighboursImpl(engine);
+        final GraphSelection graphSelection = new GraphSelectionImpl();
         final GraphRenderingOptionsImpl renderingOptions = new GraphRenderingOptionsImpl();
         final OpenGLOptions openGLOptions = new OpenGLOptions();
 
         engine.addToLookup(graphIndex);
         engine.addToLookup(graphSelection);
-        engine.addToLookup(graphSelectionNeighbours);
         engine.addToLookup(renderingOptions);
         engine.addToLookup(openGLOptions);
 

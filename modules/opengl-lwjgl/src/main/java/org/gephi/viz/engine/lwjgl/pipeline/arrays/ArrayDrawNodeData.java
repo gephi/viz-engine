@@ -5,7 +5,6 @@ import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractNodeData;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
-import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 
 import java.nio.FloatBuffer;
@@ -31,8 +30,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
                 engine.getZoom(),
                 spatialIndex,
                 engine.getLookup().lookup(GraphRenderingOptions.class),
-                engine.getLookup().lookup(GraphSelection.class),
-                engine.getLookup().lookup(GraphSelectionNeighbours.class)
+                engine.getLookup().lookup(GraphSelection.class)
         );
     }
 

@@ -2,7 +2,6 @@ package org.gephi.viz.engine.status;
 
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Node;
-import org.gephi.viz.engine.VizEngine;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -13,13 +12,11 @@ import org.joml.Vector2f;
 
 public class GraphSelectionImpl implements GraphSelection {
 
-    private final VizEngine engine;
     private final Set<Node> nodes = new HashSet<>();
     private final Set<Edge> edges = new HashSet<>();
     private GraphSelection.GraphSelectionMode selectionMode;
 
-    public GraphSelectionImpl(VizEngine engine) {
-        this.engine = engine;
+    public GraphSelectionImpl() {
         this.selectionMode = GraphSelectionMode.SIMPLE_MOUSE_SELECTION;
     }
 

@@ -1,6 +1,5 @@
 package org.gephi.viz.engine.util.actions;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -13,7 +12,6 @@ import org.gephi.graph.api.Rect2D;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
-import org.gephi.viz.engine.status.GraphSelectionNeighbours;
 import org.gephi.viz.engine.structure.GraphIndex;
 import org.joml.Vector2f;
 
@@ -44,10 +42,8 @@ public class InputActionsProcessor {
 
     public void clearSelection() {
         final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
-        final GraphSelectionNeighbours neighboursSelection = engine.getLookup().lookup(GraphSelectionNeighbours.class);
         selection.clearSelectedNodes();
         selection.clearSelectedEdges();
-        neighboursSelection.clearSelectedNodes();
     }
 
     public void selectNodes(final NodeIterable nodesIterable) {
