@@ -18,6 +18,3 @@ Currently, in comparison to Gephi 0.9.2 renderer it's lacking:
 
 * Self loops
 * Node/edge text labels
-* Selected nodes animation (should be doable with a simple uniform variable)
-
-NOTE: to build it, first you will need to build the graphstore master branch at https://github.com/gephi/graphstore
