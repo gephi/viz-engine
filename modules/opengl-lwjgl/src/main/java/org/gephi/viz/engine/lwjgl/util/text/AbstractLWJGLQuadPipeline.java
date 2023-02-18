@@ -27,6 +27,8 @@
  */
 package org.gephi.viz.engine.lwjgl.util.text;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -183,8 +185,8 @@ abstract class AbstractLWJGLQuadPipeline implements LWJGLQuadPipeline {
      * @param primsPerQuad Number of primitives per quad
      * @throws IllegalArgumentException if vertices or primitives is less than one
      */
-    AbstractLWJGLQuadPipeline(/*@Nonnegative*/ final int vertsPerPrim,
-                         /*@Nonnegative*/ final int primsPerQuad) {
+    AbstractLWJGLQuadPipeline(final int vertsPerPrim,
+                         final int primsPerQuad) {
 
         Check.argument(vertsPerPrim > 0, "Number of vertices is less than one");
         Check.argument(primsPerQuad > 0, "Number of primitives is less than one");
@@ -198,7 +200,8 @@ abstract class AbstractLWJGLQuadPipeline implements LWJGLQuadPipeline {
         BYTES_PER_BUFFER = BYTES_PER_VERT * VERTS_PER_BUFFER;
         BYTES_PER_QUAD = BYTES_PER_VERT * VERTS_PER_QUAD;
 
-        this.data = Buffers.newDirectFloatBuffer(FLOATS_PER_BUFFER);
+        // TODO Check buffer code
+        this.data = ByteBuffer.allocateDirect(FLOATS_PER_BUFFER * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
     }
 
     /**
@@ -271,13 +274,12 @@ abstract class AbstractLWJGLQuadPipeline implements LWJGLQuadPipeline {
         final int vbo = glGenBuffers();
 
         // Allocate
-        gl.glBindBuffer(GL2GL3.GL_ARRAY_BUFFER, vbo);
-        gl.glBufferData(
-                GL2GL3.GL_ARRAY_BUFFER, // target
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(
+                GL_ARRAY_BUFFER, // target
                 size,                   // size
-                null,                   // data
-                GL2GL3.GL_STREAM_DRAW); // usage
-        gl.glBindBuffer(GL2GL3.GL_ARRAY_BUFFER, 0);
+                GL_STREAM_DRAW); // usage
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         return vbo;
     }
@@ -399,7 +401,7 @@ abstract class AbstractLWJGLQuadPipeline implements LWJGLQuadPipeline {
      * @param position Location in buffer to move to
      * @throws IllegalArgumentException if position is out-of-range
      */
-    protected final void position(/*@Nonnegative*/ final int position) {
+    protected final void position(final int position) {
         data.position(position);
     }
 

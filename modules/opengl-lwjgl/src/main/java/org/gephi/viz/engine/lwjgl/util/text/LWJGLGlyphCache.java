@@ -35,7 +35,6 @@ import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.util.ArrayList;
 import java.util.List;
-import org.lwjgl.opengl.GLCapabilities;
 
 import static org.lwjgl.opengl.GL13.*;
 
@@ -547,17 +546,6 @@ public final class LWJGLGlyphCache implements LWJGLTextureBackingStore.EventList
     /*@Nonnegative*/
     int getWidth() {
         return getBackingStore().getWidth();
-    }
-
-    /**
-     * Checks if Non-Power-Of-Two textures are available.
-     *
-     * @return True if NPOT textures are available
-     * @throws NullPointerException if context is null
-     */
-    static boolean isNpotTextureAvailable() {
-        GLCapabilities capabilities = null; //TODO
-        return capabilities.GL_ARB_texture_non_power_of_two;
     }
 
     private static void log(final String message) {

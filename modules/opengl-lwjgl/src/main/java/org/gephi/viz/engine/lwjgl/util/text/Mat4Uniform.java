@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2012 JogAmp Community. All rights reserved.
  *
@@ -27,44 +28,38 @@
  */
 package org.gephi.viz.engine.lwjgl.util.text;
 
-import org.lwjgl.opengl.GLCapabilities;
-
+import static org.lwjgl.opengl.GL20.*;
 
 /**
- * Utility for working with {@link LWJGLQuadPipeline}'s.
+ * Uniform for a {@code mat4}.
  */
-public final class QuadPipelines {
+/*@NotThreadSafe*/
+final class Mat4Uniform extends Uniform {
 
     /**
-     * Prevents instantiation.
+     * Local copy of matrix values.
      */
-    private QuadPipelines() {
-        // pass
+    final float[] value = new float[16];
+
+    /**
+     * True if matrix is stored in row-major order.
+     */
+    boolean transpose;
+
+    /**
+     * Constructs a {@link Mat4Uniform}.
+     *
+     * @param program OpenGL handle to shader program
+     * @param name Name of the uniform in shader source code
+     * @throws NullPointerException if context is null
+     */
+    Mat4Uniform(final int program,
+                final String name) {
+        super(program, name);
     }
 
-    /**
-     * Creates a {@link LWJGLQuadPipeline} based on the current OpenGL context.
-     *
-     * @param capabilities GL capabilities
-     * @param program Shader program to use, or zero to use default
-     * @return New quad pipeline for the version of OpenGL in use, not null
-     * @throws NullPointerException if context is null
-     * @throws IllegalArgumentException if shader program is negative
-     * @throws UnsupportedOperationException if GL is unsupported
-     */
-    public LWJGLQuadPipeline get(final GLCapabilities capabilities, final int program) {
-
-        Check.argument(program >= 0, "Program cannot be negative");
-
-        //TODO Check validity
-        if (capabilities.OpenGL30) {
-            return new LWJGLQuadPipelineGL30(program);
-        } else if (capabilities.OpenGL15) {
-            return new LWJGLQuadPipelineGL15();
-        } else if (capabilities.OpenGL11) {
-            return new LWJGLQuadPipelineGL11();
-        } else {
-            return new LWJGLQuadPipelineGL10();
-        }
+    @Override
+    void update() {
+        glUniformMatrix4fv(location, transpose, value);
     }
 }

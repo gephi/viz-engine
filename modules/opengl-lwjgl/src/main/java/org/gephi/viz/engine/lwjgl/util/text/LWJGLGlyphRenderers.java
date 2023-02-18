@@ -31,40 +31,37 @@ import org.lwjgl.opengl.GLCapabilities;
 
 
 /**
- * Utility for working with {@link LWJGLQuadPipeline}'s.
+ * Utility for working with {@link LWJGLGlyphRenderer}'s.
  */
-public final class QuadPipelines {
+/*@ThreadSafe*/
+public final class LWJGLGlyphRenderers {
 
     /**
      * Prevents instantiation.
      */
-    private QuadPipelines() {
+    private LWJGLGlyphRenderers() {
         // pass
     }
 
     /**
-     * Creates a {@link LWJGLQuadPipeline} based on the current OpenGL context.
+     * Creates a {@link LWJGLGlyphRenderer} based on the current OpenGL context.
      *
      * @param capabilities GL capabilities
-     * @param program Shader program to use, or zero to use default
-     * @return New quad pipeline for the version of OpenGL in use, not null
+     * @return New glyph renderer for the given context, not null
      * @throws NullPointerException if context is null
-     * @throws IllegalArgumentException if shader program is negative
      * @throws UnsupportedOperationException if GL is unsupported
      */
-    public LWJGLQuadPipeline get(final GLCapabilities capabilities, final int program) {
+    /*@Nonnull*/
+    public static LWJGLGlyphRenderer get(GLCapabilities capabilities) {
 
-        Check.argument(program >= 0, "Program cannot be negative");
+        Check.notNull(capabilities, "GL capabilities cannot be null");
 
-        //TODO Check validity
         if (capabilities.OpenGL30) {
-            return new LWJGLQuadPipelineGL30(program);
-        } else if (capabilities.OpenGL15) {
-            return new LWJGLQuadPipelineGL15();
-        } else if (capabilities.OpenGL11) {
-            return new LWJGLQuadPipelineGL11();
+            return new LWJGLGlyphRendererGL3();
+        } else if (capabilities.OpenGL20) {
+            return new LWJGLGlyphRendererGL2();
         } else {
-            return new LWJGLQuadPipelineGL10();
+            throw new UnsupportedOperationException("Profile currently unsupported");
         }
     }
 }

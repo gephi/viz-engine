@@ -27,44 +27,50 @@
  */
 package org.gephi.viz.engine.lwjgl.util.text;
 
-import org.lwjgl.opengl.GLCapabilities;
-
 
 /**
- * Utility for working with {@link LWJGLQuadPipeline}'s.
+ * Utility for computing projections.
  */
-public final class QuadPipelines {
+/*@NotThreadSafe*/
+final class Projection {
 
     /**
      * Prevents instantiation.
      */
-    private QuadPipelines() {
-        // pass
+    private Projection() {
+        // empty
     }
 
     /**
-     * Creates a {@link LWJGLQuadPipeline} based on the current OpenGL context.
+     * Computes an orthographic projection matrix.
      *
-     * @param capabilities GL capabilities
-     * @param program Shader program to use, or zero to use default
-     * @return New quad pipeline for the version of OpenGL in use, not null
-     * @throws NullPointerException if context is null
-     * @throws IllegalArgumentException if shader program is negative
-     * @throws UnsupportedOperationException if GL is unsupported
+     * @param v Computed matrix values, in row-major order
+     * @param width Width of current OpenGL viewport
+     * @param height Height of current OpenGL viewport
+     * @throws NullPointerException if array is null
+     * @throws IllegalArgumentException if width or height is negative
      */
-    public LWJGLQuadPipeline get(final GLCapabilities capabilities, final int program) {
+    static void orthographic(final float[] v,
+                             /*@Nonnegative*/ final int width,
+                             /*@Nonnegative*/ final int height) {
 
-        Check.argument(program >= 0, "Program cannot be negative");
+        Check.notNull(v, "Matrix cannot be null");
+        Check.argument(width >= 0, "Width cannot be negative");
+        Check.argument(height >= 0, "Height cannot be negative");
 
-        //TODO Check validity
-        if (capabilities.OpenGL30) {
-            return new LWJGLQuadPipelineGL30(program);
-        } else if (capabilities.OpenGL15) {
-            return new LWJGLQuadPipelineGL15();
-        } else if (capabilities.OpenGL11) {
-            return new LWJGLQuadPipelineGL11();
-        } else {
-            return new LWJGLQuadPipelineGL10();
+        // Zero out
+        for (int i = 0; i < 16; ++i) {
+            v[i] = 0;
         }
+
+        // Translate to origin
+        v[3] = -1;
+        v[7] = -1;
+
+        // Scale to unit cube
+        v[0] = 2f / width;
+        v[5] = 2f / height;
+        v[10] = -1;
+        v[15] = 1;
     }
 }

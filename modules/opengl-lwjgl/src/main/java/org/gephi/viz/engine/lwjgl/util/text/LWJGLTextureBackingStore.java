@@ -52,7 +52,7 @@ import static org.lwjgl.opengl.GL13.*;
  * After creating a backing store, a client simply needs to grab its {@link Graphics2D} and use its
  * AWT or Java 2D drawing methods.  Then the area that was drawn to should be noted with the {@link
  * #mark(int, int, int, int)} method.  After everything is drawn, activate the texture using {@link
- * #bind(GL, int)} and call {@link #update(GL)} to actually push the dirty regions to the texture.
+ * #bind(int)} and call {@link #update()} to actually push the dirty regions to the texture.
  * If further changes need to made, consider using {@link #clear(int, int, int, int)} to erase old
  * data.
  *
@@ -66,37 +66,31 @@ final class LWJGLTextureBackingStore {
     /**
      * Size in X direction.
      */
-    /*@Nonnegative*/
     private final int width;
 
     /**
      * Size in Y direction.
      */
-    /*@Nonnegative*/
     private final int height;
 
     /**
      * Local copy of texture.
      */
-    /*@Nonnull*/
     private final BufferedImage image;
 
     /**
      * Java2D utility for drawing into image.
      */
-    /*@Nonnull*/
     private final Graphics2D g2d;
 
     /**
      * Raw image data for pushing to texture.
      */
-    /*@Nonnull*/
     private final ByteBuffer pixels;
 
     /**
      * True for quality texturing.
      */
-    /*@Nonnull*/
     private final boolean mipmap;
 
     /**

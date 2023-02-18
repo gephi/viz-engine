@@ -27,44 +27,45 @@
  */
 package org.gephi.viz.engine.lwjgl.util.text;
 
-import org.lwjgl.opengl.GLCapabilities;
-
+import static org.lwjgl.opengl.GL20.*;
 
 /**
- * Utility for working with {@link LWJGLQuadPipeline}'s.
+ * Uniform variable in a shader.
  */
-public final class QuadPipelines {
+abstract class Uniform {
 
     /**
-     * Prevents instantiation.
+     * Index of uniform in shader.
      */
-    private QuadPipelines() {
-        // pass
-    }
+    final int location;
 
     /**
-     * Creates a {@link LWJGLQuadPipeline} based on the current OpenGL context.
+     * True if local value should be pushed.
+     */
+    boolean dirty;
+
+    /**
+     * Constructs a {@link Uniform}.
      *
-     * @param capabilities GL capabilities
-     * @param program Shader program to use, or zero to use default
-     * @return New quad pipeline for the version of OpenGL in use, not null
-     * @throws NullPointerException if context is null
-     * @throws IllegalArgumentException if shader program is negative
-     * @throws UnsupportedOperationException if GL is unsupported
+     * @param program OpenGL handle to shader program
+     * @param name Name of the uniform in shader source code
+     * @throws IllegalArgumentException if program is negative
      */
-    public LWJGLQuadPipeline get(final GLCapabilities capabilities, final int program) {
+    Uniform(final int program,
+            final String name) {
 
+        Check.notNull(name, "Name cannot be null");
         Check.argument(program >= 0, "Program cannot be negative");
 
-        //TODO Check validity
-        if (capabilities.OpenGL30) {
-            return new LWJGLQuadPipelineGL30(program);
-        } else if (capabilities.OpenGL15) {
-            return new LWJGLQuadPipelineGL15();
-        } else if (capabilities.OpenGL11) {
-            return new LWJGLQuadPipelineGL11();
-        } else {
-            return new LWJGLQuadPipelineGL10();
+        location = glGetUniformLocation(program, name);
+        if (location == -1) {
+            throw new IllegalStateException("Could not find uniform in program");
         }
     }
+
+    /**
+     * Pushes the local value to the shader program.
+     *
+     */
+    abstract void update();
 }
