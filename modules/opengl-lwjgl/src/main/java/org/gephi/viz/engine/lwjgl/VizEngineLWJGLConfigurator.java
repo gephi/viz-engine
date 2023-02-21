@@ -5,6 +5,7 @@ import org.gephi.viz.engine.lwjgl.pipeline.DefaultLWJGLEventListener;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawEdgeData;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawNodeData;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.EdgeRendererArrayDraw;
+import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.NodeLabelsRenderer;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.NodeRendererArrayDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers.RectangleSelectionArrayDraw;
 import org.gephi.viz.engine.lwjgl.pipeline.arrays.updaters.EdgesUpdaterArrayDrawRendering;
@@ -45,6 +46,9 @@ public class VizEngineLWJGLConfigurator implements VizEngineConfigurator<LWJGLRe
         setupIndirectRendering(engine, graphIndex);
         setupInstancedRendering(engine, graphIndex);//Preferred and better performance
         setupVertexArrayRendering(engine, graphIndex);//Fallback for very old versions of OpenGL
+
+        // Text renderers:
+        engine.addRenderer(new NodeLabelsRenderer(engine));
 
         setupInputListeners(engine);
     }

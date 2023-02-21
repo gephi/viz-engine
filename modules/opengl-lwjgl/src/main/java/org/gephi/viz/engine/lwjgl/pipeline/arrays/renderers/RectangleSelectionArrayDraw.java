@@ -6,6 +6,7 @@ import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
 import org.gephi.viz.engine.lwjgl.util.gl.GLShaderProgram;
 import org.gephi.viz.engine.lwjgl.util.gl.GLVertexArrayObject;
 import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
+import org.gephi.viz.engine.lwjgl.util.text.LWJGLTextRenderer;
 import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.spi.Renderer;
@@ -18,6 +19,7 @@ import org.lwjgl.opengl.GLCapabilities;
 
 import static org.lwjgl.opengl.GL15.*;
 
+import java.awt.*;
 import java.nio.FloatBuffer;
 import java.util.EnumSet;
 
