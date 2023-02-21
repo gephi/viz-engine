@@ -55,7 +55,6 @@ public class NodeLabelsRenderer implements Renderer<LWJGLRenderingTarget> {
         final LWJGLTextRenderer r = new LWJGLTextRenderer(font);
 
         r.setTransform(engine.getModelViewProjectionMatrixFloats());
-        r.setUseVertexArrays(false);
         r.beginRendering(
             engine.getLookup().lookup(GLCapabilities.class),
             engine.getWidth(),
