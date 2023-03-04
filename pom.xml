@@ -18,6 +18,7 @@
         <gephi.version>0.10.0</gephi.version>
         <lwjgl.version>3.3.1</lwjgl.version>
         <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
+        <jogl.version>2.4.0</jogl.version>
         
         <joml.version>1.10.5</joml.version>
         <netbeans.version>RELEASE160</netbeans.version>
@@ -30,6 +31,8 @@
         <module>modules/opengl-commons</module>
         <module>modules/opengl-lwjgl</module>
         <module>modules/demo-lwjgl</module>
+        <module>modules/opengl-jogl</module>
+        <module>modules/demo-jogl</module>
     </modules>
 
     <profiles>
@@ -256,6 +259,66 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <!-- JOGL -->
+            <dependency>
+                <groupId>org.jogamp.jogl</groupId>
+                <artifactId>jogl-all</artifactId>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.jogl</groupId>
+                <artifactId>jogl-all</artifactId>
+                <classifier>natives-linux-amd64</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.jogl</groupId>
+                <artifactId>jogl-all</artifactId>
+                <classifier>natives-linux-aarch64</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.jogl</groupId>
+                <artifactId>jogl-all</artifactId>
+                <classifier>natives-macosx-universal</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.jogl</groupId>
+                <artifactId>jogl-all</artifactId>
+                <classifier>natives-windows-amd64</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.gluegen</groupId>
+                <artifactId>gluegen-rt</artifactId>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.gluegen</groupId>
+                <artifactId>gluegen-rt</artifactId>
+                <classifier>natives-linux-amd64</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.gluegen</groupId>
+                <artifactId>gluegen-rt</artifactId>
+                <classifier>natives-linux-aarch64</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.gluegen</groupId>
+                <artifactId>gluegen-rt</artifactId>
+                <classifier>natives-macosx-universal</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jogamp.gluegen</groupId>
+                <artifactId>gluegen-rt</artifactId>
+                <classifier>natives-windows-amd64</classifier>
+                <version>${jogl.version}</version>
+            </dependency>
             
             <!-- Engine own modules -->
             <dependency>
@@ -271,6 +334,11 @@
             <dependency>
                 <groupId>org.gephi</groupId>
                 <artifactId>viz-engine-lwjgl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>viz-engine-jogl</artifactId>
                 <version>${project.version}</version>
             </dependency>
         
@@ -304,6 +372,15 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>jogl</id>
+            <name>JOGL</name>
+            <url>https://jogamp.org/deployment/maven/</url>
+            <snapshots>
+                <enabled>false</enabled>
             </snapshots>
         </repository>
     </repositories>
