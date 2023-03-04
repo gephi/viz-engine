@@ -22,6 +22,8 @@
         <joml.version>1.10.5</joml.version>
         <netbeans.version>RELEASE160</netbeans.version>
 
+        <panamagl.version>1.1.0-SNAPSHOT</panamagl.version>
+
         <junit.version>4.13.2</junit.version>
     </properties>
     
@@ -30,6 +32,8 @@
         <module>modules/opengl-commons</module>
         <module>modules/opengl-lwjgl</module>
         <module>modules/demo-lwjgl</module>
+        <module>modules/opengl-panamagl</module>
+        <module>modules/demo-panamagl</module>
     </modules>
 
     <profiles>
@@ -256,6 +260,18 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <!-- Panama -->
+            <dependency>
+                <groupId>org.jzy3d</groupId>
+                <artifactId>panama-gl-api</artifactId>
+                <version>${panamagl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jzy3d</groupId>
+                <artifactId>panama-gl-wrappers-macos</artifactId>
+                <version>${panamagl.version}</version>
+            </dependency>
             
             <!-- Engine own modules -->
             <dependency>
@@ -305,6 +321,12 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+
+        <repository>
+            <id>panama-snapshots</id>
+            <name>Panama Snapshots</name>
+            <url>https://maven.jzy3d.org/snapshots/</url>
         </repository>
     </repositories>
 </project>

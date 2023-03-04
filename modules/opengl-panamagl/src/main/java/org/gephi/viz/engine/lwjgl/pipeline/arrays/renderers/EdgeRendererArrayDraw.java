@@ -1,0 +1,57 @@
+package org.gephi.viz.engine.lwjgl.pipeline.arrays.renderers;
+
+import org.gephi.viz.engine.VizEngine;
+import org.gephi.viz.engine.lwjgl.PanamaGLRenderingTarget;
+import org.gephi.viz.engine.lwjgl.availability.ArrayDraw;
+import org.gephi.viz.engine.lwjgl.pipeline.arrays.ArrayDrawEdgeData;
+import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeRenderer;
+import org.gephi.viz.engine.pipeline.RenderingLayer;
+
+/**
+ *
+ * @author Eduardo Ramos
+ */
+public class EdgeRendererArrayDraw extends AbstractEdgeRenderer {
+
+    private final VizEngine engine;
+    private final ArrayDrawEdgeData edgeData;
+
+    public EdgeRendererArrayDraw(VizEngine engine, ArrayDrawEdgeData edgeData) {
+        this.engine = engine;
+        this.edgeData = edgeData;
+    }
+
+    @Override
+    public void init(PanamaGLRenderingTarget target) {
+        //NOOP
+    }
+
+    @Override
+    public void worldUpdated(PanamaGLRenderingTarget target) {
+        edgeData.updateBuffers();
+    }
+
+    private final float[] mvpFloats = new float[16];
+
+    @Override
+    public void render(PanamaGLRenderingTarget target, RenderingLayer layer) {
+        engine.getModelViewProjectionMatrixFloats(mvpFloats);
+
+        edgeData.drawArrays(layer, engine, mvpFloats);
+    }
+
+    @Override
+    public int getPreferenceInCategory() {
+        return ArrayDraw.getPreferenceInCategory();
+    }
+
+    @Override
+    public String getName() {
+        return "Edges (Vertex Array)";
+    }
+
+    @Override
+    public boolean isAvailable(PanamaGLRenderingTarget target) {
+        return ArrayDraw.isAvailable(engine);
+    }
+}
