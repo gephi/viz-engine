@@ -695,6 +695,9 @@ public final class GLCapabilitiesSummary {
     }
 
     public boolean isIndirectDrawSupported() {
-        return extensions.ARB_multi_draw_indirect;
+        return
+            extensions.ARB_draw_indirect &&
+            extensions.ARB_multi_draw_indirect &&
+            extensions.ARB_buffer_storage;
     }
 }

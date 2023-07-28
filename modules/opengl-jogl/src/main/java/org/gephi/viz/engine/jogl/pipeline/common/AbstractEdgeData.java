@@ -11,12 +11,16 @@ import org.gephi.graph.api.Node;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.jogl.models.EdgeLineModelDirected;
 import org.gephi.viz.engine.jogl.models.EdgeLineModelUndirected;
+import org.gephi.viz.engine.jogl.util.ManagedDirectBuffer;
+import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
+import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import static org.gephi.viz.engine.util.gl.Constants.*;
 import org.gephi.viz.engine.jogl.util.gl.GLBuffer;
 import org.gephi.viz.engine.jogl.util.gl.GLVertexArrayObject;
 import org.gephi.viz.engine.jogl.util.gl.capabilities.GLCapabilitiesSummary;
+import org.gephi.viz.engine.structure.GraphIndex;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 import org.gephi.viz.engine.util.structure.EdgesCallback;
 
@@ -32,45 +36,242 @@ public class AbstractEdgeData {
     protected final InstanceCounter undirectedInstanceCounter = new InstanceCounter();
     protected final InstanceCounter directedInstanceCounter = new InstanceCounter();
 
+    // NOTE: Why secondary buffers and VAOs?
+    // Sadly, we cannot use glDrawArraysInstancedBaseInstance in MacOS and it will be never available
+
     protected GLBuffer vertexGLBufferUndirected;
     protected GLBuffer vertexGLBufferDirected;
-    protected GLBuffer attributesGLBuffer;
+    protected GLBuffer attributesGLBufferDirected;
+    protected GLBuffer attributesGLBufferDirectedSecondary;
+    protected GLBuffer attributesGLBufferUndirected;
+    protected GLBuffer attributesGLBufferUndirectedSecondary;
 
     protected final EdgesCallback edgesCallback = new EdgesCallback();
 
-    protected static final int ATTRIBS_STRIDE
-            = Math.max(
-                    EdgeLineModelUndirected.TOTAL_ATTRIBUTES_FLOATS,
-                    EdgeLineModelDirected.TOTAL_ATTRIBUTES_FLOATS
-            );
+    protected static final int ATTRIBS_STRIDE = Math.max(
+        EdgeLineModelUndirected.TOTAL_ATTRIBUTES_FLOATS,
+        EdgeLineModelDirected.TOTAL_ATTRIBUTES_FLOATS
+    );
 
     protected static final int VERTEX_COUNT_UNDIRECTED = EdgeLineModelUndirected.VERTEX_COUNT;
     protected static final int VERTEX_COUNT_DIRECTED = EdgeLineModelDirected.VERTEX_COUNT;
     protected static final int VERTEX_COUNT_MAX = Math.max(VERTEX_COUNT_DIRECTED, VERTEX_COUNT_UNDIRECTED);
 
     protected final boolean instanced;
+    protected final boolean usesSecondaryBuffer;
 
-    public AbstractEdgeData(boolean instanced) {
+    protected ManagedDirectBuffer attributesBuffer;
+
+    protected float[] attributesBufferBatch;
+    protected static final int BATCH_EDGES_SIZE = 32768;
+
+    public AbstractEdgeData(boolean instanced, boolean usesSecondaryBuffer) {
         this.instanced = instanced;
+        this.usesSecondaryBuffer = usesSecondaryBuffer;
     }
 
     public void init(GL2ES2 gl) {
         lineModelDirected.initGLPrograms(gl);
         lineModelUndirected.initGLPrograms(gl);
+        initBuffers();
+    }
+
+    protected void initBuffers() {
+        attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_EDGES_SIZE];
+        attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_EDGES_SIZE);
+    }
+
+    protected int setupShaderProgramForRenderingLayerUndirected(final GL2ES2 gl,
+                                                                final RenderingLayer layer,
+                                                                final VizEngine engine,
+                                                                final float[] mvpFloats) {
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedEdgesCount() > 0;
+        final boolean renderingUnselectedEdges = layer.isBack();
+        if (!someSelection && renderingUnselectedEdges) {
+            return 0;
+        }
+
+        final float[] backgroundColorFloats = engine.getBackgroundColor();
+
+        final GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
+
+        final float edgeScale = renderingOptions.getEdgeScale();
+        float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
+
+        final GraphIndex graphIndex = engine.getLookup().lookup(GraphIndex.class);
+
+        final float minWeight = graphIndex.getEdgesMinWeight();
+        final float maxWeight = graphIndex.getEdgesMaxWeight();
+
+        final int instanceCount;
+        if (renderingUnselectedEdges) {
+            instanceCount = undirectedInstanceCounter.unselectedCountToDraw;
+
+            lineModelUndirected.useProgramWithSelectionUnselected(
+                gl,
+                mvpFloats,
+                edgeScale,
+                minWeight,
+                maxWeight,
+                backgroundColorFloats,
+                lightenNonSelectedFactor
+            );
+
+            if (usesSecondaryBuffer) {
+                setupUndirectedVertexArrayAttributesSecondary(gl, engine);
+            } else {
+                setupUndirectedVertexArrayAttributes(gl, engine);
+            }
+        } else {
+            instanceCount = undirectedInstanceCounter.selectedCountToDraw;
+            lineModelUndirected.useProgram(
+                gl,
+                mvpFloats,
+                edgeScale,
+                minWeight,
+                maxWeight
+            );
+
+            if (someSelection) {
+                if (someNodesSelection && edgeSelectionColor) {
+                    lineModelUndirected.useProgram(
+                        gl,
+                        mvpFloats,
+                        edgeScale,
+                        minWeight,
+                        maxWeight
+                    );
+                } else {
+                    final float colorBias = 0.5f;
+                    final float colorMultiplier = 0.5f;
+
+                    lineModelUndirected.useProgramWithSelectionSelected(
+                        gl,
+                        mvpFloats,
+                        edgeScale,
+                        minWeight,
+                        maxWeight,
+                        colorBias,
+                        colorMultiplier
+                    );
+                }
+            } else {
+                lineModelUndirected.useProgram(
+                    gl,
+                    mvpFloats,
+                    edgeScale,
+                    minWeight,
+                    maxWeight
+                );
+            }
+
+            setupUndirectedVertexArrayAttributes(gl, engine);
+        }
+
+        return instanceCount;
+    }
+
+    protected int setupShaderProgramForRenderingLayerDirected(final GL2ES2 gl,
+                                                              final RenderingLayer layer,
+                                                              final VizEngine engine,
+                                                              final float[] mvpFloats) {
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedEdgesCount() > 0;
+        final boolean renderingUnselectedEdges = layer.isBack();
+        if (!someSelection && renderingUnselectedEdges) {
+            return 0;
+        }
+
+        final float[] backgroundColorFloats = engine.getBackgroundColor();
+
+        final GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
+
+        final float edgeScale = renderingOptions.getEdgeScale();
+        float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
+
+        final GraphIndex graphIndex = engine.getLookup().lookup(GraphIndex.class);
+
+        final float minWeight = graphIndex.getEdgesMinWeight();
+        final float maxWeight = graphIndex.getEdgesMaxWeight();
+
+        final int instanceCount;
+        if (renderingUnselectedEdges) {
+            instanceCount = directedInstanceCounter.unselectedCountToDraw;
+            lineModelDirected.useProgramWithSelectionUnselected(
+                gl,
+                mvpFloats,
+                edgeScale,
+                minWeight,
+                maxWeight,
+                backgroundColorFloats,
+                lightenNonSelectedFactor
+            );
+
+            if (usesSecondaryBuffer) {
+                setupDirectedVertexArrayAttributesSecondary(gl, engine);
+            } else {
+                setupDirectedVertexArrayAttributes(gl, engine);
+            }
+        } else {
+            instanceCount = directedInstanceCounter.selectedCountToDraw;
+            lineModelDirected.useProgram(
+                gl,
+                mvpFloats,
+                edgeScale,
+                minWeight,
+                maxWeight
+            );
+
+            if (someSelection) {
+                if (someNodesSelection && edgeSelectionColor) {
+                    lineModelDirected.useProgram(
+                        gl,
+                        mvpFloats,
+                        edgeScale,
+                        minWeight,
+                        maxWeight
+                    );
+                } else {
+                    final float colorBias = 0.5f;
+                    final float colorMultiplier = 0.5f;
+
+                    lineModelDirected.useProgramWithSelectionSelected(
+                        gl,
+                        mvpFloats,
+                        edgeScale,
+                        minWeight,
+                        maxWeight,
+                        colorBias,
+                        colorMultiplier
+                    );
+                }
+            } else {
+                lineModelDirected.useProgram(
+                    gl,
+                    mvpFloats,
+                    edgeScale,
+                    minWeight,
+                    maxWeight
+                );
+            }
+
+            setupDirectedVertexArrayAttributes(gl, engine);
+        }
+
+        return instanceCount;
     }
 
     protected int updateDirectedData(
-            final Graph graph,
-            final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
-            final float[] attribs, int index
+        final Graph graph,
+        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final float[] attribs, int index
     ) {
         return updateDirectedData(graph, someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor, attribs, index, null);
     }
 
     protected int updateDirectedData(
-            final Graph graph,
-            final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
-            final float[] attribs, int index, final FloatBuffer directBuffer
+        final Graph graph,
+        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final float[] attribs, int index, final FloatBuffer directBuffer
     ) {
         checkBufferIndexing(directBuffer, attribs, index);
 
@@ -99,7 +300,8 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, selected);
+                    fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, selected);
+                    index += ATTRIBS_STRIDE;
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -120,7 +322,8 @@ public class AbstractEdgeData {
 
                     newEdgesCountUnselected++;
 
-                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, false);
+                    fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, false);
+                    index += ATTRIBS_STRIDE;
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -141,7 +344,8 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
+                    fillDirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
+                    index += ATTRIBS_STRIDE;
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -159,7 +363,8 @@ public class AbstractEdgeData {
 
                 newEdgesCountSelected++;
 
-                index = fillDirectedEdgeAttributesDataWithoutSelection(attribs, edge, index);
+                fillDirectedEdgeAttributesDataWithoutSelection(attribs, edge, index);
+                index += ATTRIBS_STRIDE;
 
                 if (directBuffer != null && index == attribs.length) {
                     directBuffer.put(attribs, 0, attribs.length);
@@ -181,17 +386,17 @@ public class AbstractEdgeData {
     }
 
     protected int updateUndirectedData(
-            final Graph graph,
-            final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
-            final float[] attribs, int index
+        final Graph graph,
+        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final float[] attribs, int index
     ) {
         return updateUndirectedData(graph, someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor, attribs, index, null);
     }
 
     protected int updateUndirectedData(
-            final Graph graph,
-            final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
-            final float[] attribs, int index, final FloatBuffer directBuffer
+        final Graph graph,
+        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final float[] attribs, int index, final FloatBuffer directBuffer
     ) {
         checkBufferIndexing(directBuffer, attribs, index);
 
@@ -220,7 +425,8 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
+                    fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
+                    index += ATTRIBS_STRIDE;
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -241,7 +447,8 @@ public class AbstractEdgeData {
 
                     newEdgesCountUnselected++;
 
-                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, false);
+                    fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, false);
+                    index += ATTRIBS_STRIDE;
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -262,7 +469,8 @@ public class AbstractEdgeData {
 
                     newEdgesCountSelected++;
 
-                    index = fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
+                    fillUndirectedEdgeAttributesDataWithSelection(attribs, edge, index, true);
+                    index += ATTRIBS_STRIDE;
 
                     if (directBuffer != null && index == attribs.length) {
                         directBuffer.put(attribs, 0, attribs.length);
@@ -280,7 +488,8 @@ public class AbstractEdgeData {
 
                 newEdgesCountSelected++;
 
-                index = fillUndirectedEdgeAttributesDataWithoutSelection(attribs, edge, index);
+                fillUndirectedEdgeAttributesDataWithoutSelection(attribs, edge, index);
+                index += ATTRIBS_STRIDE;
 
                 if (directBuffer != null && index == attribs.length) {
                     directBuffer.put(attribs, 0, attribs.length);
@@ -339,7 +548,7 @@ public class AbstractEdgeData {
         final float targetY = target.y();
 
         //Position:
-        buffer[index + 0] = sourceX;
+        buffer[index] = sourceX;
         buffer[index + 1] = sourceY;
 
         //Target position:
@@ -356,24 +565,19 @@ public class AbstractEdgeData {
         buffer[index + 6] = Float.intBitsToFloat(target.getRGBA());
     }
 
-    protected int fillUndirectedEdgeAttributesDataWithoutSelection(final float[] buffer, final Edge edge, final int index) {
+    protected void fillUndirectedEdgeAttributesDataWithoutSelection(final float[] buffer, final Edge edge, final int index) {
         fillUndirectedEdgeAttributesDataBase(buffer, edge, index);
 
-        //Color, color bias and color multiplier:
         buffer[index + 7] = Float.intBitsToFloat(edge.getRGBA());//Color
-        buffer[index + 8] = 0;//Bias
-        buffer[index + 9] = 1;//Multiplier
-
-        return index + ATTRIBS_STRIDE;
     }
 
-    protected int fillUndirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
+    protected void fillUndirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
         final Node source = edge.getSource();
         final Node target = edge.getTarget();
 
         fillUndirectedEdgeAttributesDataBase(buffer, edge, index);
 
-        //Color, color bias and color multiplier:
+        //Color:
         if (selected) {
             if (someNodesSelection && edgeSelectionColor) {
                 boolean sourceSelected = graphSelection.isNodeSelected(source);
@@ -388,9 +592,6 @@ public class AbstractEdgeData {
                 } else {
                     buffer[index + 7] = Float.intBitsToFloat(edge.getRGBA());//Color
                 }
-
-                buffer[index + 8] = 0;//Bias
-                buffer[index + 9] = 1;//Multiplier
             } else {
                 if (someNodesSelection && edge.alpha() <= 0) {
                     if (graphSelection.isNodeSelected(source)) {
@@ -401,17 +602,10 @@ public class AbstractEdgeData {
                 } else {
                     buffer[index + 7] = Float.intBitsToFloat(edge.getRGBA());//Color
                 }
-
-                buffer[index + 8] = 0.5f;//Bias
-                buffer[index + 9] = 0.5f;//Multiplier
             }
         } else {
             buffer[index + 7] = Float.intBitsToFloat(edge.getRGBA());//Color
-            buffer[index + 8] = 0;//Bias
-            buffer[index + 9] = 1;//Multiplier
         }
-
-        return index + ATTRIBS_STRIDE;
     }
 
     protected void fillDirectedEdgeAttributesDataBase(final float[] buffer, final Edge edge, final int index) {
@@ -424,7 +618,7 @@ public class AbstractEdgeData {
         final float targetY = target.y();
 
         //Position:
-        buffer[index + 0] = sourceX;
+        buffer[index] = sourceX;
         buffer[index + 1] = sourceY;
 
         //Target position:
@@ -438,27 +632,23 @@ public class AbstractEdgeData {
         buffer[index + 5] = Float.intBitsToFloat(source.getRGBA());
     }
 
-    protected int fillDirectedEdgeAttributesDataWithoutSelection(final float[] buffer, final Edge edge, final int index) {
+    protected void fillDirectedEdgeAttributesDataWithoutSelection(final float[] buffer, final Edge edge, final int index) {
         fillDirectedEdgeAttributesDataBase(buffer, edge, index);
 
-        //Color, color bias and color multiplier:
+        //Color:
         buffer[index + 6] = Float.intBitsToFloat(edge.getRGBA());//Color
-        buffer[index + 7] = 0;//Bias
-        buffer[index + 8] = 1;//Multiplier
 
         //Target size:
-        buffer[index + 9] = edge.getTarget().size();
-
-        return index + ATTRIBS_STRIDE;
+        buffer[index + 7] = edge.getTarget().size();
     }
 
-    protected int fillDirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
+    protected void fillDirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
         final Node source = edge.getSource();
         final Node target = edge.getTarget();
 
         fillDirectedEdgeAttributesDataBase(buffer, edge, index);
 
-        //Color, color bias and color multiplier:
+        //Color:
         if (selected) {
             if (someNodesSelection && edgeSelectionColor) {
                 boolean sourceSelected = graphSelection.isNodeSelected(source);
@@ -473,9 +663,6 @@ public class AbstractEdgeData {
                 } else {
                     buffer[index + 6] = Float.intBitsToFloat(edge.getRGBA());//Color
                 }
-
-                buffer[index + 7] = 0;//Bias
-                buffer[index + 8] = 1;//Multiplier
             } else {
                 if (someNodesSelection && edge.alpha() <= 0) {
                     if (graphSelection.isNodeSelected(source)) {
@@ -486,53 +673,86 @@ public class AbstractEdgeData {
                 } else {
                     buffer[index + 6] = Float.intBitsToFloat(edge.getRGBA());//Color
                 }
-
-                buffer[index + 7] = 0.5f;//Bias
-                buffer[index + 8] = 0.5f;//Multiplier
             }
         } else {
             buffer[index + 6] = Float.intBitsToFloat(edge.getRGBA());//Color
-            buffer[index + 7] = 0;//Bias
-            buffer[index + 8] = 1;//Multiplier
         }
 
         //Target size:
-        buffer[index + 9] = target.size();
-
-        return index + ATTRIBS_STRIDE;
+        buffer[index + 7] = target.size();
     }
 
     private UndirectedEdgesVAO undirectedEdgesVAO;
+    private UndirectedEdgesVAO undirectedEdgesVAOSecondary;
     private DirectedEdgesVAO directedEdgesVAO;
+    private DirectedEdgesVAO directedEdgesVAOSecondary;
 
-    public void setupUndirectedVertexArrayAttributes(VizEngine engine, GL2ES2 gl) {
+    public void setupUndirectedVertexArrayAttributes(GL2ES2 gl, VizEngine engine) {
         if (undirectedEdgesVAO == null) {
             undirectedEdgesVAO = new UndirectedEdgesVAO(
-                    engine.getLookup().lookup(GLCapabilitiesSummary.class),
-                    engine.getLookup().lookup(OpenGLOptions.class)
+                engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferUndirected
             );
         }
 
         undirectedEdgesVAO.use(gl);
     }
 
-    public void unsetupUndirectedVertexArrayAttributes(GL2ES2 gl) {
-        undirectedEdgesVAO.stopUsing(gl);
+    public void setupUndirectedVertexArrayAttributesSecondary(GL2ES2 gl, VizEngine engine) {
+        if (undirectedEdgesVAOSecondary == null) {
+            undirectedEdgesVAOSecondary = new UndirectedEdgesVAO(
+                engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferUndirectedSecondary
+            );
+        }
+
+        undirectedEdgesVAOSecondary.use(gl);
     }
 
-    public void setupDirectedVertexArrayAttributes(VizEngine engine, GL2ES2 gl) {
+    public void unsetupUndirectedVertexArrayAttributes(GL2ES2 gl) {
+        if (undirectedEdgesVAO != null) {
+            undirectedEdgesVAO.stopUsing(gl);
+        }
+
+        if (undirectedEdgesVAOSecondary != null) {
+            undirectedEdgesVAOSecondary.stopUsing(gl);
+        }
+    }
+
+    public void setupDirectedVertexArrayAttributes(GL2ES2 gl, VizEngine engine) {
         if (directedEdgesVAO == null) {
             directedEdgesVAO = new DirectedEdgesVAO(
-                    engine.getLookup().lookup(GLCapabilitiesSummary.class),
-                    engine.getLookup().lookup(OpenGLOptions.class)
+                engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferDirected
             );
         }
 
         directedEdgesVAO.use(gl);
     }
 
+    public void setupDirectedVertexArrayAttributesSecondary(GL2ES2 gl, VizEngine engine) {
+        if (directedEdgesVAOSecondary == null) {
+            directedEdgesVAOSecondary = new DirectedEdgesVAO(
+                engine.getLookup().lookup(GLCapabilitiesSummary.class),
+                engine.getLookup().lookup(OpenGLOptions.class),
+                attributesGLBufferDirectedSecondary
+            );
+        }
+
+        directedEdgesVAOSecondary.use(gl);
+    }
+
     public void unsetupDirectedVertexArrayAttributes(GL2ES2 gl) {
-        directedEdgesVAO.stopUsing(gl);
+        if (directedEdgesVAO != null) {
+            directedEdgesVAO.stopUsing(gl);
+        }
+
+        if (directedEdgesVAOSecondary != null) {
+            directedEdgesVAOSecondary.stopUsing(gl);
+        }
     }
 
     public void dispose(GL gl) {
@@ -544,8 +764,20 @@ public class AbstractEdgeData {
             vertexGLBufferDirected.destroy(gl);
         }
 
-        if (attributesGLBuffer != null) {
-            attributesGLBuffer.destroy(gl);
+        if (attributesGLBufferDirected != null) {
+            attributesGLBufferDirected.destroy(gl);
+        }
+
+        if (attributesGLBufferDirectedSecondary != null) {
+            attributesGLBufferDirectedSecondary.destroy(gl);
+        }
+
+        if (attributesGLBufferUndirected != null) {
+            attributesGLBufferUndirected.destroy(gl);
+        }
+
+        if (attributesGLBufferUndirectedSecondary != null) {
+            attributesGLBufferUndirectedSecondary.destroy(gl);
         }
 
         edgesCallback.reset();
@@ -553,8 +785,11 @@ public class AbstractEdgeData {
 
     private class UndirectedEdgesVAO extends GLVertexArrayObject {
 
-        public UndirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions) {
+        private final GLBuffer attributesBuffer;
+
+        public UndirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions, GLBuffer attributesBuffer) {
             super(capabilities, openGLOptions);
+            this.attributesBuffer = attributesBuffer;
         }
 
         @Override
@@ -565,7 +800,7 @@ public class AbstractEdgeData {
             }
             vertexGLBufferUndirected.unbind(gl);
 
-            attributesGLBuffer.bind(gl);
+            attributesBuffer.bind(gl);
             {
                 int stride = ATTRIBS_STRIDE * Float.BYTES;
                 int offset = 0;
@@ -585,14 +820,8 @@ public class AbstractEdgeData {
                 offset += EdgeLineModelUndirected.TARGET_COLOR_FLOATS * Float.BYTES;
 
                 gl.glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelUndirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
-                offset += EdgeLineModelUndirected.COLOR_FLOATS * Float.BYTES;
-
-                gl.glVertexAttribPointer(SHADER_COLOR_BIAS_LOCATION, EdgeLineModelUndirected.COLOR_BIAS_FLOATS, GL_FLOAT, false, stride, offset);
-                offset += EdgeLineModelUndirected.COLOR_BIAS_FLOATS * Float.BYTES;
-
-                gl.glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, EdgeLineModelUndirected.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
             }
-            attributesGLBuffer.unbind(gl);
+            attributesBuffer.unbind(gl);
         }
 
         @Override
@@ -604,9 +833,7 @@ public class AbstractEdgeData {
                 SHADER_SIZE_LOCATION,
                 SHADER_SOURCE_COLOR_LOCATION,
                 SHADER_TARGET_COLOR_LOCATION,
-                SHADER_COLOR_LOCATION,
-                SHADER_COLOR_BIAS_LOCATION,
-                SHADER_COLOR_MULTIPLIER_LOCATION
+                SHADER_COLOR_LOCATION
             };
         }
 
@@ -619,9 +846,7 @@ public class AbstractEdgeData {
                     SHADER_SIZE_LOCATION,
                     SHADER_SOURCE_COLOR_LOCATION,
                     SHADER_TARGET_COLOR_LOCATION,
-                    SHADER_COLOR_LOCATION,
-                    SHADER_COLOR_BIAS_LOCATION,
-                    SHADER_COLOR_MULTIPLIER_LOCATION
+                    SHADER_COLOR_LOCATION
                 };
             } else {
                 return null;
@@ -632,8 +857,11 @@ public class AbstractEdgeData {
 
     private class DirectedEdgesVAO extends GLVertexArrayObject {
 
-        public DirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions) {
+        private final GLBuffer attributesBuffer;
+
+        public DirectedEdgesVAO(GLCapabilitiesSummary capabilities, OpenGLOptions openGLOptions, GLBuffer attributesBuffer) {
             super(capabilities, openGLOptions);
+            this.attributesBuffer = attributesBuffer;
         }
 
         @Override
@@ -644,7 +872,7 @@ public class AbstractEdgeData {
             }
             vertexGLBufferDirected.unbind(gl);
 
-            attributesGLBuffer.bind(gl);
+            attributesBuffer.bind(gl);
             {
                 int stride = ATTRIBS_STRIDE * Float.BYTES;
                 int offset = 0;
@@ -663,15 +891,9 @@ public class AbstractEdgeData {
                 gl.glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelDirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                 offset += EdgeLineModelDirected.COLOR_FLOATS * Float.BYTES;
 
-                gl.glVertexAttribPointer(SHADER_COLOR_BIAS_LOCATION, EdgeLineModelDirected.COLOR_BIAS_FLOATS, GL_FLOAT, false, stride, offset);
-                offset += EdgeLineModelDirected.COLOR_BIAS_FLOATS * Float.BYTES;
-
-                gl.glVertexAttribPointer(SHADER_COLOR_MULTIPLIER_LOCATION, EdgeLineModelDirected.COLOR_MULTIPLIER_FLOATS, GL_FLOAT, false, stride, offset);
-                offset += EdgeLineModelDirected.COLOR_MULTIPLIER_FLOATS * Float.BYTES;
-
                 gl.glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
             }
-            attributesGLBuffer.unbind(gl);
+            attributesBuffer.unbind(gl);
         }
 
         @Override
@@ -683,8 +905,6 @@ public class AbstractEdgeData {
                 SHADER_SIZE_LOCATION,
                 SHADER_SOURCE_COLOR_LOCATION,
                 SHADER_COLOR_LOCATION,
-                SHADER_COLOR_BIAS_LOCATION,
-                SHADER_COLOR_MULTIPLIER_LOCATION,
                 SHADER_TARGET_SIZE_LOCATION
             };
         }
@@ -698,8 +918,6 @@ public class AbstractEdgeData {
                     SHADER_SIZE_LOCATION,
                     SHADER_SOURCE_COLOR_LOCATION,
                     SHADER_COLOR_LOCATION,
-                    SHADER_COLOR_BIAS_LOCATION,
-                    SHADER_COLOR_MULTIPLIER_LOCATION,
                     SHADER_TARGET_SIZE_LOCATION
                 };
             } else {

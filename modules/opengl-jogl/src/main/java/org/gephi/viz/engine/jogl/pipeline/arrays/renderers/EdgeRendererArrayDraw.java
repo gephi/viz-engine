@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.jogl.availability.ArrayDraw;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
+import org.gephi.viz.engine.jogl.pipeline.common.AbstractEdgeRenderer;
 import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.jogl.pipeline.arrays.ArrayDrawEdgeData;
@@ -15,7 +16,7 @@ import org.gephi.viz.engine.util.gl.Constants;
  *
  * @author Eduardo Ramos
  */
-public class EdgeRendererArrayDraw implements Renderer<JOGLRenderingTarget> {
+public class EdgeRendererArrayDraw extends AbstractEdgeRenderer {
 
     private final VizEngine engine;
     private final ArrayDrawEdgeData edgeData;
@@ -39,28 +40,9 @@ public class EdgeRendererArrayDraw implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void render(JOGLRenderingTarget target, RenderingLayer layer) {
-        final GL2ES2 gl = target.getDrawable().getGL().getGL2ES2();
-
         engine.getModelViewProjectionMatrixFloats(mvpFloats);
 
-        edgeData.drawArrays(gl, layer, engine, mvpFloats);
-    }
-
-    private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(RenderingLayer.BACK, RenderingLayer.MIDDLE);
-
-    @Override
-    public EnumSet<RenderingLayer> getLayers() {
-        return LAYERS;
-    }
-
-    @Override
-    public int getOrder() {
-        return Constants.RENDERING_ORDER_EDGES;
-    }
-
-    @Override
-    public String getCategory() {
-        return PipelineCategory.EDGE;
+        edgeData.drawArrays(target.getDrawable().getGL().getGL2ES2(), layer, engine, mvpFloats);
     }
 
     @Override
