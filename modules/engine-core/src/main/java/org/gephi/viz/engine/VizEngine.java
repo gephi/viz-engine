@@ -364,6 +364,7 @@ public class VizEngine<R extends RenderingTarget, I> {
     }
 
     public synchronized void destroy() {
+        this.renderingTarget.stop();
         if (updatersThreadPool != null) {
             try {
                 updatersThreadPool.shutdown();
@@ -390,7 +391,6 @@ public class VizEngine<R extends RenderingTarget, I> {
         });
 
         this.isDestroyed = true;
-        this.renderingTarget.stop();
     }
 
     private CompletableFuture allUpdatersCompletableFuture = null;

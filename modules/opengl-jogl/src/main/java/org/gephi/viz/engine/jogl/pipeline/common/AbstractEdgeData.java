@@ -73,10 +73,10 @@ public class AbstractEdgeData {
     public void init(GL2ES2 gl) {
         lineModelDirected.initGLPrograms(gl);
         lineModelUndirected.initGLPrograms(gl);
-        initBuffers();
+        initBuffers(gl);
     }
 
-    protected void initBuffers() {
+    protected void initBuffers(GL gl) {
         attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_EDGES_SIZE];
         attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_EDGES_SIZE);
     }

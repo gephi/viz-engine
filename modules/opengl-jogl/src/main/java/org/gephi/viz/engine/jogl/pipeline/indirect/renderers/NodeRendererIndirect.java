@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.jogl.availability.IndirectDraw;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
+import org.gephi.viz.engine.jogl.pipeline.common.AbstractNodeRenderer;
 import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.jogl.pipeline.indirect.IndirectNodeData;
@@ -15,7 +16,7 @@ import org.gephi.viz.engine.util.gl.Constants;
  *
  * @author Eduardo Ramos
  */
-public class NodeRendererIndirect implements Renderer<JOGLRenderingTarget> {
+public class NodeRendererIndirect extends AbstractNodeRenderer {
 
     private final VizEngine engine;
     private final IndirectNodeData nodeData;
@@ -32,35 +33,15 @@ public class NodeRendererIndirect implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void worldUpdated(JOGLRenderingTarget target) {
-        final GL4 gl = target.getDrawable().getGL().getGL4();
-        nodeData.updateBuffers(gl);
+        nodeData.updateBuffers(target.getDrawable().getGL().getGL4());
     }
 
     private final float[] mvpFloats = new float[16];
 
     @Override
     public void render(JOGLRenderingTarget target, RenderingLayer layer) {
-        final GL4 gl = target.getDrawable().getGL().getGL4();
-
         engine.getModelViewProjectionMatrixFloats(mvpFloats);
-        nodeData.drawIndirect(gl, layer, engine, mvpFloats);
-    }
-
-    private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(RenderingLayer.BACK, RenderingLayer.MIDDLE);
-
-    @Override
-    public EnumSet<RenderingLayer> getLayers() {
-        return LAYERS;
-    }
-
-    @Override
-    public int getOrder() {
-        return Constants.RENDERING_ORDER_NODES;
-    }
-
-    @Override
-    public String getCategory() {
-        return PipelineCategory.NODE;
+        nodeData.drawIndirect(target.getDrawable().getGL().getGL4(), layer, engine, mvpFloats);
     }
 
     @Override

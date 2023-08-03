@@ -44,7 +44,7 @@ public abstract class GLVertexArrayObject {
             GLFunctions.glGenVertexArrays(gl, 1, vertexArrayName);
             arrayId = vertexArrayName.get(0);
 
-            BufferUtils.destroyDirectBuffer(vertexArrayName);
+            //BufferUtils.destroyDirectBuffer(vertexArrayName);
 
             bind(gl);
             configureAll(gl);

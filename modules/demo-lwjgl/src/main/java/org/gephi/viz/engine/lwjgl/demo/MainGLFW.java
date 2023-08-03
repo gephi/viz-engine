@@ -37,7 +37,7 @@ public class MainGLFW {
     private static final boolean USE_OPENGL_ES = false;
 
     private static final int WIDTH = 1024;
-    private static final int HEIGHT = 760;
+    private static final int HEIGHT = 768;
 
     private static final WorldUpdaterExecutionMode UPDATE_DATA_MODE = WorldUpdaterExecutionMode.CONCURRENT_ASYNCHRONOUS;
 
@@ -74,6 +74,9 @@ public class MainGLFW {
         glfwEventsListener.updateScale();
 
         setupTestEventListeners(engine);
+
+        System.out.println("Press space bar to start/stop force atlas 2 layout");
+        System.out.println("Press ctrl key to toggle selection mode");
 
         renderingTarget.setWindowTitleFormat("VizEngine demo (LWJGL GLFW) FPS: $FPS");
         engine.start();//This starts the loop for GLFW in LWJGLRenderingTargetGLFW, which MUST be in main thread

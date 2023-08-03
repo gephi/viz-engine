@@ -152,8 +152,9 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
     private float[] attributesDrawBufferBatchOneCopyPerVertex;
     private ManagedDirectBuffer attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer;
 
-    protected void initBuffers(GL2ES2 gl) {
-        super.initBuffers();
+    @Override
+    protected void initBuffers(GL gl) {
+        super.initBuffers(gl);
         attributesDrawBufferBatchOneCopyPerVertex = new float[ATTRIBS_STRIDE * VERTEX_COUNT_MAX * BATCH_EDGES_SIZE];//Need to copy attributes as many times as vertex per model
         attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * VERTEX_COUNT_MAX * BATCH_EDGES_SIZE);
 
@@ -172,7 +173,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
             vertexGLBufferUndirected.init(gl, undirectedVertexData, GLBufferMutable.GL_BUFFER_USAGE_STATIC_DRAW);
             vertexGLBufferUndirected.unbind(gl);
 
-            BufferUtils.destroyDirectBuffer(undirectedVertexData);
+            //BufferUtils.destroyDirectBuffer(undirectedVertexData);
         }
 
         {
@@ -188,7 +189,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
             vertexGLBufferDirected.init(gl, directedVertexData, GLBufferMutable.GL_BUFFER_USAGE_STATIC_DRAW);
             vertexGLBufferDirected.unbind(gl);
 
-            BufferUtils.destroyDirectBuffer(directedVertexData);
+            //BufferUtils.destroyDirectBuffer(directedVertexData);
         }
 
         //Initialize for batch edges size:

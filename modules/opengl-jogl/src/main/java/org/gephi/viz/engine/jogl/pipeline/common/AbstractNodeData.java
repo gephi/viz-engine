@@ -20,7 +20,6 @@ import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.util.gl.Constants;
 
 import static com.jogamp.opengl.GL.GL_UNSIGNED_INT;
 import static org.gephi.viz.engine.jogl.util.gl.GLBufferMutable.GL_BUFFER_TYPE_ARRAY;
@@ -112,10 +111,10 @@ public abstract class AbstractNodeData {
 
     public void init(GL2ES2 gl) {
         diskModel.initGLPrograms(gl);
-        initBuffers();
+        initBuffers(gl);
     }
 
-    protected void initBuffers() {
+    protected void initBuffers(GL gl) {
         attributesBufferBatch = new float[ATTRIBS_STRIDE * BATCH_NODES_SIZE];
         attributesBuffer = new ManagedDirectBuffer(GL_FLOAT, ATTRIBS_STRIDE * BATCH_NODES_SIZE);
 
@@ -125,7 +124,7 @@ public abstract class AbstractNodeData {
         }
     }
 
-    protected void initCirclesGLVertexBuffer(GL2ES2 gl, final int bufferName) {
+    protected void initCirclesGLVertexBuffer(GL gl, final int bufferName) {
         final NodeDiskVertexDataGenerator generator64 = new NodeDiskVertexDataGenerator(64);
         final NodeDiskVertexDataGenerator generator32 = new NodeDiskVertexDataGenerator(32);
         final NodeDiskVertexDataGenerator generator16 = new NodeDiskVertexDataGenerator(16);
@@ -154,7 +153,7 @@ public abstract class AbstractNodeData {
         vertexGLBuffer.init(gl, circleVertexBuffer, GL_BUFFER_USAGE_STATIC_DRAW);
         vertexGLBuffer.unbind(gl);
 
-        BufferUtils.destroyDirectBuffer(circleVertexBuffer);
+        //BufferUtils.destroyDirectBuffer(circleVertexBuffer);
     }
 
     protected int setupShaderProgramForRenderingLayer(final GL2ES2 gl,
@@ -471,7 +470,7 @@ public abstract class AbstractNodeData {
         }
     }
 
-    public void dispose(GL2ES2 gl) {
+    public void dispose(GL gl) {
         attributesBufferBatch = null;
         commandsBufferBatch = null;
         if (attributesBuffer != null) {

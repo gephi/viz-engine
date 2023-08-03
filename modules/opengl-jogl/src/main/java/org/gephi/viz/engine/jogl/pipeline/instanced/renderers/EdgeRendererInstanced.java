@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.jogl.availability.InstancedDraw;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
+import org.gephi.viz.engine.jogl.pipeline.common.AbstractEdgeRenderer;
 import org.gephi.viz.engine.pipeline.PipelineCategory;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.jogl.pipeline.instanced.InstancedEdgeData;
@@ -16,7 +17,7 @@ import org.gephi.viz.engine.util.gl.Constants;
  *
  * @author Eduardo Ramos
  */
-public class EdgeRendererInstanced implements Renderer<JOGLRenderingTarget> {
+public class EdgeRendererInstanced extends AbstractEdgeRenderer {
 
     private final VizEngine engine;
     private final InstancedEdgeData edgeData;
@@ -33,38 +34,19 @@ public class EdgeRendererInstanced implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void worldUpdated(JOGLRenderingTarget target) {
-        final GL2ES3 gl = target.getDrawable().getGL().getGL2ES3();
-        edgeData.updateBuffers(gl);
+        edgeData.updateBuffers(target.getDrawable().getGL());
     }
 
     private final float[] mvpFloats = new float[16];
 
     @Override
     public void render(JOGLRenderingTarget target, RenderingLayer layer) {
-        final GL2ES3 gl = target.getDrawable().getGL().getGL2ES3();
-
         engine.getModelViewProjectionMatrixFloats(mvpFloats);
         edgeData.drawInstanced(
-                gl, layer,
-                engine, mvpFloats
+            target.getDrawable().getGL().getGL3ES3(),
+            layer,
+            engine, mvpFloats
         );
-    }
-
-    private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(RenderingLayer.BACK, RenderingLayer.MIDDLE);
-
-    @Override
-    public EnumSet<RenderingLayer> getLayers() {
-        return LAYERS;
-    }
-
-    @Override
-    public int getOrder() {
-        return Constants.RENDERING_ORDER_EDGES;
-    }
-
-    @Override
-    public String getCategory() {
-        return PipelineCategory.EDGE;
     }
 
     @Override

@@ -149,6 +149,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
     private float[] attributesDrawBufferBatchOneCopyPerVertex;
     private ManagedDirectBuffer attributesDrawBufferBatchOneCopyPerVertexManagedDirectBuffer;
 
+    @Override
     protected void initBuffers() {
         super.initBuffers();
         attributesDrawBufferBatchOneCopyPerVertex = new float[ATTRIBS_STRIDE * VERTEX_COUNT_MAX * BATCH_EDGES_SIZE];//Need to copy attributes as many times as vertex per model

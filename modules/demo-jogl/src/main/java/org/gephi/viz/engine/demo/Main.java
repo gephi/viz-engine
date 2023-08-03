@@ -22,6 +22,7 @@ import org.gephi.viz.engine.VizEngineFactory;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
 import org.gephi.viz.engine.jogl.VizEngineJOGLConfigurator;
 import org.gephi.viz.engine.spi.WorldUpdaterExecutionMode;
+import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.util.gl.OpenGLOptions;
 
 public class Main implements KeyListener {
@@ -85,6 +86,9 @@ public class Main implements KeyListener {
 
         renderingTarget.setFrame(frame);
         renderingTarget.setWindowTitleFormat("VizEngine demo (JOGL NEWT) FPS: $FPS");
+
+        System.out.println("Press space bar to start/stop force atlas 2 layout");
+        System.out.println("Press ctrl key to toggle selection mode");
     }
 
     public static void main(String[] args) {
@@ -110,6 +114,9 @@ public class Main implements KeyListener {
                 engine.destroy();
                 glWindow.destroy();
                 frame.dispose();
+                break;
+            case KeyEvent.VK_CONTROL:
+                toggleSelectionMode();
                 break;
             case KeyEvent.VK_SPACE:
                 toggleLayout();
@@ -148,6 +155,19 @@ public class Main implements KeyListener {
                 }
                 forceAtlas2.endAlgo();
             });
+        }
+    }
+
+    private void toggleSelectionMode() {
+        final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
+        final GraphSelection.GraphSelectionMode mode = selection.getMode();
+
+        if (mode != GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
+            System.out.println("Enabled rectangle selection");
+            selection.setMode(GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION);
+        } else {
+            System.out.println("Enabled simple mouse selection");
+            selection.setMode(GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION);
         }
     }
 }

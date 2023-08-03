@@ -126,8 +126,9 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         maxNodeSizeToDraw = maxNodeSize;
     }
 
-    protected void initBuffers(final GL2ES2 gl) {
-        super.initBuffers();
+    @Override
+    protected void initBuffers(final GL gl) {
+        super.initBuffers(gl);
 
         gl.glGenBuffers(bufferName.length, bufferName, 0);
 

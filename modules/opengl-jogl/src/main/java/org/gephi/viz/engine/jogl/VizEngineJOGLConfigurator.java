@@ -14,6 +14,7 @@ import org.gephi.viz.engine.jogl.pipeline.arrays.ArrayDrawEdgeData;
 import org.gephi.viz.engine.jogl.pipeline.arrays.ArrayDrawNodeData;
 import org.gephi.viz.engine.jogl.pipeline.arrays.renderers.EdgeRendererArrayDraw;
 import org.gephi.viz.engine.jogl.pipeline.arrays.renderers.NodeRendererArrayDraw;
+import org.gephi.viz.engine.jogl.pipeline.arrays.renderers.RectangleSelectionArrayDraw;
 import org.gephi.viz.engine.jogl.pipeline.arrays.updaters.EdgesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.jogl.pipeline.arrays.updaters.NodesUpdaterArrayDrawRendering;
 import org.gephi.viz.engine.jogl.pipeline.indirect.IndirectNodeData;
@@ -121,6 +122,8 @@ public class VizEngineJOGLConfigurator implements VizEngineConfigurator<JOGLRend
         final ArrayDrawEdgeData edgeData = new ArrayDrawEdgeData();
         engine.addRenderer(new EdgeRendererArrayDraw(engine, edgeData));
         engine.addWorldUpdater(new EdgesUpdaterArrayDrawRendering(engine, edgeData, graphIndex));
+
+        engine.addRenderer(new RectangleSelectionArrayDraw(engine));
     }
 
     private void setupInputListeners(VizEngine<JOGLRenderingTarget, NEWTEvent> engine) {

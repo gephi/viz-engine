@@ -1,21 +1,17 @@
 package org.gephi.viz.engine.jogl.pipeline.instanced.renderers;
 
-import com.jogamp.opengl.GL2ES3;
-import java.util.EnumSet;
 import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.jogl.availability.InstancedDraw;
 import org.gephi.viz.engine.jogl.JOGLRenderingTarget;
-import org.gephi.viz.engine.pipeline.PipelineCategory;
-import org.gephi.viz.engine.pipeline.RenderingLayer;
+import org.gephi.viz.engine.jogl.pipeline.common.AbstractNodeRenderer;
 import org.gephi.viz.engine.jogl.pipeline.instanced.InstancedNodeData;
-import org.gephi.viz.engine.spi.Renderer;
-import org.gephi.viz.engine.util.gl.Constants;
+import org.gephi.viz.engine.pipeline.RenderingLayer;
 
 /**
  *
  * @author Eduardo Ramos
  */
-public class NodeRendererInstanced implements Renderer<JOGLRenderingTarget> {
+public class NodeRendererInstanced extends AbstractNodeRenderer {
 
     private final VizEngine engine;
     private final InstancedNodeData nodeData;
@@ -32,34 +28,15 @@ public class NodeRendererInstanced implements Renderer<JOGLRenderingTarget> {
 
     @Override
     public void worldUpdated(JOGLRenderingTarget target) {
-        final GL2ES3 gl = target.getDrawable().getGL().getGL2ES3();
-        nodeData.updateBuffers(gl);
+        nodeData.updateBuffers(target.getDrawable().getGL());
     }
 
     private final float[] mvpFloats = new float[16];
 
     @Override
     public void render(JOGLRenderingTarget target, RenderingLayer layer) {
-        final GL2ES3 gl = target.getDrawable().getGL().getGL2ES3();
         engine.getModelViewProjectionMatrixFloats(mvpFloats);
-        nodeData.drawInstanced(gl, layer, engine, mvpFloats);
-    }
-
-    private static final EnumSet<RenderingLayer> LAYERS = EnumSet.of(RenderingLayer.BACK, RenderingLayer.MIDDLE);
-
-    @Override
-    public EnumSet<RenderingLayer> getLayers() {
-        return LAYERS;
-    }
-
-    @Override
-    public int getOrder() {
-        return Constants.RENDERING_ORDER_NODES;
-    }
-
-    @Override
-    public String getCategory() {
-        return PipelineCategory.NODE;
+        nodeData.drawInstanced(target.getDrawable().getGL().getGL2ES3(), layer, engine, mvpFloats);
     }
 
     @Override

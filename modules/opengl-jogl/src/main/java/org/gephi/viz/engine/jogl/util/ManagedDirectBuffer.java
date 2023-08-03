@@ -44,7 +44,7 @@ public class ManagedDirectBuffer {
 
             buffer.clear();
             GLBuffers.put(newBuffer, buffer);
-            BufferUtils.destroyDirectBuffer(buffer);
+            //BufferUtils.destroyDirectBuffer(buffer);
 
             this.buffer = newBuffer;
             this.elementsCapacity = newElementsCapacity;
@@ -56,6 +56,6 @@ public class ManagedDirectBuffer {
     }
 
     public void destroy() {
-        BufferUtils.destroyDirectBuffer(buffer);
+        //BufferUtils.destroyDirectBuffer(buffer);
     }
 }

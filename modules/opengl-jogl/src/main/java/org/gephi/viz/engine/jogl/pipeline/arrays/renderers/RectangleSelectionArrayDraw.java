@@ -170,7 +170,7 @@ public class RectangleSelectionArrayDraw implements Renderer<JOGLRenderingTarget
             gl.glGetIntegerv(GL_BLEND_DST_ALPHA, intData, 0);
 
             final boolean blendEnabled = booleanData[0] > 0;
-            final int blendFunc = intData[1];
+            final int blendFunc = intData[0];
 
             if (!blendEnabled) {
                 gl.glEnable(GL_BLEND);
