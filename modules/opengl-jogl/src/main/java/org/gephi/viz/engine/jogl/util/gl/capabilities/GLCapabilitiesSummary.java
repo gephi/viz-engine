@@ -687,11 +687,11 @@ public final class GLCapabilitiesSummary {
     }
 
     public boolean isVAOSupported(OpenGLOptions openGLOptions) {
-        return extensions.ARB_vertex_array_object && !openGLOptions.isDisableVAOS();
+        return (version.MAJOR_VERSION >= 3 || extensions.ARB_vertex_array_object) && !openGLOptions.isDisableVAOS();
     }
 
     public boolean isInstancingSupported() {
-        return extensions.ARB_draw_instanced && extensions.ARB_instanced_arrays;
+        return (version.MAJOR_VERSION >= 3 || extensions.ARB_draw_instanced) && extensions.ARB_instanced_arrays;
     }
 
     public boolean isIndirectDrawSupported() {
