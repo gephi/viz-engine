@@ -13,8 +13,8 @@
     <name>Viz Engine Demo (JOGL)</name>
     
     <properties>
-        <viz-demo.maven-jar-plugin.version>3.2.0</viz-demo.maven-jar-plugin.version>
-        <viz-demo.maven-dependency-plugin.version>3.2.0</viz-demo.maven-dependency-plugin.version>
+        <viz-demo.maven-jar-plugin.version>3.3.0</viz-demo.maven-jar-plugin.version>
+        <viz-demo.maven-dependency-plugin.version>3.6.0</viz-demo.maven-dependency-plugin.version>
     </properties>
     
     <dependencies>
