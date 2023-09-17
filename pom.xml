@@ -16,9 +16,9 @@
         
         <gephi.graphstore.version>0.6.15-viz-engine-SNAPSHOT</gephi.graphstore.version>
         <gephi.version>0.10.0</gephi.version>
-        <lwjgl.version>3.3.2</lwjgl.version>
+        <lwjgl.version>3.3.3</lwjgl.version>
         <lwjgl3-awt.version>0.1.9-SNAPSHOT</lwjgl3-awt.version>
-        <jogl.version>2.5.0-rc-20230523</jogl.version>
+        <jogl.version>2.5.0</jogl.version>
         
         <joml.version>1.10.5</joml.version>
         <netbeans.version>RELEASE180</netbeans.version>

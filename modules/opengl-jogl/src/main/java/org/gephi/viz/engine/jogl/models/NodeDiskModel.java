@@ -2,7 +2,6 @@ package org.gephi.viz.engine.jogl.models;
 
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
-import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GL4;
 import org.gephi.viz.engine.jogl.util.gl.GLShaderProgram;
 import org.gephi.viz.engine.util.gl.Constants;
@@ -95,7 +94,7 @@ public class NodeDiskModel {
         gl.glDrawArraysInstanced(GL_TRIANGLES, vertexOffset, vertexCount, instanceCount);
     }
 
-    public void drawIndirect(GL3 gl, int instanceCount, int instancesOffset) {
+    public void drawIndirect(GL4 gl, int instanceCount, int instancesOffset) {
         if (instanceCount <= 0) {
             return;
         }
