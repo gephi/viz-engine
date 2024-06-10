@@ -104,11 +104,6 @@ public class DefaultJOGLEventListener implements InputListener<JOGLRenderingTarg
             return true;
         } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.SIMPLE_MOUSE_SELECTION && leftClick) {
             //TODO: move to independent selection input listener
-            final Vector2f worldCoords = engine.screenCoordinatesToWorldCoordinates(x, y);
-            System.out.println(String.format(
-                    "Click on %s %s = %s, %s", x, y, worldCoords.x, worldCoords.y
-            ));
-
             return true;
         } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
             inputActionsProcessor.clearSelection();

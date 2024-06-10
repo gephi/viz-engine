@@ -41,9 +41,19 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
         this.drawable = drawable;
     }
 
+    private boolean listenersSetup = false;
+
     @Override
     public void setup(VizEngine engine) {
         this.engine = engine;
+
+        setupEventListeners();
+    }
+
+    private synchronized void setupEventListeners() {
+        if (listenersSetup) {
+            return;
+        }
 
         drawable.addGLEventListener(this);
 
@@ -56,6 +66,8 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
         } else {
             System.out.println(drawable.getClass() + " event bridge not supported yet. Be sure to manually setup your events listener");
         }
+
+        listenersSetup = true;
     }
 
     private void setup(GLWindow gLWindow) {
@@ -125,7 +137,7 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
         //NOOP
     }
 
-    private final float backgroundColor[] = new float[4];
+    private final float[] backgroundColor = new float[4];
 
     @Override
     public void display(GLAutoDrawable drawable) {
@@ -217,12 +229,14 @@ public class JOGLRenderingTarget implements RenderingTarget, GLEventListener, co
         if (TimeUtils.getTimeMillis() - lastFpsTime > 1000) {
             if (frame != null && windowTitleFormat != null && windowTitleFormat.contains("$FPS")) {
                 frame.setTitle(windowTitleFormat.replace("$FPS", String.valueOf(fps)));
-            } else {
-                System.out.println("FPS: " + fps);
             }
             fps = 0;
             lastFpsTime += 1000;
         }
         fps++;
+    }
+
+    public int getFps() {
+        return fps;
     }
 }
