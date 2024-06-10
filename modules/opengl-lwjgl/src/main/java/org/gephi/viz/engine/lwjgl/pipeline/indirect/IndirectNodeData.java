@@ -71,6 +71,7 @@ public class IndirectNodeData extends AbstractNodeData {
         unsetupVertexArrayAttributes();
     }
 
+    @Override
     protected void initBuffers() {
         super.initBuffers();
 

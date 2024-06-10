@@ -68,6 +68,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
         unsetupDirectedVertexArrayAttributes();
     }
 
+    @Override
     protected void initBuffers() {
         super.initBuffers();
         glGenBuffers(bufferName);

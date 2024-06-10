@@ -27,8 +27,8 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
         this.graphSelection = engine.getLookup().lookup(GraphSelection.class);
     }
 
-    private boolean mouseRightButtonPresed = false;
-    private boolean mouseLeftButtonPresed = false;
+    private boolean mouseRightButtonPressed = false;
+    private boolean mouseLeftButtonPressed = false;
 
     private MouseEvent lastMovedPosition = null;
 
@@ -118,7 +118,7 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
 
     public boolean mousePressed(MouseEvent e) {
         if (e.button == Button.LEFT) {
-            mouseLeftButtonPresed = true;
+            mouseLeftButtonPressed = true;
 
             if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
                 inputActionsProcessor.clearSelection();
@@ -128,7 +128,7 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
         }
 
         if (e.button == Button.RIGHT) {
-            mouseRightButtonPresed = true;
+            mouseRightButtonPressed = true;
         }
 
         lastX = e.x;
@@ -139,11 +139,11 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
 
     public boolean mouseReleased(MouseEvent e) {
         if (e.button == Button.LEFT) {
-            mouseLeftButtonPresed = false;
+            mouseLeftButtonPressed = false;
         }
 
         if (e.button == Button.RIGHT) {
-            mouseRightButtonPresed = false;
+            mouseRightButtonPressed = false;
         }
 
         if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION) {
@@ -161,16 +161,16 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
 
     public boolean mouseDragged(MouseEvent e) {
         try {
-            if (mouseLeftButtonPresed && mouseRightButtonPresed) {
+            if (mouseLeftButtonPressed && mouseRightButtonPressed) {
                 //Zoom in/on the screen center with both buttons pressed and vertical movement:
                 final double zoomQuantity = (lastY - e.y) / 7f;//Divide by some number so zoom is not too fast
 
                 inputActionsProcessor.processZoomEvent(zoomQuantity, engine.getWidth() / 2, engine.getHeight() / 2);
                 return true;
-            } else if (graphSelection.getMode() != GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && (mouseLeftButtonPresed || mouseRightButtonPresed)) {
+            } else if (graphSelection.getMode() != GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && (mouseLeftButtonPressed || mouseRightButtonPressed)) {
                 inputActionsProcessor.processCameraMoveEvent(e.x - lastX, e.y - lastY);
                 return true;
-            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && mouseLeftButtonPresed) {
+            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && mouseLeftButtonPressed) {
                 graphSelection.updateRectangleSelection(engine.screenCoordinatesToWorldCoordinates(e.x, e.y));
 
                 final Vector2f initialPosition = graphSelection.getRectangleInitialPosition();
@@ -186,7 +186,7 @@ public class DefaultLWJGLEventListener implements InputListener<LWJGLRenderingTa
                     inputActionsProcessor.selectNodesOnRectangle(rectangle);
                 }
                 return true;
-            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && mouseRightButtonPresed) {
+            } else if (graphSelection.getMode() == GraphSelection.GraphSelectionMode.RECTANGLE_SELECTION && mouseRightButtonPressed) {
                 inputActionsProcessor.processCameraMoveEvent(e.x - lastX, e.y - lastY);
                 return true;
             }

@@ -116,6 +116,7 @@ public class ArrayDrawNodeData extends AbstractNodeData {
         maxNodeSizeToDraw = maxNodeSize;
     }
 
+    @Override
     protected void initBuffers() {
         super.initBuffers();
 
