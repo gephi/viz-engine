@@ -160,10 +160,9 @@ public class InstancedEdgeData extends AbstractEdgeData {
         graphIndex.indexEdges();
 
         //Selection:
-        final boolean someEdgesSelection = graphSelection.getSelectedEdgesCount() > 0;
-        final boolean someNodesSelection = graphSelection.getSelectedNodesCount() > 0;
+        final boolean someSelection = graphSelection.someNodesOrEdgesSelection();
         final float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
-        final boolean hideNonSelected = someEdgesSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
+        final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
         final boolean edgeSelectionColor = renderingOptions.isEdgeSelectionColor();
         final float edgeBothSelectionColor = Float.intBitsToFloat(renderingOptions.getEdgeBothSelectionColor().getRGB());
         final float edgeInSelectionColor = Float.intBitsToFloat(renderingOptions.getEdgeInSelectionColor().getRGB());
@@ -184,12 +183,12 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
         updateUndirectedData(
             graph,
-            someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
+            someSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
             attributesBufferBatch, 0, attribsDirectBuffer
         );
         updateDirectedData(
             graph,
-            someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
+            someSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
             attributesBufferBatch, 0, attribsDirectBuffer
         );
     }

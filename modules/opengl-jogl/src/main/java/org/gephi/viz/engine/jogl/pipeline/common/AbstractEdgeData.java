@@ -85,7 +85,7 @@ public class AbstractEdgeData {
                                                                 final RenderingLayer layer,
                                                                 final VizEngine engine,
                                                                 final float[] mvpFloats) {
-        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedEdgesCount() > 0;
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).someNodesOrEdgesSelection();
         final boolean renderingUnselectedEdges = layer.isBack();
         if (!someSelection && renderingUnselectedEdges) {
             return 0;
@@ -133,7 +133,7 @@ public class AbstractEdgeData {
             );
 
             if (someSelection) {
-                if (someNodesSelection && edgeSelectionColor) {
+                if (someSelection && edgeSelectionColor) {
                     lineModelUndirected.useProgram(
                         gl,
                         mvpFloats,
@@ -175,7 +175,7 @@ public class AbstractEdgeData {
                                                               final RenderingLayer layer,
                                                               final VizEngine engine,
                                                               final float[] mvpFloats) {
-        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedEdgesCount() > 0;
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).someNodesOrEdgesSelection();
         final boolean renderingUnselectedEdges = layer.isBack();
         if (!someSelection && renderingUnselectedEdges) {
             return 0;
@@ -222,7 +222,7 @@ public class AbstractEdgeData {
             );
 
             if (someSelection) {
-                if (someNodesSelection && edgeSelectionColor) {
+                if (someSelection && edgeSelectionColor) {
                     lineModelDirected.useProgram(
                         gl,
                         mvpFloats,
@@ -262,15 +262,15 @@ public class AbstractEdgeData {
 
     protected int updateDirectedData(
         final Graph graph,
-        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final boolean someSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
         final float[] attribs, int index
     ) {
-        return updateDirectedData(graph, someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor, attribs, index, null);
+        return updateDirectedData(graph, someSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor, attribs, index, null);
     }
 
     protected int updateDirectedData(
         final Graph graph,
-        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final boolean someSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
         final float[] attribs, int index, final FloatBuffer directBuffer
     ) {
         checkBufferIndexing(directBuffer, attribs, index);
@@ -281,11 +281,11 @@ public class AbstractEdgeData {
             return index;
         }
 
-        saveSelectionState(someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+        saveSelectionState(this.someSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
 
         int newEdgesCountUnselected = 0;
         int newEdgesCountSelected = 0;
-        if (someEdgesSelection) {
+        if (someSelection) {
             if (hideNonSelected) {
                 for (int j = 0; j < visibleEdgesCount; j++) {
                     final Edge edge = visibleEdgesArray[j];
@@ -387,15 +387,15 @@ public class AbstractEdgeData {
 
     protected int updateUndirectedData(
         final Graph graph,
-        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final boolean someSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
         final float[] attribs, int index
     ) {
-        return updateUndirectedData(graph, someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor, attribs, index, null);
+        return updateUndirectedData(graph, someSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor, attribs, index, null);
     }
 
     protected int updateUndirectedData(
         final Graph graph,
-        final boolean someEdgesSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean someNodesSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
+        final boolean someSelection, final boolean hideNonSelected, final int visibleEdgesCount, final Edge[] visibleEdgesArray, final GraphSelection graphSelection, final boolean edgeSelectionColor, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor,
         final float[] attribs, int index, final FloatBuffer directBuffer
     ) {
         checkBufferIndexing(directBuffer, attribs, index);
@@ -406,12 +406,12 @@ public class AbstractEdgeData {
             return index;
         }
 
-        saveSelectionState(someNodesSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
+        saveSelectionState(someSelection, edgeSelectionColor, graphSelection, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor);
 
         int newEdgesCountUnselected = 0;
         int newEdgesCountSelected = 0;
         //Undirected edges:
-        if (someEdgesSelection) {
+        if (someSelection) {
             if (hideNonSelected) {
                 for (int j = 0; j < visibleEdgesCount; j++) {
                     final Edge edge = visibleEdgesArray[j];
@@ -522,20 +522,20 @@ public class AbstractEdgeData {
         }
     }
 
-    private boolean someNodesSelection;
+    private boolean someSelection;
     private boolean edgeSelectionColor;
     private GraphSelection graphSelection;
     private float edgeBothSelectionColor;
     private float edgeOutSelectionColor;
     private float edgeInSelectionColor;
 
-    private void saveSelectionState(final boolean someNodesSelection1, final boolean edgeSelectionColor1, final GraphSelection graphSelection1, final float edgeBothSelectionColor1, final float edgeOutSelectionColor1, final float edgeInSelectionColor1) {
-        this.someNodesSelection = someNodesSelection1;
-        this.edgeSelectionColor = edgeSelectionColor1;
-        this.graphSelection = graphSelection1;
-        this.edgeBothSelectionColor = edgeBothSelectionColor1;
-        this.edgeOutSelectionColor = edgeOutSelectionColor1;
-        this.edgeInSelectionColor = edgeInSelectionColor1;
+    private void saveSelectionState(final boolean someSelection, final boolean edgeSelectionColor, final GraphSelection graphSelection, final float edgeBothSelectionColor, final float edgeOutSelectionColor, final float edgeInSelectionColor) {
+        this.someSelection = someSelection;
+        this.edgeSelectionColor = edgeSelectionColor;
+        this.graphSelection = graphSelection;
+        this.edgeBothSelectionColor = edgeBothSelectionColor;
+        this.edgeOutSelectionColor = edgeOutSelectionColor;
+        this.edgeInSelectionColor = edgeInSelectionColor;
     }
 
     protected void fillUndirectedEdgeAttributesDataBase(final float[] buffer, final Edge edge, final int index) {
@@ -579,7 +579,7 @@ public class AbstractEdgeData {
 
         //Color:
         if (selected) {
-            if (someNodesSelection && edgeSelectionColor) {
+            if (someSelection && edgeSelectionColor) {
                 boolean sourceSelected = graphSelection.isNodeSelected(source);
                 boolean targetSelected = graphSelection.isNodeSelected(target);
 
@@ -593,7 +593,7 @@ public class AbstractEdgeData {
                     buffer[index + 7] = Float.intBitsToFloat(edge.getRGBA());//Color
                 }
             } else {
-                if (someNodesSelection && edge.alpha() <= 0) {
+                if (someSelection && edge.alpha() <= 0) {
                     if (graphSelection.isNodeSelected(source)) {
                         buffer[index + 7] = Float.intBitsToFloat(target.getRGBA());//Color
                     } else {
@@ -650,7 +650,7 @@ public class AbstractEdgeData {
 
         //Color:
         if (selected) {
-            if (someNodesSelection && edgeSelectionColor) {
+            if (someSelection && edgeSelectionColor) {
                 boolean sourceSelected = graphSelection.isNodeSelected(source);
                 boolean targetSelected = graphSelection.isNodeSelected(target);
 
@@ -664,7 +664,7 @@ public class AbstractEdgeData {
                     buffer[index + 6] = Float.intBitsToFloat(edge.getRGBA());//Color
                 }
             } else {
-                if (someNodesSelection && edge.alpha() <= 0) {
+                if (someSelection && edge.alpha() <= 0) {
                     if (graphSelection.isNodeSelected(source)) {
                         buffer[index + 6] = Float.intBitsToFloat(target.getRGBA());//Color
                     } else {

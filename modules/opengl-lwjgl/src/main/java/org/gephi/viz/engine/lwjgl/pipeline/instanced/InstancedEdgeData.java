@@ -7,18 +7,14 @@ import org.gephi.viz.engine.lwjgl.models.EdgeLineModelDirected;
 import org.gephi.viz.engine.lwjgl.models.EdgeLineModelUndirected;
 import org.gephi.viz.engine.lwjgl.pipeline.common.AbstractEdgeData;
 import org.gephi.viz.engine.lwjgl.util.gl.GLBufferMutable;
-import org.gephi.viz.engine.lwjgl.util.gl.ManagedDirectBuffer;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
-import org.gephi.viz.engine.structure.GraphIndex;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
 
-import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 
 /**
@@ -159,10 +155,9 @@ public class InstancedEdgeData extends AbstractEdgeData {
         graphIndex.indexEdges();
 
         //Selection:
-        final boolean someEdgesSelection = graphSelection.getSelectedEdgesCount() > 0;
-        final boolean someNodesSelection = graphSelection.getSelectedNodesCount() > 0;
+        final boolean someSelection = graphSelection.someNodesOrEdgesSelection();
         final float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
-        final boolean hideNonSelected = someEdgesSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
+        final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
         final boolean edgeSelectionColor = renderingOptions.isEdgeSelectionColor();
         final float edgeBothSelectionColor = Float.intBitsToFloat(renderingOptions.getEdgeBothSelectionColor().getRGB());
         final float edgeInSelectionColor = Float.intBitsToFloat(renderingOptions.getEdgeInSelectionColor().getRGB());
@@ -183,12 +178,12 @@ public class InstancedEdgeData extends AbstractEdgeData {
 
         updateUndirectedData(
             graph,
-            someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
+            someSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
             attributesBufferBatch, 0, attribsDirectBuffer
         );
         updateDirectedData(
             graph,
-            someEdgesSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, someNodesSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
+            someSelection, hideNonSelected, visibleEdgesCount, visibleEdgesArray, graphSelection, edgeSelectionColor, edgeBothSelectionColor, edgeOutSelectionColor, edgeInSelectionColor,
             attributesBufferBatch, 0, attribsDirectBuffer
         );
     }

@@ -21,6 +21,11 @@ public class GraphSelectionImpl implements GraphSelection {
     }
 
     @Override
+    public boolean someNodesOrEdgesSelection() {
+        return !nodes.isEmpty() || !edges.isEmpty();
+    }
+
+    @Override
     public boolean isNodeSelected(Node node) {
         return nodes.contains(node);
     }

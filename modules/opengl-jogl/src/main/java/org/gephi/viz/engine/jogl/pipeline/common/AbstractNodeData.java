@@ -161,7 +161,7 @@ public abstract class AbstractNodeData {
                                                       final VizEngine engine,
                                                       final float[] mvpFloats,
                                                       final boolean isRenderingOutsideCircle) {
-        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).getSelectedNodesCount() > 0;
+        final boolean someSelection = engine.getLookup().lookup(GraphSelection.class).someNodesOrEdgesSelection();
         final boolean renderingUnselectedNodes = layer.isBack();
         if (!someSelection && renderingUnselectedNodes) {
             return 0;
@@ -222,7 +222,7 @@ public abstract class AbstractNodeData {
         spatialIndex.indexNodes();
 
         //Selection:
-        final boolean someSelection = selection.getSelectedNodesCount() > 0;
+        final boolean someSelection = selection.someNodesOrEdgesSelection();
         final float lightenNonSelectedFactor = renderingOptions.getLightenNonSelectedFactor();
         final boolean hideNonSelected = someSelection && (renderingOptions.isHideNonSelected() || lightenNonSelectedFactor >= 1);
 

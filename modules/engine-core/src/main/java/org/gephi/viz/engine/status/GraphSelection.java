@@ -16,6 +16,9 @@ public interface GraphSelection {
         SIMPLE_MOUSE_SELECTION,
         RECTANGLE_SELECTION
     }
+
+    boolean someNodesOrEdgesSelection();
+
     boolean isNodeSelected(Node node);
 
     int getSelectedNodesCount();
