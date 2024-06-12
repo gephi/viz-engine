@@ -1,7 +1,9 @@
 package org.gephi.viz.engine.jogl.util;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.util.GLBuffers;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -55,6 +57,9 @@ public class ManagedDirectBuffer {
     }
 
     public void destroy() {
-        //NOOP
+        // Should always be, but let's be careful:
+        if (buffer instanceof ByteBuffer) {
+            GLBuffers.Cleaner.clean((ByteBuffer) buffer);
+        }
     }
 }
