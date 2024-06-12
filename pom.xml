@@ -14,14 +14,17 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <jcp-maven-plugin.version>7.1.2</jcp-maven-plugin.version>
         
-        <gephi.graphstore.version>0.6.15-viz-engine-SNAPSHOT</gephi.graphstore.version>
-        <gephi.version>0.10.0</gephi.version>
+        <gephi.graphstore.version>0.7.1</gephi.graphstore.version>
+        <gephi.version>0.11.0-SNAPSHOT</gephi.version>
         <jogl.version>2.5.0</jogl.version>
         
         <joml.version>1.10.5</joml.version>
-        <netbeans.version>RELEASE180</netbeans.version>
+        <netbeans.version>RELEASE220</netbeans.version>
 
         <junit.version>4.13.2</junit.version>
+
+        <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
+        <maven-dependency-plugin.version>3.7.0</maven-dependency-plugin.version>
     </properties>
     
     <modules>
@@ -127,6 +130,43 @@
                 <artifactId>viz-engine-jogl</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Gephi for demo -->
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>graph-api</artifactId>
+                <version>${gephi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>io-importer-api</artifactId>
+                <version>${gephi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>io-importer-plugin</artifactId>
+                <version>${gephi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>layout-api</artifactId>
+                <version>${gephi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>layout-plugin</artifactId>
+                <version>${gephi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-filesystems</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.modules</groupId>
+                <artifactId>org-netbeans-modules-masterfs</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
         
             <!-- Test -->
             <dependency>
@@ -141,6 +181,16 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>com.igormaznitsa</groupId>
                     <artifactId>jcp</artifactId>

@@ -364,6 +364,9 @@ public class VizEngine<R extends RenderingTarget, I> {
     }
 
     public synchronized void destroy() {
+        allInputListeners.clear();
+        inputListenersPipeline.clear();
+
         this.renderingTarget.stop();
         if (updatersThreadPool != null) {
             try {

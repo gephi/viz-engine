@@ -12,11 +12,6 @@
 
     <name>Viz Engine Demo (JOGL)</name>
     
-    <properties>
-        <viz-demo.maven-jar-plugin.version>3.3.0</viz-demo.maven-jar-plugin.version>
-        <viz-demo.maven-dependency-plugin.version>3.6.0</viz-demo.maven-dependency-plugin.version>
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>org.gephi</groupId>
@@ -30,37 +25,30 @@
         <dependency>
             <groupId>org.gephi</groupId>
             <artifactId>graph-api</artifactId>
-            <version>${gephi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.gephi</groupId>
             <artifactId>io-importer-api</artifactId>
-            <version>${gephi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.gephi</groupId>
             <artifactId>io-importer-plugin</artifactId>
-            <version>${gephi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.gephi</groupId>
             <artifactId>layout-api</artifactId>
-            <version>${gephi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.gephi</groupId>
             <artifactId>layout-plugin</artifactId>
-            <version>${gephi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>
-            <version>${netbeans.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-masterfs</artifactId>
-            <version>${netbeans.version}</version>
         </dependency>
         
         <!-- Gluegen -->
@@ -77,21 +65,6 @@
     </dependencies>
     
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>${viz-demo.maven-jar-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>${viz-demo.maven-dependency-plugin.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
