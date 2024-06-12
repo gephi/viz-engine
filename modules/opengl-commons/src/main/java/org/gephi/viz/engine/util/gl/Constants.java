@@ -39,7 +39,6 @@ public class Constants {
     public static final String UNIFORM_NAME_BACKGROUND_COLOR = "backgroundColor";
     public static final String UNIFORM_NAME_SIZE_MULTIPLIER = "sizeMultiplier";
     public static final String UNIFORM_NAME_COLOR_LIGHTEN_FACTOR = "colorLightenFactor";
-    public static final String UNIFORM_NAME_COLOR_BIAS = "colorBias";
     public static final String UNIFORM_NAME_COLOR_MULTIPLIER = "colorMultiplier";
 
     //Rendering order:

@@ -52,6 +52,7 @@ public class IndirectNodeData extends AbstractNodeData {
 
     public void drawIndirect(GL4 gl, RenderingLayer layer, VizEngine engine, float[] mvpFloats) {
         //First we draw outside circle (for border) and then inside circle:
+        //FIXME: all node parts should be drawn at the same time, otherwise internal parts of nodes can cover external parts!
         drawIndirectInternal(gl, layer, engine, mvpFloats, true);
         drawIndirectInternal(gl, layer, engine, mvpFloats, false);
     }

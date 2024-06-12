@@ -11,9 +11,7 @@ uniform mat4 mvp;
 uniform float sizeMultiplier;
 uniform float colorMultiplier;
 //#if with_selection
-//#if selected
-uniform float colorBias;
-//#else
+//#if !selected
 uniform vec4 backgroundColor;
 uniform float colorLightenFactor;
 //#endif
@@ -35,7 +33,7 @@ void main() {
 
     //#if with_selection
     //#if selected
-    color.rgb = colorBias + color.rgb * colorMultiplier;
+    color.rgb = color.rgb * colorMultiplier;
     //#else
     color.rgb = color.rgb * colorMultiplier;
     color.rgb = mix(color.rgb, backgroundColor.rgb, colorLightenFactor);

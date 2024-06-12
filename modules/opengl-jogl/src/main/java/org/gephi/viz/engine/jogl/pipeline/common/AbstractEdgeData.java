@@ -133,7 +133,7 @@ public class AbstractEdgeData {
             );
 
             if (someSelection) {
-                if (someSelection && edgeSelectionColor) {
+                if (edgeSelectionColor) {
                     lineModelUndirected.useProgram(
                         gl,
                         mvpFloats,
@@ -142,17 +142,12 @@ public class AbstractEdgeData {
                         maxWeight
                     );
                 } else {
-                    final float colorBias = 0.5f;
-                    final float colorMultiplier = 0.5f;
-
                     lineModelUndirected.useProgramWithSelectionSelected(
                         gl,
                         mvpFloats,
                         edgeScale,
                         minWeight,
-                        maxWeight,
-                        colorBias,
-                        colorMultiplier
+                        maxWeight
                     );
                 }
             } else {
@@ -231,17 +226,12 @@ public class AbstractEdgeData {
                         maxWeight
                     );
                 } else {
-                    final float colorBias = 0.5f;
-                    final float colorMultiplier = 0.5f;
-
                     lineModelDirected.useProgramWithSelectionSelected(
                         gl,
                         mvpFloats,
                         edgeScale,
                         minWeight,
-                        maxWeight,
-                        colorBias,
-                        colorMultiplier
+                        maxWeight
                     );
                 }
             } else {

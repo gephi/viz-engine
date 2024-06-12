@@ -190,13 +190,11 @@ public abstract class AbstractNodeData {
             instanceCount = instanceCounter.selectedCountToDraw;
 
             if (someSelection) {
-                final float colorBias = isRenderingOutsideCircle ? 0f : 0.5f;
-                final float colorMultiplier = isRenderingOutsideCircle ? 1f : 0.5f;
+                final float colorMultiplier = isRenderingOutsideCircle ? NODER_BORDER_DARKEN_FACTOR : 1f;
                 diskModel.useProgramWithSelectionSelected(
                     gl,
                     mvpFloats,
                     sizeMultiplier,
-                    colorBias,
                     colorMultiplier
                 );
             } else {

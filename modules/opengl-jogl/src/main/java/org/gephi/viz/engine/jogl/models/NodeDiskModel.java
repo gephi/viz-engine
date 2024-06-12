@@ -16,7 +16,6 @@ import static org.gephi.viz.engine.util.gl.Constants.SHADER_POSITION_LOCATION;
 import static org.gephi.viz.engine.util.gl.Constants.SHADER_SIZE_LOCATION;
 import static org.gephi.viz.engine.util.gl.Constants.SHADER_VERT_LOCATION;
 import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_BACKGROUND_COLOR;
-import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_BIAS;
 import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_LIGHTEN_FACTOR;
 import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_COLOR_MULTIPLIER;
 import static org.gephi.viz.engine.util.gl.Constants.UNIFORM_NAME_MODEL_VIEW_PROJECTION;
@@ -62,7 +61,6 @@ public class NodeDiskModel {
         programWithSelectionSelected = new GLShaderProgram(SHADERS_ROOT, SHADERS_NODE_CIRCLE_SOURCE_WITH_SELECTION_SELECTED, SHADERS_NODE_CIRCLE_SOURCE)
             .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
             .addUniformName(UNIFORM_NAME_SIZE_MULTIPLIER)
-            .addUniformName(UNIFORM_NAME_COLOR_BIAS)
             .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
             .addAttribLocation(ATTRIB_NAME_VERT, SHADER_VERT_LOCATION)
             .addAttribLocation(ATTRIB_NAME_POSITION, SHADER_POSITION_LOCATION)
@@ -101,13 +99,12 @@ public class NodeDiskModel {
         gl.glMultiDrawArraysIndirect(GL_TRIANGLES, (long) instancesOffset * INDIRECT_DRAW_COMMAND_BYTES, instanceCount, 0);
     }
 
-    public void useProgramWithSelectionSelected(GL2ES2 gl, float[] mvpFloats, float sizeMultiplier, float colorBias, float colorMultiplier) {
+    public void useProgramWithSelectionSelected(GL2ES2 gl, float[] mvpFloats, float sizeMultiplier, float colorMultiplier) {
         //Circle:
         programWithSelectionSelected.use(gl);
 
         gl.glUniformMatrix4fv(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), 1, false, mvpFloats, 0);
         gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_SIZE_MULTIPLIER), sizeMultiplier);
-        gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_BIAS), colorBias);
         gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
     }
 

@@ -79,8 +79,6 @@ public class EdgeLineModelUndirected {
 
         programWithSelectionSelected = new GLShaderProgram(SHADERS_ROOT, SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION_SELECTED, SHADERS_EDGE_LINE_SOURCE)
             .addUniformName(UNIFORM_NAME_MODEL_VIEW_PROJECTION)
-            .addUniformName(UNIFORM_NAME_COLOR_BIAS)
-            .addUniformName(UNIFORM_NAME_COLOR_MULTIPLIER)
             .addUniformName(UNIFORM_NAME_EDGE_SCALE_MIN)
             .addUniformName(UNIFORM_NAME_EDGE_SCALE_MAX)
             .addUniformName(UNIFORM_NAME_MIN_WEIGHT)
@@ -137,9 +135,9 @@ public class EdgeLineModelUndirected {
         prepareProgramData(gl, mvpFloats, scale, minWeight, maxWeight);
     }
 
-    public void useProgramWithSelectionSelected(GL2ES2 gl, float[] mvpFloats, float scale, float minWeight, float maxWeight, float colorBias, float colorMultiplier) {
+    public void useProgramWithSelectionSelected(GL2ES2 gl, float[] mvpFloats, float scale, float minWeight, float maxWeight) {
         programWithSelectionSelected.use(gl);
-        prepareProgramDataWithSelectionSelected(gl, mvpFloats, scale, minWeight, maxWeight, colorBias, colorMultiplier);
+        prepareProgramDataWithSelectionSelected(gl, mvpFloats, scale, minWeight, maxWeight);
     }
 
     public void useProgramWithSelectionUnselected(GL2ES2 gl, float[] mvpFloats, float scale, float minWeight, float maxWeight, float[] backgroundColorFloats, float colorLightenFactor) {
@@ -164,10 +162,8 @@ public class EdgeLineModelUndirected {
         }
     }
 
-    private void prepareProgramDataWithSelectionSelected(GL2ES2 gl, float[] mvpFloats, float scale, float minWeight, float maxWeight, float colorBias, float colorMultiplier) {
+    private void prepareProgramDataWithSelectionSelected(GL2ES2 gl, float[] mvpFloats, float scale, float minWeight, float maxWeight) {
         gl.glUniformMatrix4fv(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_MODEL_VIEW_PROJECTION), 1, false, mvpFloats, 0);
-        gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_BIAS), colorBias);
-        gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_COLOR_MULTIPLIER), colorMultiplier);
         gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MIN), EDGE_SCALE_MIN * scale);
         gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_EDGE_SCALE_MAX), EDGE_SCALE_MAX * scale);
         gl.glUniform1f(programWithSelectionSelected.getUniformLocation(UNIFORM_NAME_MIN_WEIGHT), minWeight);
