@@ -9,8 +9,8 @@ import java.util.function.Consumer;
  * @author Eduardo Ramos
  */
 public interface GraphIndex {
-    
-    Graph getGraph();
+
+    Graph getVisibleGraph();
 
     int getNodeCount();
 

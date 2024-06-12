@@ -26,25 +26,22 @@ public class GraphIndexImpl implements GraphIndex {
 
     //Graph
     private GraphModel graphModel;
-    private Graph graph;
     private float edgesMinWeight = 1;
     private float edgesMaxWeight = 1;
 
     private void init() {
         graphModel = engine.getGraphModel();
-        graph = graphModel.getGraphVisible();
     }
 
     private void ensureInitialized() {
-        if (graph == null) {
+        if (graphModel == null) {
             init();
         }
     }
 
-    @Override
-    public Graph getGraph() {
+    public Graph getVisibleGraph() {
         ensureInitialized();
-        return graph;
+        return graphModel.getGraphVisible();
     }
 
     public void indexNodes() {
@@ -54,28 +51,29 @@ public class GraphIndexImpl implements GraphIndex {
     public void indexEdges() {
         ensureInitialized();
 
-        if (graph.getEdgeCount() > 0) {
-            final Column weightColumn = graph.getModel().getEdgeTable().getColumn(GraphStoreConfiguration.EDGE_WEIGHT_INDEX);
+        final Graph visibleGraph = getVisibleGraph();
+        if (visibleGraph.getEdgeCount() > 0) {
+            final Column weightColumn = visibleGraph.getModel().getEdgeTable().getColumn(GraphStoreConfiguration.EDGE_WEIGHT_INDEX);
 
             if (weightColumn.isIndexed() && AttributeUtils.isSimpleType(weightColumn.getTypeClass())) {
-                graph.readLock();
+                visibleGraph.readLock();
                 try {
-                    edgesMinWeight = graph.getModel().getEdgeIndex().getMinValue(weightColumn).floatValue();
-                    edgesMaxWeight = graph.getModel().getEdgeIndex().getMaxValue(weightColumn).floatValue();
+                    edgesMinWeight = visibleGraph.getModel().getEdgeIndex().getMinValue(weightColumn).floatValue();
+                    edgesMaxWeight = visibleGraph.getModel().getEdgeIndex().getMaxValue(weightColumn).floatValue();
                 } finally {
-                    graph.readUnlockAll();
+                    visibleGraph.readUnlockAll();
                 }
             } else {
-                graph.readLock();
+                visibleGraph.readLock();
                 try {
-                    final GraphView graphView = graph.getView();
+                    final GraphView graphView = visibleGraph.getView();
                     final boolean isView = !graphView.isMainView();
 
                     if (!isView) {
                         float minWeight = Float.MAX_VALUE;
                         float maxWeight = Float.MIN_VALUE;
 
-                        for (Edge edge : graph.getEdges()) {
+                        for (Edge edge : visibleGraph.getEdges()) {
                             float weight = (float) edge.getWeight(graphView);
                             minWeight = weight <= minWeight ? weight : minWeight;
                             maxWeight = weight >= maxWeight ? weight : maxWeight;
@@ -85,7 +83,7 @@ public class GraphIndexImpl implements GraphIndex {
                         edgesMaxWeight = maxWeight;
                     }
                 } finally {
-                    graph.readUnlockAll();
+                    visibleGraph.readUnlockAll();
                 }
             }
         } else {
@@ -97,14 +95,14 @@ public class GraphIndexImpl implements GraphIndex {
     public int getNodeCount() {
         ensureInitialized();
 
-        return graph.getNodeCount();
+        return getVisibleGraph().getNodeCount();
     }
 
     @Override
     public int getEdgeCount() {
         ensureInitialized();
 
-        return graph.getEdgeCount();
+        return getVisibleGraph().getEdgeCount();
     }
 
     @Override
@@ -121,16 +119,17 @@ public class GraphIndexImpl implements GraphIndex {
     public NodeIterable getVisibleNodes() {
         ensureInitialized();
 
-        return graphModel.getSpatialIndex().getNodesInArea(engine.getViewBoundaries());
+        return getVisibleGraph().getSpatialIndex().getNodesInArea(engine.getViewBoundaries());
     }
 
     @Override
     public void getVisibleNodes(ElementsCallback<Node> callback) {
         ensureInitialized();
 
-        callback.start(graph);
+        final Graph visibleGraph = getVisibleGraph();
+        callback.start(visibleGraph);
 
-        final NodeIterable nodeIterable = graphModel.getSpatialIndex().getNodesInArea(engine.getViewBoundaries());
+        final NodeIterable nodeIterable = visibleGraph.getSpatialIndex().getNodesInArea(engine.getViewBoundaries());
         try {
             for (Node node : nodeIterable) {
                 callback.accept(node);
@@ -139,22 +138,23 @@ public class GraphIndexImpl implements GraphIndex {
             nodeIterable.doBreak();
         }
 
-        callback.end(graph);
+        callback.end(visibleGraph);
     }
 
     @Override
     public EdgeIterable getVisibleEdges() {
         ensureInitialized();
 
-        return graphModel.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries());
+        return getVisibleGraph().getSpatialIndex().getEdgesInArea(engine.getViewBoundaries());
     }
 
     @Override
     public void getVisibleEdges(ElementsCallback<Edge> callback) {
         ensureInitialized();
 
-        callback.start(graph);
-        final EdgeIterable edgeIterable = graphModel.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries());
+        final Graph visibleGraph = getVisibleGraph();
+        callback.start(visibleGraph);
+        final EdgeIterable edgeIterable = visibleGraph.getSpatialIndex().getEdgesInArea(engine.getViewBoundaries());
         try {
             for (Edge edge : edgeIterable) {
                 callback.accept(edge);
@@ -163,14 +163,14 @@ public class GraphIndexImpl implements GraphIndex {
             edgeIterable.doBreak();
         }
 
-        callback.end(graph);
+        callback.end(visibleGraph);
     }
 
     @Override
     public NodeIterable getNodesUnderPosition(float x, float y) {
         ensureInitialized();
 
-        return filterNodeIterable(graphModel.getSpatialIndex().getNodesInArea(getCircleRect2D(x, y, 0)), node -> {
+        return filterNodeIterable(getVisibleGraph().getSpatialIndex().getNodesInArea(getCircleRect2D(x, y, 0)), node -> {
             final float size = node.size();
 
             return Intersectionf.testPointCircle(x, y, node.x(), node.y(), size * size);
@@ -181,7 +181,7 @@ public class GraphIndexImpl implements GraphIndex {
     public NodeIterable getNodesInsideCircle(float centerX, float centerY, float radius) {
         ensureInitialized();
 
-        return filterNodeIterable(graphModel.getSpatialIndex().getNodesInArea(getCircleRect2D(centerX, centerY, radius)), node -> {
+        return filterNodeIterable(getVisibleGraph().getSpatialIndex().getNodesInArea(getCircleRect2D(centerX, centerY, radius)), node -> {
             return Intersectionf.testCircleCircle(centerX, centerY, radius, node.x(), node.y(), node.size());
         });
     }
@@ -190,7 +190,7 @@ public class GraphIndexImpl implements GraphIndex {
     public NodeIterable getNodesInsideRectangle(Rect2D rect) {
         ensureInitialized();
 
-        return filterNodeIterable(graphModel.getSpatialIndex().getNodesInArea(rect), node -> {
+        return filterNodeIterable(getVisibleGraph().getSpatialIndex().getNodesInArea(rect), node -> {
             final float size = node.size();
 
             return Intersectionf.testAarCircle(rect.minX, rect.minY, rect.maxX, rect.maxY, node.x(), node.y(), size * size);
@@ -201,7 +201,7 @@ public class GraphIndexImpl implements GraphIndex {
     public EdgeIterable getEdgesInsideRectangle(Rect2D rect) {
         ensureInitialized();
 
-        return filterEdgeIterable(graphModel.getSpatialIndex().getEdgesInArea(rect), edge -> {
+        return filterEdgeIterable(getVisibleGraph().getSpatialIndex().getEdgesInArea(rect), edge -> {
             final Node source = edge.getSource();
             final Node target = edge.getTarget();
 
@@ -214,7 +214,7 @@ public class GraphIndexImpl implements GraphIndex {
     public EdgeIterable getEdgesInsideCircle(float centerX, float centerY, float radius) {
         ensureInitialized();
 
-        return filterEdgeIterable(graphModel.getSpatialIndex().getEdgesInArea(getCircleRect2D(centerX, centerY, radius)), edge -> {
+        return filterEdgeIterable(getVisibleGraph().getSpatialIndex().getEdgesInArea(getCircleRect2D(centerX, centerY, radius)), edge -> {
             final Node source = edge.getSource();
             final Node target = edge.getTarget();
 
@@ -232,13 +232,14 @@ public class GraphIndexImpl implements GraphIndex {
     public Rect2D getGraphBoundaries() {
         ensureInitialized();
 
-        if (graph.getNodeCount() > 0) {
+        final Graph visibleGraph = getVisibleGraph();
+        if (visibleGraph.getNodeCount() > 0) {
             float minX = Float.MAX_VALUE;
             float maxX = Float.MIN_VALUE;
             float minY = Float.MAX_VALUE;
             float maxY = Float.MIN_VALUE;
 
-            for (Node node : graph.getNodes()) {
+            for (Node node : visibleGraph.getNodes()) {
                 final float x = node.x();
                 final float y = node.y();
                 final float size = node.size();

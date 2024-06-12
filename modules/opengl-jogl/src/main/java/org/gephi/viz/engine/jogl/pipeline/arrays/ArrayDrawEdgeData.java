@@ -240,7 +240,7 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
         final Edge[] visibleEdgesArray = edgesCallback.getEdgesArray();
         final int visibleEdgesCount = edgesCallback.getCount();
 
-        final Graph graph = graphIndex.getGraph();
+        final Graph graph = graphIndex.getVisibleGraph();
 
         int attribsIndex = 0;
         attribsIndex = updateUndirectedData(

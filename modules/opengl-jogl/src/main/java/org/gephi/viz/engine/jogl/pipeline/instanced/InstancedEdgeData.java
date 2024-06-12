@@ -179,7 +179,7 @@ public class InstancedEdgeData extends AbstractEdgeData {
         final Edge[] visibleEdgesArray = edgesCallback.getEdgesArray();
         final int visibleEdgesCount = edgesCallback.getCount();
 
-        final Graph graph = graphIndex.getGraph();
+        final Graph graph = graphIndex.getVisibleGraph();
 
         updateUndirectedData(
             graph,
