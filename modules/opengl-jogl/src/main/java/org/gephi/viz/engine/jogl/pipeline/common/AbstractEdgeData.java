@@ -569,6 +569,10 @@ public class AbstractEdgeData {
         fillUndirectedEdgeAttributesDataBase(buffer, edge, index);
 
         buffer[index + 7] = Float.intBitsToFloat(edge.getRGBA());//Color
+
+        //Source and target size:
+        buffer[index + 8] = edge.getSource().size();
+        buffer[index + 9] = edge.getTarget().size();
     }
 
     protected void fillUndirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
@@ -606,6 +610,10 @@ public class AbstractEdgeData {
         } else {
             buffer[index + 7] = Float.intBitsToFloat(edge.getRGBA());//Color
         }
+
+        //Source and target size:
+        buffer[index + 8] = edge.getSource().size();
+        buffer[index + 9] = edge.getTarget().size();
     }
 
     protected void fillDirectedEdgeAttributesDataBase(final float[] buffer, final Edge edge, final int index) {
@@ -638,8 +646,9 @@ public class AbstractEdgeData {
         //Color:
         buffer[index + 6] = Float.intBitsToFloat(edge.getRGBA());//Color
 
-        //Target size:
-        buffer[index + 7] = edge.getTarget().size();
+        //Source and target size:
+        buffer[index + 7] = edge.getSource().size();
+        buffer[index + 8] = edge.getTarget().size();
     }
 
     protected void fillDirectedEdgeAttributesDataWithSelection(final float[] buffer, final Edge edge, final int index, final boolean selected) {
@@ -678,8 +687,9 @@ public class AbstractEdgeData {
             buffer[index + 6] = Float.intBitsToFloat(edge.getRGBA());//Color
         }
 
-        //Target size:
-        buffer[index + 7] = target.size();
+        //Source and target size:
+        buffer[index + 7] = source.size();
+        buffer[index + 8] = target.size();
     }
 
     private UndirectedEdgesVAO undirectedEdgesVAO;
@@ -820,6 +830,12 @@ public class AbstractEdgeData {
                 offset += EdgeLineModelUndirected.TARGET_COLOR_FLOATS * Float.BYTES;
 
                 gl.glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelUndirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
+                offset += EdgeLineModelUndirected.COLOR_FLOATS * Float.BYTES;
+
+                gl.glVertexAttribPointer(SHADER_SOURCE_SIZE_LOCATION, EdgeLineModelDirected.SOURCE_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
+                offset += EdgeLineModelDirected.SOURCE_SIZE_FLOATS * Float.BYTES;
+
+                gl.glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
             }
             attributesBuffer.unbind(gl);
         }
@@ -833,7 +849,9 @@ public class AbstractEdgeData {
                 SHADER_SIZE_LOCATION,
                 SHADER_SOURCE_COLOR_LOCATION,
                 SHADER_TARGET_COLOR_LOCATION,
-                SHADER_COLOR_LOCATION
+                SHADER_COLOR_LOCATION,
+                SHADER_SOURCE_SIZE_LOCATION,
+                SHADER_TARGET_SIZE_LOCATION
             };
         }
 
@@ -846,7 +864,9 @@ public class AbstractEdgeData {
                     SHADER_SIZE_LOCATION,
                     SHADER_SOURCE_COLOR_LOCATION,
                     SHADER_TARGET_COLOR_LOCATION,
-                    SHADER_COLOR_LOCATION
+                    SHADER_COLOR_LOCATION,
+                    SHADER_SOURCE_SIZE_LOCATION,
+                    SHADER_TARGET_SIZE_LOCATION
                 };
             } else {
                 return null;
@@ -891,6 +911,9 @@ public class AbstractEdgeData {
                 gl.glVertexAttribPointer(SHADER_COLOR_LOCATION, EdgeLineModelDirected.COLOR_FLOATS * Float.BYTES, GL_UNSIGNED_BYTE, false, stride, offset);
                 offset += EdgeLineModelDirected.COLOR_FLOATS * Float.BYTES;
 
+                gl.glVertexAttribPointer(SHADER_SOURCE_SIZE_LOCATION, EdgeLineModelDirected.SOURCE_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
+                offset += EdgeLineModelDirected.SOURCE_SIZE_FLOATS * Float.BYTES;
+
                 gl.glVertexAttribPointer(SHADER_TARGET_SIZE_LOCATION, EdgeLineModelDirected.TARGET_SIZE_FLOATS, GL_FLOAT, false, stride, offset);
             }
             attributesBuffer.unbind(gl);
@@ -905,6 +928,7 @@ public class AbstractEdgeData {
                 SHADER_SIZE_LOCATION,
                 SHADER_SOURCE_COLOR_LOCATION,
                 SHADER_COLOR_LOCATION,
+                SHADER_SOURCE_SIZE_LOCATION,
                 SHADER_TARGET_SIZE_LOCATION
             };
         }
@@ -918,6 +942,7 @@ public class AbstractEdgeData {
                     SHADER_SIZE_LOCATION,
                     SHADER_SOURCE_COLOR_LOCATION,
                     SHADER_COLOR_LOCATION,
+                    SHADER_SOURCE_SIZE_LOCATION,
                     SHADER_TARGET_SIZE_LOCATION
                 };
             } else {

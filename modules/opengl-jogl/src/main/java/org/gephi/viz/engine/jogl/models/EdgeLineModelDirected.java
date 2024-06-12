@@ -20,6 +20,7 @@ public class EdgeLineModelDirected {
     public static final int POSITION_TARGET_FLOATS = 2;
     public static final int SOURCE_COLOR_FLOATS = 1;
     public static final int COLOR_FLOATS = 1;
+    public static final int SOURCE_SIZE_FLOATS = 1;
     public static final int TARGET_SIZE_FLOATS = 1;
     public static final int SIZE_FLOATS = 1;
 
@@ -28,6 +29,7 @@ public class EdgeLineModelDirected {
         + POSITION_TARGET_FLOATS
         + SOURCE_COLOR_FLOATS
         + COLOR_FLOATS
+        + SOURCE_SIZE_FLOATS
         + TARGET_SIZE_FLOATS
         + SIZE_FLOATS;
 
@@ -67,6 +69,7 @@ public class EdgeLineModelDirected {
             .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
             .addAttribLocation(ATTRIB_NAME_SOURCE_COLOR, SHADER_SOURCE_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SOURCE_SIZE, SHADER_SOURCE_SIZE_LOCATION)
             .addAttribLocation(ATTRIB_NAME_TARGET_SIZE, SHADER_TARGET_SIZE_LOCATION)
             .init(gl);
 
@@ -84,6 +87,7 @@ public class EdgeLineModelDirected {
             .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
             .addAttribLocation(ATTRIB_NAME_SOURCE_COLOR, SHADER_SOURCE_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SOURCE_SIZE, SHADER_SOURCE_SIZE_LOCATION)
             .addAttribLocation(ATTRIB_NAME_TARGET_SIZE, SHADER_TARGET_SIZE_LOCATION)
             .init(gl);
 
@@ -101,6 +105,7 @@ public class EdgeLineModelDirected {
             .addAttribLocation(ATTRIB_NAME_SIZE, SHADER_SIZE_LOCATION)
             .addAttribLocation(ATTRIB_NAME_SOURCE_COLOR, SHADER_SOURCE_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SOURCE_SIZE, SHADER_SOURCE_SIZE_LOCATION)
             .addAttribLocation(ATTRIB_NAME_TARGET_SIZE, SHADER_TARGET_SIZE_LOCATION)
             .init(gl);
     }

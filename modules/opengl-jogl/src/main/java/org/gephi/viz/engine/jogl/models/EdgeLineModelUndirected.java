@@ -22,6 +22,8 @@ public class EdgeLineModelUndirected {
     public static final int TARGET_COLOR_FLOATS = SOURCE_COLOR_FLOATS;
     public static final int COLOR_FLOATS = 1;
     public static final int SIZE_FLOATS = 1;
+    public static final int SOURCE_SIZE_FLOATS = 1;
+    public static final int TARGET_SIZE_FLOATS = 1;
 
     public static final int TOTAL_ATTRIBUTES_FLOATS
         = POSITION_SOURCE_FLOATS
@@ -29,7 +31,9 @@ public class EdgeLineModelUndirected {
         + SOURCE_COLOR_FLOATS
         + TARGET_COLOR_FLOATS
         + COLOR_FLOATS
-        + SIZE_FLOATS;
+        + SIZE_FLOATS
+        + SOURCE_SIZE_FLOATS
+        + TARGET_SIZE_FLOATS;
 
     private static final int VERTEX_PER_TRIANGLE = 3;
 
@@ -69,6 +73,8 @@ public class EdgeLineModelUndirected {
             .addAttribLocation(ATTRIB_NAME_SOURCE_COLOR, SHADER_SOURCE_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_TARGET_COLOR, SHADER_TARGET_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SOURCE_SIZE, SHADER_SOURCE_SIZE_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_TARGET_SIZE, SHADER_TARGET_SIZE_LOCATION)
             .init(gl);
 
         programWithSelectionSelected = new GLShaderProgram(SHADERS_ROOT, SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION_SELECTED, SHADERS_EDGE_LINE_SOURCE)
@@ -86,6 +92,8 @@ public class EdgeLineModelUndirected {
             .addAttribLocation(ATTRIB_NAME_SOURCE_COLOR, SHADER_SOURCE_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_TARGET_COLOR, SHADER_TARGET_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SOURCE_SIZE, SHADER_SOURCE_SIZE_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_TARGET_SIZE, SHADER_TARGET_SIZE_LOCATION)
             .init(gl);
 
         programWithSelectionUnselected = new GLShaderProgram(SHADERS_ROOT, SHADERS_EDGE_LINE_SOURCE_WITH_SELECTION_UNSELECTED, SHADERS_EDGE_LINE_SOURCE)
@@ -103,6 +111,8 @@ public class EdgeLineModelUndirected {
             .addAttribLocation(ATTRIB_NAME_SOURCE_COLOR, SHADER_SOURCE_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_TARGET_COLOR, SHADER_TARGET_COLOR_LOCATION)
             .addAttribLocation(ATTRIB_NAME_COLOR, SHADER_COLOR_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_SOURCE_SIZE, SHADER_SOURCE_SIZE_LOCATION)
+            .addAttribLocation(ATTRIB_NAME_TARGET_SIZE, SHADER_TARGET_SIZE_LOCATION)
             .init(gl);
     }
 
