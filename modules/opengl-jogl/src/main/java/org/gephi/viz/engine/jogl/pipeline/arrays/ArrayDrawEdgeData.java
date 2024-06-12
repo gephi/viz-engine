@@ -7,7 +7,7 @@ import static org.gephi.viz.engine.pipeline.RenderingLayer.BACK1;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.util.GLBuffers;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
+
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.viz.engine.VizEngine;
@@ -17,11 +17,9 @@ import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.jogl.pipeline.common.AbstractEdgeData;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
-import org.gephi.viz.engine.structure.GraphIndex;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
 import org.gephi.viz.engine.util.ArrayUtils;
 import org.gephi.viz.engine.jogl.util.ManagedDirectBuffer;
-import org.gephi.viz.engine.jogl.util.gl.BufferUtils;
 import org.gephi.viz.engine.jogl.util.gl.GLBufferMutable;
 
 /**
@@ -172,8 +170,6 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
             vertexGLBufferUndirected.bind(gl);
             vertexGLBufferUndirected.init(gl, undirectedVertexData, GLBufferMutable.GL_BUFFER_USAGE_STATIC_DRAW);
             vertexGLBufferUndirected.unbind(gl);
-
-            //BufferUtils.destroyDirectBuffer(undirectedVertexData);
         }
 
         {
@@ -188,8 +184,6 @@ public class ArrayDrawEdgeData extends AbstractEdgeData {
             vertexGLBufferDirected.bind(gl);
             vertexGLBufferDirected.init(gl, directedVertexData, GLBufferMutable.GL_BUFFER_USAGE_STATIC_DRAW);
             vertexGLBufferDirected.unbind(gl);
-
-            //BufferUtils.destroyDirectBuffer(directedVertexData);
         }
 
         //Initialize for batch edges size:

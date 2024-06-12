@@ -4,7 +4,7 @@ import com.jogamp.opengl.util.GLBuffers;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import org.gephi.viz.engine.jogl.util.gl.BufferUtils;
+
 import static org.gephi.viz.engine.util.ArrayUtils.getNextPowerOf2;
 
 /**
@@ -44,7 +44,6 @@ public class ManagedDirectBuffer {
 
             buffer.clear();
             GLBuffers.put(newBuffer, buffer);
-            //BufferUtils.destroyDirectBuffer(buffer);
 
             this.buffer = newBuffer;
             this.elementsCapacity = newElementsCapacity;
@@ -56,6 +55,6 @@ public class ManagedDirectBuffer {
     }
 
     public void destroy() {
-        //BufferUtils.destroyDirectBuffer(buffer);
+        //NOOP
     }
 }

@@ -1,25 +1,17 @@
 package org.gephi.viz.engine.jogl.pipeline.indirect;
 
 import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_FLOAT;
-import static com.jogamp.opengl.GL.GL_UNSIGNED_INT;
 import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.util.GLBuffers;
+
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import org.gephi.graph.api.Node;
+
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.jogl.models.NodeDiskModel;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.jogl.pipeline.common.AbstractNodeData;
-import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.jogl.util.ManagedDirectBuffer;
-import org.gephi.viz.engine.jogl.util.gl.BufferUtils;
-import org.gephi.viz.engine.jogl.util.gl.GLBuffer;
-import org.gephi.viz.engine.jogl.util.gl.GLBufferImmutable;
 import org.gephi.viz.engine.jogl.util.gl.GLBufferMutable;
 import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_BYTES;
 import static org.gephi.viz.engine.util.gl.GLConstants.INDIRECT_DRAW_COMMAND_INTS_COUNT;

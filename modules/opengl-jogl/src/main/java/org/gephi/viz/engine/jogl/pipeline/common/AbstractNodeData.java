@@ -13,7 +13,6 @@ import org.gephi.viz.engine.VizEngine;
 import org.gephi.viz.engine.jogl.models.NodeDiskModel;
 import org.gephi.viz.engine.jogl.models.NodeDiskVertexDataGenerator;
 import org.gephi.viz.engine.jogl.util.ManagedDirectBuffer;
-import org.gephi.viz.engine.jogl.util.gl.BufferUtils;
 import org.gephi.viz.engine.jogl.util.gl.GLBufferMutable;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.pipeline.common.InstanceCounter;
@@ -152,8 +151,6 @@ public abstract class AbstractNodeData {
         vertexGLBuffer.bind(gl);
         vertexGLBuffer.init(gl, circleVertexBuffer, GL_BUFFER_USAGE_STATIC_DRAW);
         vertexGLBuffer.unbind(gl);
-
-        //BufferUtils.destroyDirectBuffer(circleVertexBuffer);
     }
 
     protected int setupShaderProgramForRenderingLayer(final GL2ES2 gl,

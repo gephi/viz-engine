@@ -1,29 +1,16 @@
 package org.gephi.viz.engine.jogl.pipeline.instanced;
 
 import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_FLOAT;
 import com.jogamp.opengl.GL2ES3;
-import com.jogamp.opengl.GL3ES3;
-import com.jogamp.opengl.util.GLBuffers;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
-import org.gephi.graph.api.Edge;
-import org.gephi.graph.api.Graph;
-import org.gephi.graph.api.Node;
+import java.nio.FloatBuffer;
+
 import org.gephi.viz.engine.VizEngine;
-import org.gephi.viz.engine.jogl.models.EdgeLineModelDirected;
-import org.gephi.viz.engine.jogl.models.EdgeLineModelUndirected;
-import org.gephi.viz.engine.jogl.models.NodeDiskModel;
-import org.gephi.viz.engine.jogl.pipeline.common.AbstractEdgeData;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.jogl.pipeline.common.AbstractNodeData;
-import org.gephi.viz.engine.pipeline.common.InstanceCounter;
 import org.gephi.viz.engine.status.GraphRenderingOptions;
 import org.gephi.viz.engine.status.GraphSelection;
 import org.gephi.viz.engine.structure.GraphIndexImpl;
-import org.gephi.viz.engine.jogl.util.ManagedDirectBuffer;
-import org.gephi.viz.engine.jogl.util.gl.BufferUtils;
 import org.gephi.viz.engine.jogl.util.gl.GLBufferMutable;
 
 /**
