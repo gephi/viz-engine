@@ -14,7 +14,7 @@ public interface GraphSelection {
 
      enum GraphSelectionMode {
         SIMPLE_MOUSE_SELECTION,
-        RECTANGLE_SELECTION, NO_SELECTION
+        RECTANGLE_SELECTION, NO_SELECTION, CUSTOM_SELECTION
     }
 
     boolean someNodesOrEdgesSelection();
