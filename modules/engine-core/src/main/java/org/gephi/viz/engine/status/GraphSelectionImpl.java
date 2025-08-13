@@ -94,6 +94,7 @@ public class GraphSelectionImpl implements GraphSelection {
     @Override
     public void clearSelectedNodes() {
         this.nodes.clear();
+        this.nodesWithNeighbours.clear();
     }
 
     @Override
@@ -177,6 +178,7 @@ public class GraphSelectionImpl implements GraphSelection {
     public void setMode(GraphSelectionMode mode) {
         if (mode != null) {
             selectionMode = mode;
+            clearSelection();
         }
     }
 
