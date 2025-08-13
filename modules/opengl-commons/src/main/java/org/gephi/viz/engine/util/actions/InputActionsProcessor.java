@@ -123,10 +123,6 @@ public class InputActionsProcessor {
     }
 
     public void processCenterOnGraphEvent() {
-        final GraphIndex index = engine.getLookup().lookup(GraphIndex.class);
-        final Rect2D visibleGraphBoundaries = index.getGraphBoundaries();
-
-        final float[] center = visibleGraphBoundaries.center();
-        engine.centerOn(new Vector2f(center[0], center[1]), visibleGraphBoundaries.width(), visibleGraphBoundaries.height());
+        engine.centerOnGraph();
     }
 }
