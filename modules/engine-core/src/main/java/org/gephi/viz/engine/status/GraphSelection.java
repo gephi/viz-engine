@@ -12,9 +12,12 @@ import java.util.Set;
  */
 public interface GraphSelection {
 
-     enum GraphSelectionMode {
+    enum GraphSelectionMode {
         SIMPLE_MOUSE_SELECTION,
-        RECTANGLE_SELECTION, NO_SELECTION, CUSTOM_SELECTION
+        SINGLE_NODE_SELECTION,
+        RECTANGLE_SELECTION,
+        NO_SELECTION,
+        CUSTOM_SELECTION
     }
 
     boolean someNodesOrEdgesSelection();

@@ -49,6 +49,7 @@ public class InputActionsProcessor {
 
     public void selectNodes(final NodeIterable nodesIterable) {
         final GraphSelection selection = engine.getLookup().lookup(GraphSelection.class);
+        GraphSelection.GraphSelectionMode mode = selection.getMode();
         final GraphRenderingOptions renderingOptions = engine.getLookup().lookup(GraphRenderingOptions.class);
         final Graph graph = engine.getGraphModel().getGraphVisible();
 
@@ -57,7 +58,7 @@ public class InputActionsProcessor {
         final Set<Node> selectionNeighbours = new HashSet<>();
         final Set<Edge> selectionEdges = new HashSet<>();
 
-        final boolean selectNeighbours = renderingOptions.isAutoSelectNeighbours();
+        final boolean selectNeighbours = renderingOptions.isAutoSelectNeighbours() && mode != GraphSelection.GraphSelectionMode.SINGLE_NODE_SELECTION;
         try {
             while (iterator.hasNext()) {
                 final Node node = iterator.next();
