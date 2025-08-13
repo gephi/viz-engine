@@ -13,6 +13,7 @@ import org.joml.Vector2f;
 public class GraphSelectionImpl implements GraphSelection {
 
     private final Set<Node> nodes = new HashSet<>();
+    private final Set<Node> nodesWithNeighbours = new HashSet<>();
     private final Set<Edge> edges = new HashSet<>();
     private GraphSelection.GraphSelectionMode selectionMode;
 
@@ -27,12 +28,7 @@ public class GraphSelectionImpl implements GraphSelection {
 
     @Override
     public boolean isNodeSelected(Node node) {
-        return nodes.contains(node);
-    }
-
-    @Override
-    public int getSelectedNodesCount() {
-        return nodes.size();
+        return nodesWithNeighbours.contains(node);
     }
 
     @Override
@@ -41,48 +37,57 @@ public class GraphSelectionImpl implements GraphSelection {
     }
 
     @Override
-    public void setSelectedNodes(Collection<Node> nodes) {
+    public Set<Node> getSelectedNodesWithNeighbours() {
+        return Collections.unmodifiableSet(nodesWithNeighbours);
+    }
+
+    @Override
+    public void setSelectedNodes(Collection<Node> nodes, Collection<Node> neighbours) {
         this.nodes.clear();
+        this.nodesWithNeighbours.clear();
         if (nodes != null) {
             this.nodes.addAll(nodes);
+            this.nodesWithNeighbours.addAll(nodes);
+            if (neighbours != null) {
+                this.nodesWithNeighbours.addAll(neighbours);
+            }
         }
     }
 
     @Override
-    public void addSelectedNodes(Collection<Node> nodes) {
+    public void addSelectedNodes(Collection<Node> nodes, Collection<Node> neighbours) {
         if (nodes != null) {
             this.nodes.addAll(nodes);
+            this.nodesWithNeighbours.addAll(nodes);
+            if (neighbours != null) {
+                this.nodesWithNeighbours.addAll(neighbours);
+            }
         }
     }
 
     @Override
-    public void removeSelectedNodes(Collection<Node> nodes) {
-        if (nodes != null) {
-            this.nodes.removeAll(nodes);
-        }
-    }
-
-    @Override
-    public void setSelectedNode(Node node) {
+    public void setSelectedNode(Node node, Collection<Node> neighbours) {
         if (node == null) {
             this.clearSelectedNodes();
         } else {
             this.nodes.clear();
             this.nodes.add(node);
+            this.nodesWithNeighbours.clear();
+            this.nodesWithNeighbours.add(node);
+            if (neighbours != null) {
+                this.nodesWithNeighbours.addAll(neighbours);
+            }
         }
     }
 
     @Override
-    public void addSelectedNode(Node node) {
+    public void addSelectedNode(Node node, Collection<Node> neighbours) {
         if (node != null) {
             this.nodes.add(node);
-        }
-    }
-
-    @Override
-    public void removeSelectedNode(Node node) {
-        if (node != null) {
-            this.nodes.remove(node);
+            this.nodesWithNeighbours.add(node);
+            if (neighbours != null) {
+                this.nodesWithNeighbours.addAll(neighbours);
+            }
         }
     }
 

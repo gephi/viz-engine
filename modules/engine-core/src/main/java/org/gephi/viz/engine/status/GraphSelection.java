@@ -21,21 +21,17 @@ public interface GraphSelection {
 
     boolean isNodeSelected(Node node);
 
-    int getSelectedNodesCount();
-
     Set<Node> getSelectedNodes();
 
-    void setSelectedNodes(Collection<Node> nodes);
+    Set<Node> getSelectedNodesWithNeighbours();
 
-    void addSelectedNodes(Collection<Node> nodes);
+    void setSelectedNodes(Collection<Node> nodes, Collection<Node> neighbours);
 
-    void removeSelectedNodes(Collection<Node> nodes);
+    void addSelectedNodes(Collection<Node> nodes, Collection<Node> neighbours);
 
-    void setSelectedNode(Node node);
+    void setSelectedNode(Node node, Collection<Node> neighbours);
 
-    void addSelectedNode(Node node);
-
-    void removeSelectedNode(Node node);
+    void addSelectedNode(Node node, Collection<Node> neighbours);
 
     void clearSelectedNodes();
 

@@ -1,5 +1,6 @@
 package org.gephi.viz.engine.util.actions;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -53,6 +54,7 @@ public class InputActionsProcessor {
 
         final Iterator<Node> iterator = nodesIterable.iterator();
         final Set<Node> selectionNodes = new HashSet<>();
+        final Set<Node> selectionNeighbours = new HashSet<>();
         final Set<Edge> selectionEdges = new HashSet<>();
 
         final boolean selectNeighbours = renderingOptions.isAutoSelectNeighbours();
@@ -61,13 +63,19 @@ public class InputActionsProcessor {
                 final Node node = iterator.next();
 
                 selectionNodes.add(node);
-                selectionEdges.addAll(graph.getEdges(node).toCollection());
+                Collection<Edge> edges = graph.getEdges(node).toCollection();
+                selectionEdges.addAll(edges);
                 if (selectNeighbours) {
-                    selectionNodes.addAll(graph.getNeighbors(node).toCollection());
+                    for (Edge edge : edges) {
+                        Node oppositeNode = graph.getOpposite(node, edge);
+                        if (oppositeNode != null && oppositeNode != node) {
+                            selectionNeighbours.add(oppositeNode);
+                        }
+                    }
                 }
             }
 
-            selection.setSelectedNodes(selectionNodes);
+            selection.setSelectedNodes(selectionNodes, selectionNeighbours);
             selection.setSelectedEdges(selectionEdges);
         } finally {
             if (iterator.hasNext()) {
