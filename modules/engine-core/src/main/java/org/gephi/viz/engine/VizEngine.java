@@ -4,6 +4,7 @@ import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Rect2D;
 import org.gephi.viz.engine.pipeline.RenderingLayer;
 import org.gephi.viz.engine.spi.*;
+import org.gephi.viz.engine.structure.GraphIndex;
 import org.gephi.viz.engine.util.TimeUtils;
 import org.joml.*;
 import org.openide.util.Lookup;
@@ -275,6 +276,14 @@ public class VizEngine<R extends RenderingTarget, I> {
 
     public float aspectRatio() {
         return (float) this.width / this.height;
+    }
+
+    public void centerOnGraph() {
+        GraphIndex index = getLookup().lookup(GraphIndex.class);
+        final Rect2D visibleGraphBoundaries = index.getGraphBoundaries();
+
+        final float[] center = visibleGraphBoundaries.center();
+        centerOn(new Vector2f(center[0], center[1]), visibleGraphBoundaries.width(), visibleGraphBoundaries.height());
     }
 
     public void centerOn(Vector2fc center, float width, float height) {
