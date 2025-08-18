@@ -32,6 +32,7 @@
         <module>modules/opengl-commons</module>
         <module>modules/opengl-jogl</module>
         <module>modules/demo-jogl</module>
+        <module>modules/demo-gephi</module>
     </modules>
 
     <dependencyManagement>
@@ -145,6 +146,12 @@
             <dependency>
                 <groupId>org.gephi</groupId>
                 <artifactId>io-importer-plugin</artifactId>
+                <version>${gephi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gephi</groupId>
+                <artifactId>io-importer-api</artifactId>
+                <type>test-jar</type>
                 <version>${gephi.version}</version>
             </dependency>
             <dependency>
